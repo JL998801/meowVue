@@ -22,7 +22,7 @@ src/
 
 ├── router/                路由配置檔案
 
-│   └── index.js           集中管理所有路由
+│   └── routers.js           集中管理所有路由
 
 ├── store/                 Pinia 狀態管理模組
 
