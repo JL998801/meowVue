@@ -2,6 +2,16 @@
 
 This template should help get you started developing with Vue 3 in Vite.
 
+# Logo來源
+https://zh.pngtree.com/freepng/dog-cat-pet-shovel-officer_3934436.html
+
+![image](https://github.com/user-attachments/assets/6d951407-7004-4d97-9814-f6a3fc1f33fa)
+
+![螢幕擷取畫面 2025-01-17 162848](https://github.com/user-attachments/assets/728fadca-4016-40dd-8e07-40cc90cabd78)
+
+![petLogo](https://github.com/user-attachments/assets/b1726e3f-2039-4f9a-bd1c-3a64b48b8d3c)
+
+
 ## Recommended IDE Setup
 
 [VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
