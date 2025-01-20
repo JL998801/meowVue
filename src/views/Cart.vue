@@ -1,36 +1,36 @@
 <template>
-  <div data-v-inspector="src/views/Cart.vue:2:3">
-    <h2 data-v-inspector="src/views/Cart.vue:3:5">我的購物車</h2>
-    <div v-if="cart.length === 0" data-v-inspector="src/views/Cart.vue:4:5">
-      <p data-v-inspector="src/views/Cart.vue:5:7">購物車是空的！</p>
+  <div>
+    <h2>我的購物車</h2>
+    <div v-if="cart.length === 0">
+      <p>購物車是空的！</p>
     </div>
-    <div v-else data-v-inspector="src/views/Cart.vue:7:5">
-      <div v-for="item in cart" :key="item.cartId" data-v-inspector="src/views/Cart.vue:8:7">
+    <div v-else>
+      <div v-for="item in cart" :key="item.cartId">
         <input 
           type="checkbox" 
-          v-model="item.selected" data-v-inspector="src/views/Cart.vue:9:9" 
+          v-model="item.selected"
         />
-        <p data-v-inspector="src/views/Cart.vue:13:9">
+        <p>
           {{ item.productName }} - 單價: {{ item.salePrice }}元 × 
           <input
             type="number"
             v-model.number="item.quantity"
             min="1"
-            @change="updateQuantity(item.cartId, item.quantity)" data-v-inspector="src/views/Cart.vue:15:11"
+            @change="updateQuantity(item.cartId, item.quantity)"
           />
         </p>
-        <button @click="removeItem(item.cartId)" data-v-inspector="src/views/Cart.vue:22:9">刪除此商品</button>
+        <button @click="removeItem(item.cartId)">刪除此商品</button>
       </div>
-      <div data-v-inspector="src/views/Cart.vue:24:7">
-        <p data-v-inspector="src/views/Cart.vue:25:9">總金額: {{ totalPrice }}元</p>
-        <button @click="clearCart" data-v-inspector="src/views/Cart.vue:26:9">一鍵清空購物車</button>
+      <div>
+        <p>總金額: {{ totalPrice }}元</p>
+        <button @click="clearCart">一鍵清空購物車</button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed, watch } from 'vue';
+import { computed, watch, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import axios from 'axios';
 
@@ -81,6 +81,23 @@ const updateCartOnServer = async () => {
 watch(cart, async () => {
   await updateCartOnServer();
 }, { deep: true });
+
+// 在組件加載時，獲取購物車資料
+onMounted(() => {
+  store.dispatch('syncCartWithServer');
+  fetchCartData();
+});
+
+// 根據 memberId 查詢購物車資料
+const fetchCartData = async () => {
+  try {
+    const memberId = 1; // 假設是會員ID 1，你可以根据当前登录用户动态获取
+    const response = await axios.get(`http://localhost:8080/pages/cart/list/${memberId}`);
+    store.commit('setCart', response.data); // 使用 commit 而不是 dispatch
+  } catch (error) {
+    console.error('Error fetching cart data:', error);
+  }
+};
 </script>
 
 <style scoped>
