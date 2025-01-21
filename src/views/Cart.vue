@@ -11,12 +11,12 @@
           v-model="item.selected"
         />
         <p>
-          {{ item.productName }} - 單價: {{ item.salePrice }}元 × 
+          {{ item.product.productName }} - 單價: {{ item.product.salePrice }}元 × 
           <input
             type="number"
             v-model.number="item.quantity"
             min="1"
-            @change="updateQuantity(item.cartId, item.quantity)"
+            @change="updateQuantity(item)"
           />
         </p>
         <button @click="removeItem(item.cartId)">刪除此商品</button>
@@ -30,74 +30,61 @@
 </template>
 
 <script setup>
-import { computed, watch, onMounted } from 'vue';
+import { computed, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import axios from 'axios';
 
 const store = useStore();
 const cart = computed(() => store.state.cart);
 
-// 計算總金額，只計算選中的商品
+// 计算总金额（仅计算选中的商品）
 const totalPrice = computed(() => {
-  return cart.value.filter(item => item.selected).reduce((total, item) => total + item.salePrice * item.quantity, 0);
+  return cart.value.filter(item => item.selected)
+    .reduce((total, item) => total + item.product.salePrice * item.quantity, 0);
 });
 
-// 刪除購物車中的商品
-const removeItem = async (id) => {
-  store.dispatch('removeFromCart', id);
-  await updateCartOnServer();
-};
-
-// 清空購物車
-const clearCart = async () => {
-  if (window.confirm("確定要清空購物車嗎？")) {
-    store.dispatch('clearCart');
-    await updateCartOnServer();
-  }
-};
-
-// 更新商品數量
-const updateQuantity = async (id, quantity) => {
-  store.dispatch('updateQuantity', { id, quantity });
-  await updateCartOnServer();
-};
-
-// 同步購物車資料到後端
-const updateCartOnServer = async () => {
+// 更新商品数量
+const updateQuantity = async (item) => {
   try {
-    const cartData = cart.value.map(item => ({
+    // 更新购物车中的商品数量
+    await axios.put(`http://localhost:8080/pages/cart/update`, {
       cartId: item.cartId,
-      productId: item.productId,
-      quantity: item.quantity,
-      selected: item.selected // 發送選中狀態
-    }));
-    await axios.put('http://localhost:8080/pages/cart/update', cartData); // 修改為正確的 API 路徑
+      quantity: item.quantity
+    });
+    store.dispatch('updateQuantity', { cartId: item.cartId, quantity: item.quantity });
   } catch (error) {
-    console.error('Error updating cart on server:', error);
+    console.error('更新購物車數量失敗:', error);
   }
 };
 
-// 監控購物車狀態變化，並將變化同步到後端
-watch(cart, async () => {
-  await updateCartOnServer();
-}, { deep: true });
+// 删除购物车商品
+const removeItem = async (cartId) => {
+  if (confirm('確定要刪除此商品嗎？')) {
+    try {
+      await axios.delete(`http://localhost:8080/pages/cart/delete/${cartId}`);
+      store.dispatch('removeFromCart', cartId);
+    } catch (error) {
+      console.error('刪除商品失敗:', error);
+    }
+  }
+};
 
-// 在組件加載時，獲取購物車資料
+// 清空购物车
+const clearCart = async () => {
+  if (confirm('確定要清空購物車嗎？')) {
+    try {
+      await axios.delete('http://localhost:8080/pages/cart/clear');
+      store.dispatch('clearCart');
+    } catch (error) {
+      console.error('清空購物車失敗:', error);
+    }
+  }
+};
+
+// 组件挂载时获取购物车数据
 onMounted(() => {
-  store.dispatch('syncCartWithServer');
-  fetchCartData();
+  store.dispatch('fetchCartDataFromServer');
 });
-
-// 根據 memberId 查詢購物車資料
-const fetchCartData = async () => {
-  try {
-    const memberId = 1; // 假設是會員ID 1，你可以根据当前登录用户动态获取
-    const response = await axios.get(`http://localhost:8080/pages/cart/list/${memberId}`);
-    store.commit('setCart', response.data); // 使用 commit 而不是 dispatch
-  } catch (error) {
-    console.error('Error fetching cart data:', error);
-  }
-};
 </script>
 
 <style scoped>

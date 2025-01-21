@@ -71,12 +71,12 @@ const addToCart = async (product, index) => {
 
   try {
     const memberId = getMemberId(); // 获取会员ID
-    const productId = index + 1; // 根据索引固定商品ID (假设第一项是ID 1)
+    const productId = product.id;  // 使用商品的实际ID
 
     // 发送请求到后端，将商品加入购物车
     await axios.post('http://localhost:8080/pages/cart/add', {
-      memberId,
-      productId,  // 使用位置索引来确定商品ID
+      memberId,    // 传递会员ID
+      productId,   // 商品ID
       quantity,    // 商品数量
     });
 

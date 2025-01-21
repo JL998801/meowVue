@@ -6,6 +6,7 @@ export const store = createStore({
     const cartData = localStorage.getItem('cart');
     return {
       cart: cartData && cartData !== 'undefined' ? JSON.parse(cartData) : [],
+      memberId: 1, // 假设您会从用户信息中动态获取会员ID
     };
   },
   mutations: {
@@ -18,12 +19,12 @@ export const store = createStore({
       }
       localStorage.setItem('cart', JSON.stringify(state.cart));
     },
-    removeFromCart(state, id) {
-      state.cart = state.cart.filter(item => item.cartId !== id);
+    removeFromCart(state, cartId) {
+      state.cart = state.cart.filter(item => item.cartId !== cartId);
       localStorage.setItem('cart', JSON.stringify(state.cart));
     },
-    updateQuantity(state, { id, quantity }) {
-      const item = state.cart.find(item => item.cartId === id);
+    updateQuantity(state, { cartId, quantity }) {
+      const item = state.cart.find(item => item.cartId === cartId);
       if (item) item.quantity = quantity;
       localStorage.setItem('cart', JSON.stringify(state.cart));
     },
@@ -39,15 +40,19 @@ export const store = createStore({
   actions: {
     addToCart({ commit }, product) {
       commit('addToCart', product);
+      this.dispatch('syncCartWithServer'); // 添加商品后同步购物车数据
     },
-    removeFromCart({ commit }, id) {
-      commit('removeFromCart', id);
+    removeFromCart({ commit }, cartId) {
+      commit('removeFromCart', cartId);
+      this.dispatch('syncCartWithServer'); // 删除商品后同步购物车数据
     },
-    updateQuantity({ commit }, payload) {
-      commit('updateQuantity', payload);
+    updateQuantity({ commit }, { cartId, quantity }) {
+      commit('updateQuantity', { cartId, quantity });
+      this.dispatch('syncCartWithServer'); // 更新商品数量后同步购物车数据
     },
     clearCart({ commit }) {
       commit('clearCart');
+      this.dispatch('syncCartWithServer'); // 清空购物车后同步购物车数据
     },
     async syncCartWithServer({ state }) {
       try {
@@ -64,14 +69,25 @@ export const store = createStore({
         console.error('Failed to sync cart with server:', error);
       }
     },
-    async fetchCartDataFromServer({ commit }) {
+    async fetchCartDataFromServer({ commit, state }) {
       try {
-        const memberId = 1;
+        const memberId = state.memberId; // 从 state 获取会员ID
         const response = await axios.get(`http://localhost:8080/pages/cart/list/${memberId}`);
-        commit('setCart', response.data); // 使用 commit 而不是 dispatch
+        if (response.data) {
+          commit('setCart', response.data);
+        }
       } catch (error) {
         console.error('Failed to fetch cart data from server:', error);
       }
+    },
+  },
+  getters: {
+    // 你可以使用 getters 来方便获取购物车中的已选择商品
+    selectedCartItems(state) {
+      return state.cart.filter(item => item.selected);
+    },
+    totalCartPrice(state) {
+      return state.cart.reduce((total, item) => total + item.product.salePrice * item.quantity, 0);
     },
   },
 });
