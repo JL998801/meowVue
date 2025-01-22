@@ -1,7 +1,7 @@
 <template>
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
         <div class="container-fluid">
-            <RouterLink class="navbar-brand" aria-current="page" to="/">Logo</RouterLink>
+            <RouterLink class="navbar-brand" aria-current="page" to="/"><img src="../assets/logo.png" alt="logo" style="width: 5%;"></RouterLink>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -11,7 +11,7 @@
                         <span class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">通報案件</span>
                         <ul class="dropdown-menu">
                             <li>
-                                <RouterLink class="dropdown-item" to="/pages/pet/rescueCase">流浪救援</RouterLink>
+                                <RouterLink class="dropdown-item" to="/pet/rescue">流浪救援</RouterLink>
                             </li>
                             <li>
                                 <RouterLink class="dropdown-item" to="/pages/products">動物認養</RouterLink>

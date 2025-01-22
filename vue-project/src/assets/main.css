@@ -33,3 +33,15 @@ a,
     padding: 0 2rem;
   }
 }
+
+
+  .router-container {
+    width: 80%; /* 可以根據需要設置百分比或固定值 */
+    max-width: 1200px; /* 最大寬度 */
+    margin: 0 auto; /* 居中 */
+    padding: 20px; /* 可選：內邊距 */
+    background-color: #f8f9fa; /* 可選：背景顏色 */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 可選：陰影效果 */
+  }
+
+
