@@ -1,86 +1,117 @@
 <template>
-  <div data-v-inspector="src/views/Cart.vue:2:3">
-    <h2 data-v-inspector="src/views/Cart.vue:3:5">我的購物車</h2>
-    <div v-if="cart.length === 0" data-v-inspector="src/views/Cart.vue:4:5">
-      <p data-v-inspector="src/views/Cart.vue:5:7">購物車是空的！</p>
+  <div>
+    <h2>我的購物車</h2>
+    <div v-if="cart.length === 0">
+      <p>購物車是空的！</p>
     </div>
-    <div v-else data-v-inspector="src/views/Cart.vue:7:5">
-      <div v-for="item in cart" :key="item.cartId" data-v-inspector="src/views/Cart.vue:8:7">
+    <div v-else>
+      <div v-for="item in cart" :key="item.cartId">
         <input 
           type="checkbox" 
-          v-model="item.selected" data-v-inspector="src/views/Cart.vue:9:9" 
+          v-model="item.selected"
+          @change="updateSelection(item)" 
         />
-        <p data-v-inspector="src/views/Cart.vue:13:9">
-          {{ item.productName }} - 單價: {{ item.salePrice }}元 × 
+        <p>
+          {{ item.product?.productName || '商品名稱加載中...' }} - 單價: 
+          {{ item.product?.salePrice || 0 }}元 × 
           <input
             type="number"
             v-model.number="item.quantity"
             min="1"
-            @change="updateQuantity(item.cartId, item.quantity)" data-v-inspector="src/views/Cart.vue:15:11"
+            @change="updateQuantity(item)"
           />
         </p>
-        <button @click="removeItem(item.cartId)" data-v-inspector="src/views/Cart.vue:22:9">刪除此商品</button>
+        <button @click="removeItem(item.cartId)">刪除此商品</button>
       </div>
-      <div data-v-inspector="src/views/Cart.vue:24:7">
-        <p data-v-inspector="src/views/Cart.vue:25:9">總金額: {{ totalPrice }}元</p>
-        <button @click="clearCart" data-v-inspector="src/views/Cart.vue:26:9">一鍵清空購物車</button>
+      <div>
+        <p>總金額: {{ totalPrice }}元</p>
+        <button @click="clearCart">一鍵清空購物車</button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed, watch } from 'vue';
+import { computed, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import axios from 'axios';
 
 const store = useStore();
-const cart = computed(() => store.state.cart);
+const cart = computed(() => store.state.cart || []);  // 防止cart为undefined
 
-// 計算總金額，只計算選中的商品
+// 计算总金额（仅计算选中的商品）
 const totalPrice = computed(() => {
-  return cart.value.filter(item => item.selected).reduce((total, item) => total + item.salePrice * item.quantity, 0);
+  if (!cart.value.length) return 0;
+  return cart.value
+    .filter(item => item.selected)
+    .reduce((total, item) => total + (item.product?.salePrice || 0) * item.quantity, 0);
 });
 
-// 刪除購物車中的商品
-const removeItem = async (id) => {
-  store.dispatch('removeFromCart', id);
-  await updateCartOnServer();
-};
-
-// 清空購物車
-const clearCart = async () => {
-  if (window.confirm("確定要清空購物車嗎？")) {
-    store.dispatch('clearCart');
-    await updateCartOnServer();
+// 更新商品数量
+const updateQuantity = async (item) => {
+  if (item.quantity < 1 || isNaN(item.quantity)) {
+    alert('商品數量不能小於1');
+    item.quantity = 1;
+    return;
   }
-};
 
-// 更新商品數量
-const updateQuantity = async (id, quantity) => {
-  store.dispatch('updateQuantity', { id, quantity });
-  await updateCartOnServer();
-};
-
-// 同步購物車資料到後端
-const updateCartOnServer = async () => {
   try {
-    const cartData = cart.value.map(item => ({
+    await axios.put(`http://localhost:8080/pages/cart/update`, {
       cartId: item.cartId,
-      productId: item.productId,
-      quantity: item.quantity,
-      selected: item.selected // 發送選中狀態
-    }));
-    await axios.put('http://localhost:8080/pages/cart/update', cartData); // 修改為正確的 API 路徑
+      quantity: item.quantity
+    });
+    store.dispatch('updateQuantity', { cartId: item.cartId, quantity: item.quantity });
   } catch (error) {
-    console.error('Error updating cart on server:', error);
+    console.error('更新購物車數量失敗:', error);
+    alert('更新購物車數量失敗，請稍後重試！');
   }
 };
 
-// 監控購物車狀態變化，並將變化同步到後端
-watch(cart, async () => {
-  await updateCartOnServer();
-}, { deep: true });
+// 删除购物车商品
+const removeItem = async (cartId) => {
+  if (confirm('確定要刪除此商品嗎？')) {
+    try {
+      await axios.delete(`http://localhost:8080/pages/cart/delete/${cartId}`);
+      store.dispatch('removeFromCart', cartId);
+    } catch (error) {
+      console.error('刪除商品失敗:', error);
+      alert('刪除商品失敗，請稍後重試！');
+    }
+  }
+};
+
+// 清空购物车
+const clearCart = async () => {
+  if (confirm('確定要清空購物車嗎？')) {
+    try {
+      await axios.delete('http://localhost:8080/pages/cart/clear');
+      store.dispatch('clearCart');
+    } catch (error) {
+      console.error('清空購物車失敗:', error);
+      alert('清空購物車失敗，請稍後重試！');
+    }
+  }
+};
+
+// 更新选中状态
+const updateSelection = async (item) => {
+  try {
+    store.commit('setSelected', { cartId: item.cartId, selected: item.selected });  // 使用 commit 而不是 dispatch
+  } catch (error) {
+    console.error('更新選擇狀態失敗:', error);
+    alert('更新選擇狀態失敗，請稍後重試！');
+  }
+};
+
+// 组件挂载时获取购物车数据
+onMounted(async () => {
+  try {
+    await store.dispatch('fetchCartDataFromServer');
+  } catch (error) {
+    console.error('獲取購物車數據失敗:', error);
+    alert('獲取購物車數據失敗，請稍後重試！');
+  }
+});
 </script>
 
 <style scoped>
