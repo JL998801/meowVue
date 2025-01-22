@@ -36,6 +36,14 @@ export const store = createStore({
       state.cart = cartData;
       localStorage.setItem('cart', JSON.stringify(state.cart));
     },
+    setSelected(state, { cartId, selected }) {
+      const item = state.cart.find(item => item.cartId === cartId);
+      if (item) {
+        item.selected = selected;
+        // 更新 localStorage
+        localStorage.setItem('cart', JSON.stringify(state.cart));
+      }
+    }
   },
   actions: {
     addToCart({ commit }, product) {
@@ -82,7 +90,6 @@ export const store = createStore({
     },
   },
   getters: {
-    // 你可以使用 getters 来方便获取购物车中的已选择商品
     selectedCartItems(state) {
       return state.cart.filter(item => item.selected);
     },

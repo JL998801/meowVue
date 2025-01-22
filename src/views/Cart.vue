@@ -9,9 +9,11 @@
         <input 
           type="checkbox" 
           v-model="item.selected"
+          @change="updateSelection(item)" 
         />
         <p>
-          {{ item.product.productName }} - 單價: {{ item.product.salePrice }}元 × 
+          {{ item.product?.productName || '商品名稱加載中...' }} - 單價: 
+          {{ item.product?.salePrice || 0 }}元 × 
           <input
             type="number"
             v-model.number="item.quantity"
@@ -35,18 +37,25 @@ import { useStore } from 'vuex';
 import axios from 'axios';
 
 const store = useStore();
-const cart = computed(() => store.state.cart);
+const cart = computed(() => store.state.cart || []);  // 防止cart为undefined
 
 // 计算总金额（仅计算选中的商品）
 const totalPrice = computed(() => {
-  return cart.value.filter(item => item.selected)
-    .reduce((total, item) => total + item.product.salePrice * item.quantity, 0);
+  if (!cart.value.length) return 0;
+  return cart.value
+    .filter(item => item.selected)
+    .reduce((total, item) => total + (item.product?.salePrice || 0) * item.quantity, 0);
 });
 
 // 更新商品数量
 const updateQuantity = async (item) => {
+  if (item.quantity < 1 || isNaN(item.quantity)) {
+    alert('商品數量不能小於1');
+    item.quantity = 1;
+    return;
+  }
+
   try {
-    // 更新购物车中的商品数量
     await axios.put(`http://localhost:8080/pages/cart/update`, {
       cartId: item.cartId,
       quantity: item.quantity
@@ -54,6 +63,7 @@ const updateQuantity = async (item) => {
     store.dispatch('updateQuantity', { cartId: item.cartId, quantity: item.quantity });
   } catch (error) {
     console.error('更新購物車數量失敗:', error);
+    alert('更新購物車數量失敗，請稍後重試！');
   }
 };
 
@@ -65,6 +75,7 @@ const removeItem = async (cartId) => {
       store.dispatch('removeFromCart', cartId);
     } catch (error) {
       console.error('刪除商品失敗:', error);
+      alert('刪除商品失敗，請稍後重試！');
     }
   }
 };
@@ -77,13 +88,29 @@ const clearCart = async () => {
       store.dispatch('clearCart');
     } catch (error) {
       console.error('清空購物車失敗:', error);
+      alert('清空購物車失敗，請稍後重試！');
     }
   }
 };
 
+// 更新选中状态
+const updateSelection = async (item) => {
+  try {
+    store.commit('setSelected', { cartId: item.cartId, selected: item.selected });  // 使用 commit 而不是 dispatch
+  } catch (error) {
+    console.error('更新選擇狀態失敗:', error);
+    alert('更新選擇狀態失敗，請稍後重試！');
+  }
+};
+
 // 组件挂载时获取购物车数据
-onMounted(() => {
-  store.dispatch('fetchCartDataFromServer');
+onMounted(async () => {
+  try {
+    await store.dispatch('fetchCartDataFromServer');
+  } catch (error) {
+    console.error('獲取購物車數據失敗:', error);
+    alert('獲取購物車數據失敗，請稍後重試！');
+  }
 });
 </script>
 
