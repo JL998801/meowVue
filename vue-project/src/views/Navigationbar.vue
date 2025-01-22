@@ -11,7 +11,7 @@
                         <span class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">通報案件</span>
                         <ul class="dropdown-menu">
                             <li>
-                                <RouterLink class="dropdown-item" to="/pages/products">流浪救援</RouterLink>
+                                <RouterLink class="dropdown-item" to="/pages/pet/rescueCase">流浪救援</RouterLink>
                             </li>
                             <li>
                                 <RouterLink class="dropdown-item" to="/pages/products">動物認養</RouterLink>
