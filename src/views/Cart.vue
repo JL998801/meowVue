@@ -6,21 +6,12 @@
     </div>
     <div v-else>
       <div v-for="item in cart" :key="item.cartId">
-        <input 
-          type="checkbox" 
-          v-model="item.selected"
-          @change="updateSelection(item)" 
-        />
+        <input type="checkbox" v-model="item.selected" @change="updateSelection(item)" />
         <p>
-          {{ item.product?.productName || '商品名稱加載中...' }} - 單價: 
-          {{ item.product?.salePrice || 0 }}元 × 
-          <input
-            type="number"
-            v-model.number="item.quantity"
-            min="1"
-            @change="updateQuantity(item)"
-            :disabled="item.quantity < 1"
-          />
+          {{ item.product?.productName || '商品名稱加載中...' }} - 單價:
+          {{ item.product?.salePrice || 0 }}元 ×
+          <input type="number" v-model.number="item.quantity" min="1" @change="updateQuantity(item)"
+            :disabled="item.quantity < 1" />
         </p>
         <button @click="removeItem(item.cartId)">刪除此商品</button>
       </div>
@@ -63,7 +54,7 @@ const updateQuantity = async (item) => {
 
   try {
     await axios.put(`${apiUrl}/pages/cart/update`, {
-      cartItemId: item.cartId,  
+      cartItemId: item.cartId,
       quantity: item.quantity
     }, {
       headers: {
