@@ -16,7 +16,7 @@
                                 <RouterLink class="dropdown-item" to="/pages/products">流浪救援</RouterLink>
                             </li>
                             <li>
-                                <RouterLink class="dropdown-item" to="/pages/products">動物認養</RouterLink>
+                                <RouterLink class="dropdown-item" to="/adopt">動物認養</RouterLink>
                             </li>
                             <li>
                                 <RouterLink class="dropdown-item" to="/pages/products">遺失協尋</RouterLink>
@@ -43,10 +43,10 @@
         </div>
     </nav>
 </template>
-    
+
 <script setup>
-    import useUserStore from "@/stores/user.js";
-    const userStore = useUserStore();
+import useUserStore from "@/stores/user.js";
+const userStore = useUserStore();
 </script>
     
 <style>

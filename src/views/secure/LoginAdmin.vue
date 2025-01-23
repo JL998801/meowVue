@@ -16,11 +16,15 @@
                 <td> </td>
                 <td align="right"><button type="button" @click="login">login</button></td>
             </tr>
+			<tr>
+				<RouterLink class="nav-link" to="/secure/login">(切換會員)</RouterLink>
+			</tr>
         </tbody>
 	</table>
+	
 </template>
 <script setup>
-import axiosapi from '@/plugins/axios.js';
+import xxx from '@/plugins/axios.js';
 import Swal from 'sweetalert2';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
@@ -45,19 +49,19 @@ async function login() {
 		"username": username.value,
 		"password": password.value,
 	};
-	axiosapi.defaults.headers.authorization="";
+	xxx.defaults.headers.authorization="";
 	userStore.setEmail("")
     try {
-		const response = await axiosapi.post("/ajax/secure/login", body);
+		const response = await xxx.post("/secure/loginadmin", body);
 		console.log("response", response);
 		if (response.data.success) {
 			await Swal.fire({
 				title: response.data.message,
 				icon: "success"
 			});
-			axiosapi.defaults.headers.authorization="Bearer"+response.data.token;
+			xxx.defaults.headers.authorization="Bearer"+response.data.token;
 			userStore.setEmail(response.data.user);
-            router.push({path:"/"})
+            router.push({path:"/admin/management"})
 		} else {
 			document.querySelector(".error").innerHTML = response.data.message;
 			Swal.fire({
