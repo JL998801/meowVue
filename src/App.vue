@@ -1,19 +1,16 @@
 <script setup>
-import "bootstrap/dist/css/bootstrap.min.css"
-import "bootstrap/dist/js/bootstrap.bundle.min.js"
+import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap/dist/js/bootstrap.bundle.min.js";
+import { RouterLink, RouterView } from 'vue-router';
 import Navigationbar from "./views/Navigationbar.vue";
 import TopButton from "./views/TopButton.vue";
 </script>
 
 <template>
-
-  <Navigationbar></Navigationbar> 
-  <RouterView />
+  <Navigationbar /> <!-- Navigation bar only appears here -->
+  <RouterView /> <!-- Dynamically render pages based on routing -->
+  <TopButton /> <!-- Always shown button -->
 </template>
-
-<script setup>
-import { RouterLink } from 'vue-router';
-</script>
 
 <style scoped>
 body {

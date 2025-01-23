@@ -1,10 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
 // 匯入視圖元件
-import ShopHome from '../views/shopHome.vue';
-import ShopCart from '../views/Cart.vue';
-import ShopDetails from '../views/shopDetails.vue';
-import ShopPayment from '../views/Payment.vue';
+import ShopHome from '../shopApp.vue';
+import ShopCart from '../views/shops/Cart.vue';
+import ShopDetails from '../views/shops/shopDetails.vue';
+import ShopPayment from '../views/shops/Payment.vue';
 
 // 定義路由
 const routes = [

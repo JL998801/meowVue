@@ -15,7 +15,7 @@ export const store = createStore({
       if (found) {
         found.quantity += product.quantity || 1;
       } else {
-        state.cart.push({ ...product, quantity: product.quantity || 1, selected: false, cartId: product.cartId }); // Ensure cartId is included
+        state.cart.push({ ...product, quantity: product.quantity || 1, selected: false, cartId: product.cartId }); // 确保 cartId 被包含
       }
       localStorage.setItem('cart', JSON.stringify(state.cart));
     },
@@ -40,7 +40,6 @@ export const store = createStore({
       const item = state.cart.find(item => item.cartId === cartId);
       if (item) {
         item.selected = selected;
-        // 更新 localStorage
         localStorage.setItem('cart', JSON.stringify(state.cart));
       }
     }
@@ -66,7 +65,7 @@ export const store = createStore({
       try {
         if (state.cart.length > 0) {
           const cartData = state.cart.map(item => ({
-            cartId: item.cartId,  // Ensure cartId is included in the sync request
+            cartId: item.cartId,  // 确保 cartId 被包含在同步请求中
             quantity: item.quantity,
             selected: item.selected,
             productId: item.productId,
@@ -83,20 +82,17 @@ export const store = createStore({
         const response = await axios.get(`http://localhost:8080/pages/cart/list/${memberId}`);
 
         if (response.data) {
-          // Ensure the response contains cartId for each item
           const updatedCart = response.data.map(item => ({
             ...item,
-            cartId: item.cartId || item.id,  // Ensure cartId is present
+            cartId: item.cartId || item.id,  // 确保每个项都有 cartId
           }));
           commit('setCart', updatedCart); // 更新购物车
         } else {
-          // 如果未能成功获取购物车数据，清空购物车
-          commit('clearCart');
+          commit('clearCart'); // 如果未能成功获取购物车数据，清空购物车
         }
       } catch (error) {
         console.error('Failed to fetch cart data from server:', error);
-        // 如果发生错误（例如无效的会员ID），清空购物车
-        commit('clearCart');
+        commit('clearCart'); // 如果发生错误（例如无效的会员ID），清空购物车
       }
     },
   },
