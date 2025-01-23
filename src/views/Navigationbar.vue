@@ -1,7 +1,7 @@
 <template>
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
         <div class="container-fluid">
-            <RouterLink class="navbar-brand" aria-current="page" to="/">Logo</RouterLink>
+            <RouterLink class="navbar-brand" aria-current="page" to="/">壁爐之家</RouterLink>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -22,13 +22,15 @@
                         </ul>
                     </li>
                     <li class="nav-item">
-                        <RouterLink class="nav-link active" aria-current="page" to="/pages/products">寵物商城</RouterLink>
+                        <RouterLink class="nav-link active" aria-current="page" to="/pages/products">
+                            <font-awesome-icon :icon="['fas', 'gifts']" size="xl" style="color: #c4bc7f;" /></RouterLink>
                     </li>
                     <li class="nav-item">
                         <RouterLink class="nav-link active" aria-current="page" to="/pages/products">救援活動</RouterLink>
                     </li>
                     <li class="nav-item">
-                        <RouterLink class="nav-link active" aria-current="page" to="/pages/products">地圖</RouterLink>
+                        <RouterLink class="nav-link active" aria-current="page" to="/pages/products">
+                            <font-awesome-icon :icon="['fas', 'map-location-dot']" size="xl" style="color: #c4bc7f;" /></RouterLink>
                     </li>
                     <li class="nav-item">
                         <RouterLink class="nav-link" to="/secure/login">登入/註冊</RouterLink>
