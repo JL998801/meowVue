@@ -2,11 +2,12 @@
 import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap/dist/js/bootstrap.bundle.min.js"
 import Navigationbar from "./views/Navigationbar.vue";
+import TopButton from "./views/TopButton.vue";
 </script>
 
 <template>
 
-  <Navigationbar></Navigationbar>
+  <Navigationbar></Navigationbar> 
   <RouterView />
 </template>
 
