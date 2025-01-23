@@ -19,6 +19,7 @@
             v-model.number="item.quantity"
             min="1"
             @change="updateQuantity(item)"
+            :disabled="item.quantity < 1"
           />
         </p>
         <button @click="removeItem(item.cartId)">刪除此商品</button>
@@ -27,6 +28,7 @@
         <p>總金額: {{ totalPrice }}元</p>
         <button @click="clearCart">一鍵清空購物車</button>
       </div>
+      <button @click="proceedToPaymentPage">前往支付頁面</button>
     </div>
   </div>
 </template>
@@ -36,10 +38,14 @@ import { computed, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import axios from 'axios';
 
-const store = useStore();
-const cart = computed(() => store.state.cart || []);  // 防止cart为undefined
+// 從環境變數中讀取 API 和 ECPay URL
+const apiUrl = import.meta.env.VITE_API_URL;
+const ecpayUrl = import.meta.env.VITE_ECPAY_URL;
 
-// 计算总金额（仅计算选中的商品）
+const store = useStore();
+const cart = computed(() => store.state.cart || []);  // 防止cart為undefined
+
+// 計算總金額（僅計算選中的商品）
 const totalPrice = computed(() => {
   if (!cart.value.length) return 0;
   return cart.value
@@ -47,18 +53,22 @@ const totalPrice = computed(() => {
     .reduce((total, item) => total + (item.product?.salePrice || 0) * item.quantity, 0);
 });
 
-// 更新商品数量
+// 更新商品數量
 const updateQuantity = async (item) => {
   if (item.quantity < 1 || isNaN(item.quantity)) {
     alert('商品數量不能小於1');
-    item.quantity = 1;
+    item.quantity = 1;  // Restore to 1 if invalid
     return;
   }
 
   try {
-    await axios.put(`http://localhost:8080/pages/cart/update`, {
-      cartId: item.cartId,
+    await axios.put(`${apiUrl}/pages/cart/update`, {
+      cartItemId: item.cartId,  
       quantity: item.quantity
+    }, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
     });
     store.dispatch('updateQuantity', { cartId: item.cartId, quantity: item.quantity });
   } catch (error) {
@@ -67,11 +77,11 @@ const updateQuantity = async (item) => {
   }
 };
 
-// 删除购物车商品
+// 刪除購物車商品
 const removeItem = async (cartId) => {
-  if (confirm('確定要刪除此商品嗎？')) {
+  if (cartId && confirm('確定要刪除此商品嗎？')) {
     try {
-      await axios.delete(`http://localhost:8080/pages/cart/delete/${cartId}`);
+      await axios.delete(`${apiUrl}/pages/cart/delete/${cartId}`);
       store.dispatch('removeFromCart', cartId);
     } catch (error) {
       console.error('刪除商品失敗:', error);
@@ -80,11 +90,12 @@ const removeItem = async (cartId) => {
   }
 };
 
-// 清空购物车
+// 清空購物車
 const clearCart = async () => {
   if (confirm('確定要清空購物車嗎？')) {
     try {
-      await axios.delete('http://localhost:8080/pages/cart/clear');
+      const memberId = store.state.memberId;
+      await axios.delete(`${apiUrl}/pages/cart/clear/${memberId}`);
       store.dispatch('clearCart');
     } catch (error) {
       console.error('清空購物車失敗:', error);
@@ -93,14 +104,20 @@ const clearCart = async () => {
   }
 };
 
-// 更新选中状态
+// 更新選中狀態
 const updateSelection = async (item) => {
   try {
-    store.commit('setSelected', { cartId: item.cartId, selected: item.selected });  // 使用 commit 而不是 dispatch
+    store.commit('setSelected', { cartId: item.cartId, selected: item.selected });
   } catch (error) {
     console.error('更新選擇狀態失敗:', error);
     alert('更新選擇狀態失敗，請稍後重試！');
   }
+};
+
+// 前往支付頁面
+const proceedToPaymentPage = () => {
+  console.log("Redirecting to payment URL:", ecpayUrl);
+  window.location.href = ecpayUrl;
 };
 
 // 组件挂载时获取购物车数据

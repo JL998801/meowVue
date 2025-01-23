@@ -1,11 +1,12 @@
 <template>
-  <div id="app">
+  <div id="shop-app">
     <header>
       <h1>歡迎來到我的購物網站</h1>
       <nav>
-        <RouterLink to="/">首頁</RouterLink>
-        <RouterLink to="/cart">購物車</RouterLink>
-        <RouterLink to="/payment">支付</RouterLink>
+        <RouterLink to="/shop">商城首頁</RouterLink>
+        <RouterLink to="/shop/cart">購物車</RouterLink>
+        <RouterLink to="/shop/details">交易明細</RouterLink>
+        <RouterLink to="/shop/payment">支付</RouterLink>
       </nav>
     </header>
     <RouterView />
@@ -24,7 +25,7 @@ body {
   padding: 0;
 }
 
-#app {
+#shop-app {
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;

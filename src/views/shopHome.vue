@@ -5,10 +5,11 @@
     <div v-if="errorMessage" class="error">{{ errorMessage }}</div>
     <div v-else>
       <ul>
-        <li v-for="(product, index) in products" :key="index">
+        <li v-for="(product, index) in products" :key="product.productId">
           <h3>{{ product.productName }}</h3>
           <p>{{ product.description }}</p>
           <p>價格: {{ product.salePrice }} 元</p>
+          <p>庫存: {{ product.stockQuantity }}</p>
 
           <div>
             <label>數量:</label>
@@ -33,6 +34,10 @@ import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import { useStore } from 'vuex';
 
+// 從環境變數中讀取 API 和 ECPay URL
+const apiUrl = import.meta.env.VITE_API_URL;
+const ecpayUrl = import.meta.env.VITE_ECPAY_URL;
+
 const store = useStore();
 const products = ref([]);
 const isLoading = ref(true);
@@ -42,15 +47,15 @@ const selectedQuantities = ref({});
 // 獲取商品數據
 const fetchProducts = async () => {
   try {
-    const response = await axios.get('http://localhost:8080/products');
+    const response = await axios.get(`${apiUrl}/products`);
     if (response.data && Array.isArray(response.data.products)) {
       products.value = response.data.products;
     } else {
       errorMessage.value = '獲取商品資料失敗，返回的資料格式錯誤';
     }
   } catch (error) {
-    console.error('獲取商品資料失敗', error);
-    errorMessage.value = '獲取商品資料失敗';
+    console.error('獲取商品資料失敗:', error);
+    errorMessage.value = '無法獲取商品資料，請稍後再試';
   } finally {
     isLoading.value = false;
   }
@@ -90,16 +95,17 @@ const addToCart = async (index) => {
 
   try {
     const memberId = getMemberId();
-    const productId = index + 1; // 使用index + 1 作為商品ID
+    const productId = product.productId; // 使用API提供的ID
     console.log('Sending:', { memberId, productId, quantity });
-    await axios.post('http://localhost:8080/pages/cart/add', {
+
+    await axios.post(`${apiUrl}/pages/cart/add`, {
       memberId: memberId,
-      productId: productId, // 傳送固定ID
+      productId: productId,
       quantity: quantity,
     });
 
     store.dispatch('addToCart', { ...product, quantity });
-    alert('商品已加入購物車');
+    alert('商品已成功加入購物車');
   } catch (error) {
     console.error('加入購物車失敗:', error);
     alert('加入購物車失敗，請稍後重試');
@@ -113,7 +119,7 @@ const testAddToCart = async () => {
     const productId = 2; // 固定測試商品ID
     const quantity = 3;
 
-    const response = await axios.post('http://localhost:8080/pages/cart/add', {
+    const response = await axios.post(`${apiUrl}/pages/cart/add`, {
       memberId,
       productId,
       quantity,
@@ -134,12 +140,29 @@ onMounted(() => {
 </script>
 
 <style scoped>
+h2 {
+  color: #343a40;
+}
+
 .error {
   color: red;
+  font-size: 18px;
+  margin-top: 20px;
+  text-align: center;
 }
+
 button {
   margin: 0 5px;
   padding: 5px 10px;
   font-size: 16px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #0056b3;
 }
 </style>

@@ -25,6 +25,10 @@ import { ref, computed, watch } from 'vue';
 import { useStore } from 'vuex';
 import axios from 'axios';
 
+// 從環境變數中讀取 API 和 ECPay URL
+const apiUrl = import.meta.env.VITE_API_URL;
+const ecpayUrl = import.meta.env.VITE_ECPAY_URL;
+
 const store = useStore();
 const cart = computed(() => store.state.cart);
 
@@ -69,7 +73,7 @@ const sendPayment = () => {
   const body = convertCartToPaymentData();
 
   axios
-    .post("http://localhost:8080/pages/ecpay/send", body)
+    .post(`${apiUrl}/pages/ecpay/send`, body)  // 使用 apiUrl 代替原本的硬編碼 URL
     .then((response) => {
       const container = document.createElement("div");
       container.id = "paymentForm";
