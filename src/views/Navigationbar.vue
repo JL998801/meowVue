@@ -13,27 +13,24 @@
                             <font-awesome-icon :icon="['fas', 'paw']" size="2xl" style="color: #c4bc7f;" /></span>
                         <ul class="dropdown-menu">
                             <li>
-                                <RouterLink class="dropdown-item" to="/pages/products">流浪救援</RouterLink>
+                                <RouterLink class="dropdown-item" to="/pets/products">流浪救援</RouterLink>
                             </li>
                             <li>
                                 <RouterLink class="dropdown-item" to="/adopt">動物認養</RouterLink>
                             </li>
                             <li>
-                                <RouterLink class="dropdown-item" to="/pages/products">遺失協尋</RouterLink>
+                                <RouterLink class="dropdown-item" to="/pets/products">遺失協尋</RouterLink>
                             </li>
                         </ul>
                     </li>
-                    <li class="nav-item" title="寵物商城">
-                        <RouterLink class="nav-link active" aria-current="page" to="/pages/products">
-                            <font-awesome-icon :icon="['fas', 'gifts']" size="2xl" style="color: #c4bc7f;" /></RouterLink>
+                    <li class="nav-item">
+                        <RouterLink class="nav-link active" aria-current="page" to="/shops/products1">寵物商城</RouterLink>
                     </li>
-                    <li class="nav-item" title="救援活動">
-                        <RouterLink class="nav-link active" aria-current="page" to="/pages/products">
-                            <font-awesome-icon :icon="['fas', 'hand-holding-heart']" size="2xl" style="color: #c4bc7f;"/></RouterLink>
+                    <li class="nav-item">
+                        <RouterLink class="nav-link active" aria-current="page" to="/pets/products">救援活動</RouterLink>
                     </li>
-                    <li class="nav-item" title="地圖">
-                        <RouterLink class="nav-link active" aria-current="page" to="/pages/products">
-                            <font-awesome-icon :icon="['fas', 'map-location-dot']" size="2xl" style="color: #c4bc7f;" /></RouterLink>
+                    <li class="nav-item">
+                        <RouterLink class="nav-link active" aria-current="page" to="/pets/products">地圖</RouterLink>
                     </li>
                     <li class="nav-item">
                         <RouterLink class="nav-link" to="/secure/login">登入/註冊</RouterLink>
