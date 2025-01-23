@@ -13,24 +13,24 @@
                             aria-expanded="false">通報案件</span>
                         <ul class="dropdown-menu">
                             <li>
-                                <RouterLink class="dropdown-item" to="/pages/products">流浪救援</RouterLink>
+                                <RouterLink class="dropdown-item" to="/pets/products">流浪救援</RouterLink>
                             </li>
                             <li>
                                 <RouterLink class="dropdown-item" to="/adopt">動物認養</RouterLink>
                             </li>
                             <li>
-                                <RouterLink class="dropdown-item" to="/pages/products">遺失協尋</RouterLink>
+                                <RouterLink class="dropdown-item" to="/pets/products">遺失協尋</RouterLink>
                             </li>
                         </ul>
                     </li>
                     <li class="nav-item">
-                        <RouterLink class="nav-link active" aria-current="page" to="/pages/products">寵物商城</RouterLink>
+                        <RouterLink class="nav-link active" aria-current="page" to="/shops/products1">寵物商城</RouterLink>
                     </li>
                     <li class="nav-item">
-                        <RouterLink class="nav-link active" aria-current="page" to="/pages/products">救援活動</RouterLink>
+                        <RouterLink class="nav-link active" aria-current="page" to="/pets/products">救援活動</RouterLink>
                     </li>
                     <li class="nav-item">
-                        <RouterLink class="nav-link active" aria-current="page" to="/pages/products">地圖</RouterLink>
+                        <RouterLink class="nav-link active" aria-current="page" to="/pets/products">地圖</RouterLink>
                     </li>
                     <li class="nav-item">
                         <RouterLink class="nav-link" to="/secure/login">登入/註冊</RouterLink>
