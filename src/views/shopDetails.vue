@@ -8,104 +8,57 @@
       <p class="error">{{ error }}</p>
     </div>
     <div v-else>
-      <p>總金額: {{ totalPrice }} 元</p>
-      <form @submit.prevent="placeOrder">
-        <input 
-          type="text" 
-          v-model.trim="shippingAddress" 
-          placeholder="收貨地址" 
-          required 
-        />
-        <input 
-          type="text" 
-          v-model.trim="creditCard" 
-          placeholder="信用卡號" 
-          pattern="\d{16}" 
-          title="請輸入16位信用卡號碼" 
-          required 
-        />
-        <button type="submit">提交訂單</button>
-      </form>
+      <ul>
+        <li v-for="item in selectedCart" :key="item.cartItemId">
+          {{ item.product.productName }} - 單價: {{ item.product.salePrice }} 元，數量:
+          <input type="number" v-model.number="item.quantity" min="1"
+            @change="updateQuantity(item.cartItemId, item.quantity)" />
+          <button @click="removeFromCart(item.cartItemId)">刪除</button>
+        </li>
+      </ul>
+      <p>總金額: {{ totalAmount }} 元</p>
+      <button @click="goToPayment">前往支付</button>
     </div>
   </div>
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      shippingAddress: '',
-      creditCard: '',
-      totalPrice: 0,
-      loading: true,
-      error: null,
-    };
+<script setup>
+import { ref, computed, watch } from "vue";
+import { useStore } from "vuex";
+import { useRouter } from "vue-router";
+
+const store = useStore();
+const router = useRouter();
+const cart = computed(() => store.state.cart);
+
+const selectedCart = ref([]);
+watch(
+  cart,
+  () => {
+    selectedCart.value = cart.value.filter((item) => item.selected);
   },
-  created() {
-    this.fetchCartDetails();
-  },
-  methods: {
-    // 獲取購物車總金額
-    async fetchCartDetails() {
-      const cartId = this.$route.params.cartId;
-      const apiUrl = import.meta.env.VITE_API_URL;  // 從環境變數獲取 API URL
+  { immediate: true }
+);
 
-      try {
-        const response = await fetch(`${apiUrl}/cartItems/cart/${cartId}`);
-        if (!response.ok) {
-          throw new Error('無法獲取購物車資訊，請稍後再試。');
-        }
-        const data = await response.json();
-        this.totalPrice = data.reduce((sum, item) => sum + (item.quantity * item.productPrice), 0);
-      } catch (err) {
-        this.error = err.message;
-      } finally {
-        this.loading = false;
-      }
-    },
-    // 提交訂單
-    async placeOrder() {
-      if (!this.shippingAddress || !this.creditCard) {
-        alert('請填寫完整的訂單信息！');
-        return;
-      }
+const totalAmount = computed(() =>
+  selectedCart.value.reduce((sum, item) => sum + item.product.salePrice * item.quantity, 0)
+);
 
-      const orderData = {
-        shippingAddress: this.shippingAddress,
-        creditCard: this.creditCard,
-        cartId: this.$route.params.cartId
-      };
-      const apiUrl = import.meta.env.VITE_API_URL;  // 從環境變數獲取 API URL
+const loading = ref(false);
+const error = ref(null);
 
-      try {
-        const response = await fetch(`${apiUrl}/orders`, {
-          method: 'POST',
-          body: JSON.stringify(orderData),
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        });
+const updateQuantity = (id, quantity) => {
+  const item = selectedCart.value.find((item) => item.cartItemId === id);
+  if (item) item.quantity = quantity;
+};
 
-        if (!response.ok) {
-          throw new Error('訂單提交失敗，請稍後再試！');
-        }
+const removeFromCart = (id) => {
+  const index = selectedCart.value.findIndex((item) => item.cartItemId === id);
+  if (index > -1) selectedCart.value.splice(index, 1);
+};
 
-        const order = await response.json();
-        alert('訂單已成功提交！');
-
-        // 跳轉到支付頁面
-        const ecpayUrl = import.meta.env.VITE_ECPAY_URL;  // 從環境變數獲取 ECPay URL
-        this.$router.push({ 
-          name: 'payment', 
-          params: { orderId: order.orderId }, 
-          query: { ecpayUrl: ecpayUrl } 
-        });
-
-      } catch (err) {
-        alert(err.message);
-      }
-    }
-  }
+const goToPayment = () => {
+  router.push("/shop/payment");
 };
 </script>
 
@@ -113,12 +66,14 @@ export default {
 .error {
   color: red;
 }
+
 input {
   display: block;
   margin-bottom: 10px;
   padding: 8px;
   width: 100%;
 }
+
 button {
   padding: 10px 15px;
   background-color: #28a745;
@@ -126,6 +81,7 @@ button {
   border: none;
   cursor: pointer;
 }
+
 button:hover {
   background-color: #218838;
 }

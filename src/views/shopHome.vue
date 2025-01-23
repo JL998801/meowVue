@@ -20,11 +20,6 @@
           </div>
         </li>
       </ul>
-
-      <!-- 新增的測試按鈕 -->
-      <div style="text-align: center; margin-top: 20px;">
-        <button @click="testAddToCart">測試加入購物車</button>
-      </div>
     </div>
   </div>
 </template>
@@ -87,7 +82,7 @@ const decreaseQuantity = (index) => {
 const addToCart = async (index) => {
   const product = products.value[index];
   let quantity = selectedQuantities.value[index] || 1;
-  
+
   if (quantity <= 0 || quantity > product.stockQuantity) {
     alert('選擇的數量無效');
     return;
@@ -109,27 +104,6 @@ const addToCart = async (index) => {
   } catch (error) {
     console.error('加入購物車失敗:', error);
     alert('加入購物車失敗，請稍後重試');
-  }
-};
-
-// 測試加入購物車
-const testAddToCart = async () => {
-  try {
-    const memberId = 1;
-    const productId = 2; // 固定測試商品ID
-    const quantity = 3;
-
-    const response = await axios.post(`${apiUrl}/pages/cart/add`, {
-      memberId,
-      productId,
-      quantity,
-    });
-
-    console.log('測試加入購物車成功:', response.data);
-    alert('測試加入購物車成功');
-  } catch (error) {
-    console.error('測試加入購物車失敗:', error);
-    alert('測試加入購物車失敗，請稍後重試');
   }
 };
 
