@@ -1,14 +1,12 @@
 <template>
-  <div>
-    <h2>商城商品</h2>
-    <div class="products">
-      <ProductCard
-        v-for="product in products"
-        :key="product.id"
-        :product="product"
-      />
+    <div><h3>首頁 {{ userStore.email }}</h3></div>
+    <div>
+        <button>救援通報</button>
+        <button>認養通報</button>
+        <button>遺失通報</button>
+        <button>寵物商城</button>
+        <button>救援活動</button>
     </div>
-  </div>
 </template>
 
 <script setup>
