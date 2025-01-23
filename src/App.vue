@@ -1,15 +1,14 @@
+<script setup>
+import "bootstrap/dist/css/bootstrap.min.css"
+import "bootstrap/dist/js/bootstrap.bundle.min.js"
+import Navigationbar from "./views/Navigationbar.vue";
+import TopButton from "./views/TopButton.vue";
+</script>
+
 <template>
-  <div id="app">
-    <header>
-      <h1>歡迎來到我的購物網站</h1>
-      <nav>
-        <RouterLink to="/">首頁</RouterLink>
-        <RouterLink to="/cart">購物車</RouterLink>
-        <RouterLink to="/payment">支付</RouterLink>
-      </nav>
-    </header>
-    <RouterView />
-  </div>
+
+  <Navigationbar></Navigationbar> 
+  <RouterView />
 </template>
 
 <script setup>
