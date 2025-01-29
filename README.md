@@ -2,6 +2,16 @@
 
 This template should help get you started developing with Vue 3 in Vite.
 
+# Logo來源
+https://zh.pngtree.com/freepng/dog-cat-pet-shovel-officer_3934436.html
+
+![image](https://github.com/user-attachments/assets/6d951407-7004-4d97-9814-f6a3fc1f33fa)
+
+![螢幕擷取畫面 2025-01-17 162848](https://github.com/user-attachments/assets/728fadca-4016-40dd-8e07-40cc90cabd78)
+
+![petLogo](https://github.com/user-attachments/assets/b1726e3f-2039-4f9a-bd1c-3a64b48b8d3c)
+<a href='https://zh.pngtree.com/freepng/dog-cat-pet-shovel-officer_3934436.html'>png 圖片來源於 zh.pngtree.com/</a>
+
 ## Recommended IDE Setup
 
 [VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
@@ -10,7 +20,7 @@ This template should help get you started developing with Vue 3 in Vite.
 
 See [Vite Configuration Reference](https://vitejs.dev/config/).
 
-#前端架構
+#前端架構範例
 
 src/
 
@@ -20,9 +30,15 @@ src/
 
 ├── views/                 頁面級元件（如首頁、產品詳情頁）
 
+│   └── pets               集中管理所有寵物相關頁面
+
+│   └── shops              集中管理所有商城相關頁面
+
+│   └── secure             集中管理所有登入相關頁面
+
 ├── router/                路由配置檔案
 
-│   └── index.js           集中管理所有路由
+│   └── routers.js         集中管理所有路由
 
 ├── store/                 Pinia 狀態管理模組
 
