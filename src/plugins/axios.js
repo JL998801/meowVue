@@ -1,10 +1,17 @@
-import axios from 'axios';
+import axios from "axios";
 
-const xxx = axios.create({
-    baseURL: import.meta.env.VITE_API_URL,
+const axiosapi = axios.create({
+    baseURL: import.meta.env.VITE_API_URL
 });
 
-console.log('Base URL:', import.meta.env.VITE_API_URL);
+axiosapi.interceptors.response.use(function (response) {
+    return response;
+}, function (error) {
+    if (error.response && error.response.status && error.response.status === 403) {
+        window.location.href = "/403";
+    }
+    return Promise.reject(error);
+}
+);
 
-
-export default xxx;
+export default axiosapi;
