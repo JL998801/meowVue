@@ -4,7 +4,18 @@ import router from './router';
 import { createPinia } from 'pinia';
 import { store } from './store/cart';  // 確保 Vuex store 正確引入
 
+// 引入 FontAwesome
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { faUser, faShoppingCart } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+
+// 將圖標加入 FontAwesome 圖庫
+library.add(faUser, faShoppingCart);
+
 const app = createApp(App);
+
+// 註冊 FontAwesome 組件
+app.component('font-awesome-icon', FontAwesomeIcon);
 
 // 註冊 Pinia
 const pinia = createPinia();

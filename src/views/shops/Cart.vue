@@ -26,13 +26,24 @@
         <p>總金額: {{ totalPrice }}元</p>
         <button @click="clearCart">一鍵清空購物車</button>
       </div>
-      <button @click="goToPayment">前往交易明細</button>
+
+      <!-- Form to enter Credit Card and Shipping Address -->
+      <div>
+        <h3>填寫交易資訊</h3>
+        <label for="creditCard">信用卡號</label>
+        <input type="text" id="creditCard" v-model="creditCard" :placeholder="defaultCreditCard" />
+        
+        <label for="shippingAddress">寄送地址</label>
+        <input type="text" id="shippingAddress" v-model="shippingAddress" :placeholder="defaultShippingAddress" />
+        
+        <button @click="goToPayment">前往交易明細</button>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
@@ -41,6 +52,13 @@ const apiUrl = import.meta.env.VITE_API_URL;
 const store = useStore();
 const router = useRouter();
 const cart = computed(() => store.state.cart || []);
+
+const defaultCreditCard = '4311-9511-1111-1111'; // Default Credit Card value
+const defaultShippingAddress = '123 Main St';  // Default Shipping Address value
+
+// Variables to bind the form inputs for credit card and shipping address
+const creditCard = ref(defaultCreditCard);
+const shippingAddress = ref(defaultShippingAddress);
 
 const totalPrice = computed(() => {
   if (!cart.value.length) return 0;
@@ -111,15 +129,23 @@ const goToPayment = async () => {
   try {
     const memberId = store.state.memberId;
     const selectedItems = cart.value.filter(item => item.selected);
+    console.log('Selected Items:', selectedItems);  // Debugging line to check cartItemId
+
+    // 確保 cartId 是在最外層，並將 selectedItems 放在 items 屬性中
     await axios.post(`${apiUrl}/orders/submit`, {
-      memberId: memberId,
+      cartId: selectedItems.length > 0 ? selectedItems[0].cartItemId : null,  // 使用選中的第一個 cartItemId
+      member: memberId,
+      creditCard: creditCard.value,
+      shippingAddress: shippingAddress.value,
       items: selectedItems.map(item => ({
         productId: item.product.productId,
         quantity: item.quantity,
-        cartId: item.cartItemId,
-        creditCard: store.state.creditCard,
+        cartId: item.cartItemId,  // 使用每個 item 的 cartItemId
+        creditCard: creditCard.value,
+        shippingAddress: shippingAddress.value,
       })),
     });
+
     alert('訂單提交成功！');
     router.push('/shop/details');
   } catch (error) {
@@ -127,6 +153,7 @@ const goToPayment = async () => {
     alert('提交訂單失敗，請稍後重試！');
   }
 };
+
 
 const validateInput = (item) => {
   if (item.editQuantity < 0 || isNaN(item.editQuantity)) {

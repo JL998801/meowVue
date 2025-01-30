@@ -21,9 +21,9 @@
             </li>
           </ul>
           <button @click="cancelOrder(order.orderId)" :disabled="order.orderStatus !== '備貨中'">取消訂單</button>
+          <button @click="goToPayment(order)">前往支付</button>
         </li>
       </ul>
-      <button @click="goToPayment">前往支付</button>
     </div>
   </div>
 </template>
@@ -31,20 +31,23 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
+import { useStore } from "vuex";
 import axios from "axios";
 
 const router = useRouter();
+const store = useStore();
 const apiUrl = import.meta.env.VITE_API_URL;
 
 const orderList = ref([]);
 const loading = ref(false);
 const error = ref(null);
 
+// 讀取訂單資料
 const fetchOrderData = async () => {
   loading.value = true;
   try {
     const response = await axios.get(`${apiUrl}/orders`);
-    orderList.value = response.data; // Ensure that the response data matches the expected structure
+    orderList.value = response.data; // 確保這是後端返回的正確資料
   } catch (err) {
     error.value = "無法加載訂單資料，請稍後重試";
     console.error("訂單數據加載錯誤:", err);
@@ -89,9 +92,35 @@ const cancelOrder = async (orderId) => {
   }
 };
 
-// 前往支付頁面
-const goToPayment = () => {
-  router.push("/shop/payment");
+// 前往支付頁面並存入 Vuex
+const goToPayment = async (order) => {
+  try {
+    // 存入 Vuex
+    store.dispatch("updateSelectedOrder", order);
+
+    // 準備訂單資訊
+    const paymentData = {
+      orderId: order.orderId,
+      finalPrice: order.finalPrice,
+      orderItems: order.orderItems.map(item => ({
+        productId: item.productId,
+        quantity: item.orderQuantity,
+        purchasedPrice: item.purchasedPrice,
+      })),
+    };
+
+    // 發送支付請求
+    const paymentResponse = await axios.post(`${apiUrl}/pages/ecpay/send`, paymentData);
+    if (paymentResponse.status === 200) {
+      // 跳轉到支付頁面
+      router.push("/shop/payment");
+    } else {
+      alert("支付處理失敗，請稍後重試！");
+    }
+  } catch (error) {
+    console.error("前往支付頁面失敗:", error);
+    alert("支付頁面加載失敗，請稍後重試！");
+  }
 };
 
 onMounted(() => {

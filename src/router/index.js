@@ -11,12 +11,12 @@ import ShopPayment from '../views/shops/Payment.vue'; // 付款頁面
 const routes = [
   {
     path: '/shop',
-    name: 'ShopHome',
     component: ShopLayout, // 使用 ShopLayout 作為容器
     children: [
       {
         path: '',  // 默認路徑為商城首頁
-        component: ShopHome // 這裡顯示 ShopHome，並且不要再引入 shopApp.vue
+        name: 'ShopHome', // 移動 name 屬性到子路由，避免 Vue Router 警告
+        component: ShopHome
       },
       {
         path: 'cart',
