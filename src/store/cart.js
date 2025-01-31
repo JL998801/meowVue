@@ -16,7 +16,13 @@ export const store = createStore({
       if (found) {
         found.quantity += product.quantity || 1;
       } else {
-        state.cart.push({ ...product, quantity: product.quantity || 1, selected: false, cartId: product.cartId });
+        state.cart.push({ 
+          ...product, 
+          quantity: product.quantity || 1, 
+          selected: false, 
+          cartId: product.cartId, 
+          productName: product.productName // 确保商品名稱被存储
+        });
       }
       localStorage.setItem('cart', JSON.stringify(state.cart));
     },
@@ -76,6 +82,7 @@ export const store = createStore({
             quantity: item.quantity,
             selected: item.selected,
             productId: item.productId,
+            productName: item.productName // 确保商品名稱同步到後端
           }));
           await axios.put('http://localhost:8080/pages/cart/update', cartData);
         }
@@ -91,6 +98,7 @@ export const store = createStore({
           const updatedCart = response.data.map(item => ({
             ...item,
             cartId: item.cartId || item.id,
+            productName: item.productName || (item.product ? item.product.name : '未知商品') // 确保商品名稱存在
           }));
           commit('setCart', updatedCart);
         } else {
@@ -104,7 +112,10 @@ export const store = createStore({
   },
   getters: {
     selectedCartItems(state) {
-      return state.cart.filter(item => item.selected);
+      return state.cart.filter(item => item.selected).map(item => ({
+        ...item,
+        productName: item.productName || '未知商品' // 確保前端獲取商品名稱
+      }));
     },
     totalCartPrice(state) {
       return state.cart.reduce((total, item) => total + (item.product.salePrice * item.quantity), 0);
