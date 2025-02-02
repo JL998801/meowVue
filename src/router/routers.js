@@ -5,6 +5,7 @@ import Forbidden from '@/views/Forbidden.vue';
 import LoginMember from '@/views/secure/LoginMember.vue';
 import LoginAdmin from '@/views/secure/LoginAdmin.vue';
 import Product from '@/views/pets/Products.vue';
+// import LostForm from '@/views/pets/LostForm.vue';
 import products1 from '@/views/shops/Products1.vue';
 import AdminManagement from '@/views/AdminManagement.vue';
 import Adopt from '../component/Adopt.vue';
@@ -16,10 +17,12 @@ const routes = [
   { path: '/secure/login', component: LoginMember, name: 'login-link' },
   { path: '/secure/loginadmin', component: LoginAdmin, name: 'login-admin-link' },
   { path: "/pets/products", component: Product, name: "pets-products-link" },
+  // { path: "/pets/LostCase/Form", component: LostForm, name: "pets-LostForm-link" },
   { path: "/shops/products1", component: Product1, name: "shops-products1-link" },
   { path: "/admin/management", component: AdminManagement, name: "admin-management-link" },
   { path: "/adopt", component: Adopt, name: "adopt-link" },
 ];
+
 const route = createRouter({
   routes: routes,
   history: createWebHistory(),

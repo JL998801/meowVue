@@ -13,9 +13,13 @@
 
           <div>
             <label>數量:</label>
-            <button @click="decreaseQuantity(index)">-</button>
-            <span>{{ selectedQuantities[index] || 1 }}</span>
-            <button @click="increaseQuantity(index, product.stockQuantity)">+</button>
+            <input 
+              type="number" 
+              v-model="selectedQuantities[index]" 
+              :min="1" 
+              :max="product.stockQuantity" 
+              :placeholder="1" 
+            />
             <button @click="addToCart(index)">加入購物車</button>
           </div>
         </li>
@@ -59,23 +63,6 @@ const fetchProducts = async () => {
 // 獲取會員ID
 const getMemberId = () => {
   return 1; // 假設會員ID為1
-};
-
-// 增加商品數量
-const increaseQuantity = (index, stockQuantity) => {
-  if (!selectedQuantities.value[index]) {
-    selectedQuantities.value[index] = 1;
-  }
-  if (selectedQuantities.value[index] < stockQuantity) {
-    selectedQuantities.value[index]++;
-  }
-};
-
-// 減少商品數量，確保最低為1
-const decreaseQuantity = (index) => {
-  if (selectedQuantities.value[index] && selectedQuantities.value[index] > 1) {
-    selectedQuantities.value[index]--;
-  }
 };
 
 // 加入購物車
@@ -138,5 +125,13 @@ button {
 
 button:hover {
   background-color: #0056b3;
+}
+
+input[type="number"] {
+  width: 60px;
+  padding: 5px;
+  font-size: 16px;
+  margin: 0 5px;
+  border-radius: 5px;
 }
 </style>
