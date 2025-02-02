@@ -2,7 +2,7 @@ import { createApp } from 'vue';
 import App from './App.vue';
 import router from './router';
 import { createPinia } from 'pinia';
-import { store } from './store/cart';  // 確保 Vuex store 正確引入
+import { store } from './stores/cart';  // 確保 Vuex store 正確引入
 
 // 引入 FontAwesome
 import { library } from '@fortawesome/fontawesome-svg-core';

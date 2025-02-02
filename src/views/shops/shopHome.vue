@@ -1,29 +1,48 @@
 <template>
-  <div>
+  <div class="container">
     <h2>商品列表</h2>
     <div v-if="isLoading">正在加載商品資料...</div>
     <div v-if="errorMessage" class="error">{{ errorMessage }}</div>
-    <div v-else>
-      <ul>
-        <li v-for="(product, index) in products" :key="product.productId">
-          <h3>{{ product.productName }}</h3>
-          <p>{{ product.description }}</p>
-          <p>價格: {{ product.salePrice }} 元</p>
-          <p>庫存: {{ product.stockQuantity }}</p>
 
-          <div>
-            <label>數量:</label>
-            <input 
-              type="number" 
-              v-model="selectedQuantities[index]" 
-              :min="1" 
-              :max="product.stockQuantity" 
-              :placeholder="1" 
-            />
-            <button @click="addToCart(index)">加入購物車</button>
-          </div>
-        </li>
-      </ul>
+    <!-- 商品區塊 -->
+    <div v-if="!isLoading">
+      <div class="row">
+        <!-- 貓用品 -->
+        <div class="col-md-4">
+          <h3 class="text-center">🐱 貓用品</h3>
+          <ProductCard 
+            v-for="product in catProducts" 
+            :key="product.id" 
+            :product="product"
+            @add-to-cart="addToCart"
+            @add-to-wishlist="addToWishlist"
+          />
+        </div>
+
+        <!-- 狗用品 -->
+        <div class="col-md-4">
+          <h3 class="text-center">🐶 狗用品</h3>
+          <ProductCard 
+            v-for="product in dogProducts" 
+            :key="product.id" 
+            :product="product"
+            @add-to-cart="addToCart"
+            @add-to-wishlist="addToWishlist"
+          />
+        </div>
+
+        <!-- 保健品 -->
+        <div class="col-md-4">
+          <h3 class="text-center">💊 保健品</h3>
+          <ProductCard 
+            v-for="product in healthProducts" 
+            :key="product.id" 
+            :product="product"
+            @add-to-cart="addToCart"
+            @add-to-wishlist="addToWishlist"
+          />
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -32,6 +51,8 @@
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import { useStore } from 'vuex';
+import { ProductService } from "@/services/ProductService";
+import ProductCard from "@/components/ProductCard.vue"; 
 
 // 從環境變數中讀取 API 和 ECPay URL
 const apiUrl = import.meta.env.VITE_API_URL;
@@ -98,6 +119,57 @@ const addToCart = async (index) => {
 onMounted(() => {
   fetchProducts();
 });
+
+export default {
+  components: { ProductCard },
+  setup() {
+    const products = ref([]);
+    const isLoading = ref(true);
+    const errorMessage = ref("");
+
+    // 取得商品資料
+    const fetchProducts = async () => {
+      try {
+        const data = await ProductService.getAllProducts();
+        products.value = data;
+      } catch (error) {
+        errorMessage.value = "無法獲取商品資料，請稍後再試。";
+      } finally {
+        isLoading.value = false;
+      }
+    };
+
+    // 根據類別分類
+    const catProducts = computed(() => products.value.filter(p => p.category === "cat"));
+    const dogProducts = computed(() => products.value.filter(p => p.category === "dog"));
+    const healthProducts = computed(() => products.value.filter(p => p.category === "health"));
+
+    // 加入購物車
+    const addToCart = (product) => {
+      console.log(`加入購物車: ${product.name}`);
+      // TODO: 呼叫購物車 API
+    };
+
+    // 加入願望清單
+    const addToWishlist = (product) => {
+      console.log(`加入願望清單: ${product.name}`);
+      // TODO: 呼叫願望清單 API
+    };
+
+    onMounted(fetchProducts);
+
+    return {
+      isLoading,
+      errorMessage,
+      catProducts,
+      dogProducts,
+      healthProducts,
+      addToCart,
+      addToWishlist
+    };
+  }
+};
+
 </script>
 
 <style scoped>
