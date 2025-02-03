@@ -3,8 +3,8 @@ import { createRouter, createWebHistory } from 'vue-router';
 // 匯入商城的 Layout 和視圖元件
 import ShopLayout from '../views/shops/ShopLayout.vue';
 import ShopHome from '../views/shops/shopHome.vue'; // 修改：將商城首頁作為單獨的視圖
-import ShopCart from '../views/shops/Cart.vue'; // 購物車頁面
 import ShopDetails from '../views/shops/shopDetails.vue'; // 商品詳細頁面
+import ShopCart from '../views/shops/Cart.vue'; // 購物車頁面
 import ShopPayment from '../views/shops/Payment.vue'; // 付款頁面
 
 // 定義路由

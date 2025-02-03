@@ -1,11 +1,10 @@
 <template>
     <div id="shop-app">
       <header>
-        <h1>歡迎來到我的購物網站</h1>
         <nav>
           <RouterLink to="/shop">商城首頁</RouterLink>
-          <RouterLink to="/shop/cart">購物車</RouterLink>
           <RouterLink to="/shop/details">商品詳細頁</RouterLink>
+          <RouterLink to="/shop/cart">購物車</RouterLink>
           <RouterLink to="/shop/payment">支付</RouterLink>
         </nav>
       </header>
@@ -21,7 +20,7 @@
   <style scoped>
   body {
     font-family: Arial, sans-serif;
-    background-color: #f0f0f0;
+    background-color: #c6bc77;
     margin: 0;
     padding: 0;
   }
@@ -33,7 +32,7 @@
   }
   
   header {
-    background-color: #343a40;
+    background-color: #c6bc77;
     color: white;
     padding: 20px;
     text-align: center;
@@ -46,7 +45,7 @@
   nav a {
     margin: 0 20px;
     text-decoration: none;
-    color: #007bff;
+    color: #716f71;
     font-size: 18px;
   }
   
