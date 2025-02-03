@@ -3,9 +3,9 @@
       <header>
         <h1>歡迎來到我的購物網站</h1>
         <nav>
-          <RouterLink to="/shop">商城首頁</RouterLink>
+          <RouterLink to="/shop">寵物商品</RouterLink>
           <RouterLink to="/shop/cart">購物車</RouterLink>
-          <RouterLink to="/shop/details">商品詳細頁</RouterLink>
+          <RouterLink to="/shop/details">交易明細</RouterLink>
           <RouterLink to="/shop/payment">支付</RouterLink>
         </nav>
       </header>
