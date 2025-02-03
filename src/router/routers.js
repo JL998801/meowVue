@@ -8,7 +8,7 @@ import Product from '@/views/pets/Products.vue';
 // import LostForm from '@/views/pets/LostForm.vue';
 import Products1 from '@/views/shops/Products1.vue';
 import AdminManagement from '@/views/AdminManagement.vue';
-import Adopt from '../component/Adopt.vue';
+import Adopt from '../components/Adopt.vue';
 
 const routes = [
   { path: "/", component: Home, name: "home-link" },
