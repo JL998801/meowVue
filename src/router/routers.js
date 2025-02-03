@@ -4,9 +4,9 @@ import NotFound from '@/views/NotFound.vue';
 import Forbidden from '@/views/Forbidden.vue';
 import LoginMember from '@/views/secure/LoginMember.vue';
 import LoginAdmin from '@/views/secure/LoginAdmin.vue';
-import Product from '@/views/pets/Products.vue';
+import Product from '@/views/pets/products.vue';
 // import LostForm from '@/views/pets/LostForm.vue';
-import Products1 from '@/views/shops/Products1.vue';
+import Products1 from '@/views/shops/products1.vue';
 import AdminManagement from '@/views/AdminManagement.vue';
 import Adopt from '../components/Adopt.vue';
 

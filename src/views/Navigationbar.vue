@@ -8,9 +8,9 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNavDropdown">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item dropdown" title="通報案件">
+                    <li class="nav-item dropdown" title="浪浪案件">
                         <span class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            通報案件</span>
+                            浪浪案件</span>
                         <ul class="dropdown-menu">
                             <li>
                                 <RouterLink class="dropdown-item" to="/pets/products">流浪救援</RouterLink>

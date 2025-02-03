@@ -37,6 +37,7 @@
 
 <script setup>
 import { ref } from "vue";
+import '@/assets/petmain.css'; 
 import useUserStore from "@/stores/user.js";
 
 const userStore = useUserStore();
@@ -52,11 +53,6 @@ const navLinks = ref([
 console.log("Home.vue 加載成功");
 </script>
 <style scoped>
-*{
-    padding: 0;
-    margin: 0;
-    letter-spacing: 1px;
-}
 /* 導覽按鈕 */
 .main-link-box {
     display: flex;
