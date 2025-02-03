@@ -31,7 +31,7 @@
                     </li>
                     <li class="nav-item" title="地圖">
                         <RouterLink class="nav-link active" aria-current="page" to="/pets/products">
-                            <font-awesome-icon :icon="['fas', 'map-location-dot']" size="2xl" style="color: #c4bc7f;" /></RouterLink>
+                            <font-awesome-icon :icon="['fas', 'map-location-dot']" size="xl" style="color: #c4bc7f;" /></RouterLink>
                     </li>
                     <li class="nav-item">
                         <RouterLink class="nav-link" to="/secure/login">登入/註冊</RouterLink>

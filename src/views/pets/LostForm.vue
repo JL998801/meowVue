@@ -141,7 +141,26 @@
 </template>
 
 <script setup>
+import { reactive } from "vue";
 
+const form = reactive({
+    caseTitle: "",
+    species: "",
+    breed: "",
+    furColor: "",
+    city: "",
+    district: "",
+    street: "",
+    landmark: "",
+    name: "",
+    gender: "",
+    sterilization: "",
+    microchip: "",
+    featureDescription: "",
+    lostExperience: "",
+    contact: "",
+    images: []
+});
 </script>
 
 <style></style>
