@@ -6,7 +6,8 @@ export const ProductService = {
   async getAllProducts() {
     try {
       const response = await jsonRequest("get", "/products");
-      return response.data;
+      console.log("API 回應:", response.data); // ✅ 確保 response.data 是陣列
+      return response.data?.products || response.data;  // 確保回傳的是陣列
     } catch (error) {
       console.error("獲取所有商品失敗:", error);
       throw error;
@@ -17,7 +18,8 @@ export const ProductService = {
   async getProductById(id) {
     try {
       const response = await jsonRequest("get", `/products/${id}`);
-      return response.data;
+      console.log("API 回應:", response.data);
+      return response.data?.products || response.data;
     } catch (error) {
       console.error(`獲取商品 ID ${id} 失敗:`, error);
       throw error;
@@ -28,7 +30,8 @@ export const ProductService = {
   async searchProducts(searchParams) {
     try {
       const response = await jsonRequest("post", "/products/search", searchParams);
-      return response.data;
+      console.log("API 回應:", response.data);
+      return response.data?.products || response.data;
     } catch (error) {
       console.error("搜尋商品失敗:", error);
       throw error;
@@ -48,7 +51,8 @@ export const ProductService = {
       }
 
       const response = await uploadFile("/products", formData);
-      return response.data;
+      console.log("API 回應:", response.data);
+      return response.data?.products || response.data;
     } catch (error) {
       console.error("新增商品失敗:", error);
       throw error;
@@ -68,7 +72,8 @@ export const ProductService = {
       }
 
       const response = await uploadFile(`/products/${id}`, formData);
-      return response.data;
+      console.log("API 回應:", response.data);
+      return response.data?.products || response.data;
     } catch (error) {
       console.error(`更新商品 ID ${id} 失敗:`, error);
       throw error;
@@ -79,7 +84,8 @@ export const ProductService = {
   async deleteProduct(id) {
     try {
       const response = await jsonRequest("delete", `/products/${id}`);
-      return response.data;
+      console.log("API 回應:", response.data);
+      return response.data?.products || response.data;
     } catch (error) {
       console.error(`刪除商品 ID ${id} 失敗:`, error);
       throw error;

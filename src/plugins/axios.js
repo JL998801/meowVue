@@ -16,7 +16,7 @@ axiosapi.interceptors.response.use(function (response) {
 
 // **普通 JSON API 請求**
 export const jsonRequest = (method, url, data = {}) => {
-    return api({
+    return axiosapi({
       method,
       url,
       data,
@@ -26,7 +26,7 @@ export const jsonRequest = (method, url, data = {}) => {
   
   // **Form-Data 上傳圖片**
   export const uploadFile = (url, formData) => {
-    return api.post(url, formData, {
+    return axiosapi.post(url, formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
   };

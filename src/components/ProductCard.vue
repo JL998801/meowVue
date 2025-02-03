@@ -1,10 +1,11 @@
 <template>
-  <div class="card my-3 product-card" @click="goToShopDetails">
-    <img :src="product.imageUrl" class="card-img-top" alt="商品圖片" />
+  <div class="card my-3 product-card" @click="goToProductDetails">
+    <img :src="getProductImageUrl(product)" class="card-img-top" alt="商品圖片" />
     <div class="card-body">
-      <h5 class="card-title">{{ product.name }}</h5>
-      <p class="card-text">價格: {{ product.price }} 元</p>
-      <p class="card-text">庫存: {{ product.stockQuantity }} 件</p>
+      <h5 class="card-title">{{ product.productName }}</h5>
+      <p class="card-text">價格: {{ product.salePrice }} 元</p>
+      <p class="card-text">庫存: {{ product.stockQuantity }} </p>
+      <p class="card-text">單位: {{ product.unit }} </p>
 
       <!-- 數量選擇 -->
       <div class="d-flex align-items-center">
@@ -21,7 +22,7 @@
 
       <!-- 操作按鈕 -->
       <button class="btn btn-success mt-2 me-2" @click.stop="handleAddToCart">加入購物車</button>
-      <button class="btn btn-outline-danger mt-2" @click.stop="handleAddToWishlist">❤️ 加入願望清單</button>
+      <button class="btn btn-outline-danger mt-2" @click.stop="handleAddToWishlist">加入願望清單</button>
     </div>
   </div>
 </template>
@@ -42,8 +43,16 @@ const store = useStore();
 const router = useRouter();
 
 // 點擊卡片導向商品詳情
-const goToShopDetails = () => {
-  router.push(`/products/${props.product.id}`);
+const goToProductDetails = () => {
+  console.log("點擊商品:", props.product);
+  router.push(`/shop/details/${props.product.productId}`);
+};
+
+const getProductImageUrl = (product) => {
+  if (!product.imageUrls || product.imageUrls.length === 0) {
+    return "/images/default.jpg"; // ✅ 確保 Vue 顯示預設圖片
+  }
+  return product.imageUrls[0]; // ✅ 顯示第一張圖片
 };
 
 // 加入購物車
@@ -54,7 +63,7 @@ const handleAddToCart = (event) => {
 
 // 加入願望清單
 const handleAddToWishlist = (event) => {
-  console.log(`加入願望清單: ${props.product.name}`);
+  console.log(`加入願望清單: ${props.product.productName}`);
   event.stopPropagation(); // 防止點擊願望清單按鈕時導向詳情
 };
 </script>
@@ -75,7 +84,7 @@ const handleAddToWishlist = (event) => {
 
 button {
   background-color: #c6bc77;
-  color: #FEBA07;
+  color: white;
   padding: 10px;
   border: none;
   cursor: pointer;

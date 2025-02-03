@@ -3,8 +3,9 @@ import { createRouter, createWebHistory } from 'vue-router';
 // 匯入商城的 Layout 和視圖元件
 import ShopLayout from '../views/shops/ShopLayout.vue';
 import ShopHome from '../views/shops/shopHome.vue'; // 修改：將商城首頁作為單獨的視圖
-import ShopDetails from '../views/shops/shopDetails.vue'; // 商品詳細頁面
+import ProductDetails from '../views/shops/ProductDetails.vue'; // 商品明細頁
 import ShopCart from '../views/shops/Cart.vue'; // 購物車頁面
+import ShopDetails from '../views/shops/shopDetails.vue'; // 交易明細
 import ShopPayment from '../views/shops/Payment.vue'; // 付款頁面
 
 // 定義路由
@@ -15,8 +16,13 @@ const routes = [
     children: [
       {
         path: '',  // 默認路徑為商城首頁
-        name: 'ShopHome', // 移動 name 屬性到子路由，避免 Vue Router 警告
-        component: ShopHome
+        name: 'ShopHome',
+        component: ShopHome // 這裡顯示 ShopHome，並且不要再引入 shopApp.vue
+      },
+      {
+        path: 'productDetail/:productId',
+        name: 'ProductDetails',
+        component: ProductDetails
       },
       {
         path: 'cart',
@@ -24,7 +30,7 @@ const routes = [
         component: ShopCart
       },
       {
-        path: 'details/:id?',  // 商品詳細頁，支持路由參數
+        path: 'details/:id?',  // 交易明細頁，支持路由參數
         name: 'ShopDetails',
         component: ShopDetails,
         props: true

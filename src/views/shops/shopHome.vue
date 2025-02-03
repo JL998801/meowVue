@@ -2,46 +2,20 @@
   <div class="container">
     <h2 class="text-center my-4">商品分類</h2>
 
-    <!-- 錯誤訊息與載入提示 -->
     <div v-if="isLoading" class="text-center">正在加載商品資料...</div>
     <div v-if="errorMessage" class="alert alert-danger text-center">{{ errorMessage }}</div>
 
-    <!-- 商品分類區塊 -->
     <div v-if="!isLoading">
       <div class="row">
-        <!-- 貓用品 -->
-        <div class="col-md-4">
-          <h3 class="text-center">🐱 貓用品</h3>
-          <ProductCard 
-            v-for="product in catProducts" 
-            :key="product.id" 
-            :product="product"
-            @add-to-cart="addToCart"
-            @add-to-wishlist="addToWishlist"
-          />
-        </div>
+        <!-- 遍歷分類 -->
+        <div v-for="category in categories" :key="category.categoryId" class="col-md-4">
+          <h3 class="text-center">📌 {{ category.categoryName }}</h3>
 
-        <!-- 狗用品 -->
-        <div class="col-md-4">
-          <h3 class="text-center">🐶 狗用品</h3>
+          <!-- 確保分類商品存在 -->
           <ProductCard 
-            v-for="product in dogProducts" 
-            :key="product.id" 
+            v-for="product in categoryProducts[category.categoryName] || []" 
+            :key="product.id || product.productId" 
             :product="product"
-            @add-to-cart="addToCart"
-            @add-to-wishlist="addToWishlist"
-          />
-        </div>
-
-        <!-- 保健品 -->
-        <div class="col-md-4">
-          <h3 class="text-center">💊 保健品</h3>
-          <ProductCard 
-            v-for="product in healthProducts" 
-            :key="product.id" 
-            :product="product"
-            @add-to-cart="addToCart"
-            @add-to-wishlist="addToWishlist"
           />
         </div>
       </div>
@@ -52,30 +26,45 @@
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import { useStore } from "vuex";
-import { ProductService } from "@/services/ProductService";
-import ProductCard from "@/components/ProductCard.vue"; 
+import { CategoryService } from "@/services/CategoryService";
+import ProductCard from "@/components/ProductCard.vue";
 
 const store = useStore();
-const products = ref([]);
 const isLoading = ref(true);
 const errorMessage = ref(null);
+const categories = ref([]);
+const categoryProducts = ref({}); // 儲存每個類別的商品
 
-// 獲取商品數據
-const fetchProducts = async () => {
+// 獲取分類與商品
+const fetchCategoriesAndProducts = async () => {
   try {
-    const data = await ProductService.getAllProducts();
-    products.value = data;
+    const allCategories = await CategoryService.getAllCategories();
+    console.log("獲取的分類:", JSON.stringify(allCategories, null, 2));
+
+    categories.value = allCategories.filter(category =>
+      ["貓用品", "狗用品", "保健品"].includes(category.categoryName)
+    );
+
+    for (const category of categories.value) {
+      const products = await CategoryService.getProductsByCategory(category.categoryId);
+      console.log(`類別 ${category.categoryName} 的商品:`, JSON.stringify(products, null, 2));
+
+      // ✅ 改用 Vue 監測的方式
+      categoryProducts.value = { 
+        ...categoryProducts.value, 
+        [category.categoryName]: [JSON.stringify(products, null, 2)]  // 確保 Vue 監測變化
+      };
+    }
+
+    // ✅ 最後確認 Vue 是否監測到變化
+    console.log("完整分類商品資訊 (最終):", JSON.stringify(categoryProducts.value, null, 2));
   } catch (error) {
     errorMessage.value = "無法獲取商品資料，請稍後再試。";
+    console.error(error);
   } finally {
     isLoading.value = false;
   }
 };
-
-// 根據類別分類
-const catProducts = computed(() => products.value.filter(p => p.category === "cat"));
-const dogProducts = computed(() => products.value.filter(p => p.category === "dog"));
-const healthProducts = computed(() => products.value.filter(p => p.category === "health"));
 
 // 加入購物車
 const addToCart = (product) => {
@@ -91,7 +80,7 @@ const addToWishlist = (product) => {
   alert("商品已加入願望清單");
 };
 
-onMounted(fetchProducts);
+onMounted(fetchCategoriesAndProducts);
 </script>
 
 <style scoped>

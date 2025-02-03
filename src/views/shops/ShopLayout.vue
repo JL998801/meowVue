@@ -3,8 +3,8 @@
       <header>
         <nav>
           <RouterLink to="/shop">商城首頁</RouterLink>
-          <RouterLink to="/shop/details">商品詳細頁</RouterLink>
           <RouterLink to="/shop/cart">購物車</RouterLink>
+          <RouterLink to="/shop/details">交易明細</RouterLink>
           <RouterLink to="/shop/payment">支付</RouterLink>
         </nav>
       </header>
