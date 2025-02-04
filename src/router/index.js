@@ -20,7 +20,7 @@ const routes = [
         component: ShopHome // 這裡顯示 ShopHome，並且不要再引入 shopApp.vue
       },
       {
-        path: 'productDetail/:productId',
+        path: '/product/:id',
         name: 'ProductDetails',
         component: ProductDetails
       },

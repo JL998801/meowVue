@@ -1,6 +1,7 @@
 <template>
   <div class="container">
-    <h2 class="text-center my-4">商品分類</h2>
+    <SearchBar @search="handleSearch" />
+    <ProductCard v-for="product in searchResults" :key="product.productId" :product="product" />
 
     <div v-if="isLoading" class="text-center">正在加載商品資料...</div>
     <div v-if="errorMessage" class="alert alert-danger text-center">{{ errorMessage }}</div>
@@ -9,13 +10,14 @@
       <div class="row">
         <!-- 遍歷分類 -->
         <div v-for="category in categories" :key="category.categoryId" class="col-md-4">
-          <h3 class="text-center">📌 {{ category.categoryName }}</h3>
+          <h3 class="text-center">{{ category.categoryName }}</h3>
 
           <!-- 確保分類商品存在 -->
           <ProductCard 
             v-for="product in categoryProducts[category.categoryName] || []" 
-            :key="product.id || product.productId" 
+            :key="product.productId" 
             :product="product"
+            displayMode="single"
           />
         </div>
       </div>
@@ -24,40 +26,40 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
-import { useStore } from "vuex";
-import { CategoryService } from "@/services/CategoryService";
+import { ref ,onMounted} from "vue";
+import SearchBar from "@/components/SearchBar.vue";
 import ProductCard from "@/components/ProductCard.vue";
+import { useCategoryStore } from "@/stores/category";
 
-const store = useStore();
 const isLoading = ref(true);
 const errorMessage = ref(null);
 const categories = ref([]);
-const categoryProducts = ref({}); // 儲存每個類別的商品
+const categoryProducts = ref({});
+const searchResults = ref([]); // 存放搜尋結果
 
 // 獲取分類與商品
 const fetchCategoriesAndProducts = async () => {
   try {
-    const allCategories = await CategoryService.getAllCategories();
-    console.log("獲取的分類:", JSON.stringify(allCategories, null, 2));
+    const categoryStore = useCategoryStore();
+    await categoryStore.fetchCategories(); // ✅ 使用 Pinia 取得分類
 
-    categories.value = allCategories.filter(category =>
-      ["貓用品", "狗用品", "保健品"].includes(category.categoryName)
+    // 只篩選出 `categoryId` 為 1, 2, 3 的分類
+    categories.value = categoryStore.categories.filter(category =>
+      [1, 2, 3].includes(category.categoryId)
     );
 
     for (const category of categories.value) {
       const products = await CategoryService.getProductsByCategory(category.categoryId);
-      console.log(`類別 ${category.categoryName} 的商品:`, JSON.stringify(products, null, 2));
+      console.log(`類別 ${category.categoryName} 的商品:`, products);
 
-      // ✅ 改用 Vue 監測的方式
-      categoryProducts.value = { 
-        ...categoryProducts.value, 
-        [category.categoryName]: [JSON.stringify(products, null, 2)]  // 確保 Vue 監測變化
+      // ✅ 使用 Vue 3 正確的 reactivity 更新方式
+      categoryProducts.value = {
+        ...categoryProducts.value,
+        [category.categoryName]: products,
       };
     }
 
-    // ✅ 最後確認 Vue 是否監測到變化
-    console.log("完整分類商品資訊 (最終):", JSON.stringify(categoryProducts.value, null, 2));
+    console.log("完整分類商品資訊 (最終):", categoryProducts.value);
   } catch (error) {
     errorMessage.value = "無法獲取商品資料，請稍後再試。";
     console.error(error);
@@ -66,32 +68,38 @@ const fetchCategoriesAndProducts = async () => {
   }
 };
 
-// 加入購物車
-const addToCart = (product) => {
-  console.log(`加入購物車: ${product.name}`);
-  store.dispatch("addToCart", product); // Vuex 分發 action
-  alert("商品已成功加入購物車");
+const handleSearch = async ({ query, category }) => {
+  try {
+    // 檢查 `category` 是否為 `undefined` 或空值
+    let apiUrl = "/categories";
+    if (category && category !== "所有分類") {
+      apiUrl = `/categories/${category}`;
+    }
+
+    // 檢查 `query` 是否有效
+    if (query && query.trim() !== "") {
+      apiUrl += `?query=${encodeURIComponent(query)}`;
+    }
+
+    console.log("請求 API:", apiUrl);
+
+    const response = await fetch(apiUrl);
+
+    if (!response.ok) {
+      throw new Error(`API 回應錯誤: ${response.status} ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    searchResults.value = data.products;
+  } catch (error) {
+    console.error("搜尋失敗:", error);
+    searchResults.value = [];
+  }
 };
 
-// 加入願望清單
-const addToWishlist = (product) => {
-  console.log(`加入願望清單: ${product.name}`);
-  // TODO: 呼叫願望清單 API
-  alert("商品已加入願望清單");
-};
 
-onMounted(fetchCategoriesAndProducts);
+onMounted(() => {
+fetchCategoriesAndProducts();
+});
+
 </script>
-
-<style scoped>
-h2 {
-  color: #c6bc77;
-}
-
-.error {
-  color: #FEBA07;
-  font-size: 18px;
-  margin-top: 20px;
-  text-align: center;
-}
-</style>

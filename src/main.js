@@ -6,11 +6,11 @@ import { store } from './stores/cart';  // 確保 Vuex store 正確引入
 
 // 引入 FontAwesome
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faUser, faShoppingCart,faPaw } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faShoppingCart,faPaw, faMapLocationDot, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
 // 將圖標加入 FontAwesome 圖庫
-library.add(faUser, faShoppingCart,faPaw);
+library.add(faUser, faShoppingCart,faPaw,faMapLocationDot,faMagnifyingGlass );
 
 const app = createApp(App);
 

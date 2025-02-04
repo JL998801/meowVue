@@ -1,106 +1,173 @@
 <template>
-  <div class="container">
-    <h2>新增商品</h2>
-    
-    <!-- 訊息提示 -->
-    <div v-if="message" :class="{'alert alert-success': messageType === 'success', 'alert alert-danger': messageType === 'error'}">
-      {{ message }}
+    <div v-if="selectedProduct">
+    <h1>{{ selectedProduct.productName }}</h1>
+    <img v-if="selectedProduct.images?.length > 0" :src="selectedProduct.images[0]" alt="商品圖片" />
+  </div>
+  <div v-else>
+    <p>正在載入商品資料...</p>
+  </div>
+  <div class="product-detail-container">
+    <div class="product-images">
+      <!-- 左側縮圖列表 -->
+      <div class="thumbnail-list">
+        <img 
+          v-for="(image, index) in selectedProduct.images" 
+          :key="index" 
+          :src="image" 
+          alt="商品圖片" 
+          class="thumbnail" 
+          @click="selectedImage = image"
+        />
+      </div>
+
+      <!-- 主要商品圖片 -->
+      <div class="main-image">
+        <img :src="selectedImage" alt="商品主圖片" />
+      </div>
     </div>
 
-    <form @submit.prevent="uploadProduct">
-      <div class="mb-3">
-        <label class="form-label">商品名稱</label>
-        <input type="text" class="form-control" v-model="productData.name" required />
-      </div>
+    <div class="product-info">
+      <h1>{{ selectedProduct.productName }}</h1>
+      <p class="description">{{ selectedProduct.description }}</p>
 
-      <div class="mb-3">
-        <label class="form-label">價格</label>
-        <input type="number" class="form-control" v-model="productData.price" required />
-      </div>
-
-      <div class="mb-3">
-        <label class="form-label">商品描述</label>
-        <textarea class="form-control" v-model="productData.description"></textarea>
-      </div>
-
-      <div class="mb-3">
-        <label class="form-label">商品分類</label>
-        <select class="form-control" v-model="productData.category">
-          <option value="dog">狗用品</option>
-          <option value="cat">貓用品</option>
-          <option value="toy">玩具</option>
-          <option value="food">飼料</option>
-          <option value="supplement">保健品</option>
-          <option value="clean">清潔用品</option>
-        </select>
-      </div>
-
-      <div class="mb-3">
-        <label class="form-label">商品圖片</label>
-        <input type="file" class="form-control" @change="handleFileUpload" multiple />
-      </div>
-
-      <!-- 圖片預覽 -->
-      <div class="mb-3" v-if="previewUrls.length > 0">
-        <label class="form-label">圖片預覽</label>
-        <div class="d-flex">
-          <img v-for="(url, index) in previewUrls" :key="index" :src="url" class="img-thumbnail me-2" width="100" />
+      <div class="product-meta">
+        <div class="price">
+          <span class="current-price">NT${{ selectedProduct.salePrice }}</span>
+          <span class="original-price">NT${{ selectedProduct.originalPrice }}</span>
+        </div>
+        <div class="stock-status">
+          <span v-if="selectedProduct.stockQuantity > 0">庫存充足</span>
+          <span v-else class="sold-out">售完</span>
         </div>
       </div>
 
-      <button type="submit" class="btn btn-primary">上傳商品</button>
-    </form>
+      <button @click="addToCart(selectedProduct)" class="add-to-cart">加入購物車</button>
+    </div>
+
+    <!-- 商品卡片 -->
+    <ProductCard :product="selectedProduct" displayMode="all" />
+
+    <!-- 商品詳情區塊 -->
+    <div class="product-details">
+      <nav class="tabs">
+        <span @click="activeTab = 'description'" :class="{ active: activeTab === 'description' }">商品描述</span>
+        <span @click="activeTab = 'shipping'" :class="{ active: activeTab === 'shipping' }">送貨及付款方式</span>
+        <span @click="activeTab = 'reviews'" :class="{ active: activeTab === 'reviews' }">顧客評價</span>
+      </nav>
+
+      <div v-if="activeTab === 'description'">
+        <p>{{ selectedProduct.description }}</p>
+      </div>
+      <div v-if="activeTab === 'shipping'">
+        <p>運送方式及付款方式...</p>
+      </div>
+      <div v-if="activeTab === 'reviews'">
+        <p>顧客評價...</p>
+      </div>
+    </div>
   </div>
 </template>
 
-<script>
-import { ref } from "vue";
+<script setup>
+import { ref, onMounted } from "vue";
+import ProductCard from "@/components/ProductCard.vue";
+import { useRoute } from "vue-router";
 import { ProductService } from "@/services/ProductService";
 
-export default {
-  setup() {
-    const productData = ref({
-      name: "",
-      price: "",
-      description: "",
-      category: "",
-    });
+const route = useRoute();
+const selectedProduct = ref(null);
+const selectedImage = ref("");
+const activeTab = ref("description");
 
-    const selectedFiles = ref([]);
-    const previewUrls = ref([]);
-    const message = ref("");
-    const messageType = ref("");
+// 加入購物車功能
+const addToCart = (product) => {
+  console.log(`加入購物車: ${product.productName}`);
+  alert("商品已加入購物車");
+};
 
-    const handleFileUpload = (event) => {
-      const files = Array.from(event.target.files);
-      selectedFiles.value = files;
-      previewUrls.value = files.map(file => URL.createObjectURL(file));
-    };
-
-    const uploadProduct = async () => {
-      if (!productData.value.name || !productData.value.price) {
-        message.value = "商品名稱與價格為必填！";
-        messageType.value = "error";
-        return;
-      }
-
-      if (selectedFiles.value.length === 0) {
-        message.value = "請至少上傳一張圖片！";
-        messageType.value = "error";
-        return;
-      }
-
-      try {
-        const response = await ProductService.createProduct(productData.value, selectedFiles.value);
-        message.value = "商品上傳成功！";
-        messageType.value = "success";
-      } catch (error) {
-        message.value = "商品上傳失敗：" + error.message;
-        messageType.value = "error";
-      }
-    };
-
-    return { productData, selectedFiles, previewUrls, message, messageType, handleFileUpload, uploadProduct };
+// 獲取商品詳情
+const fetchProductDetails = async () => {
+  try {
+    const productId = route.params.id;
+    selectedProduct.value = await ProductService.getProductById(productId);
+    selectedImage.value = selectedProduct.value.images[0] || ""; // 設定第一張圖片
+  } catch (error) {
+    console.error("獲取商品詳情失敗:", error);
   }
 };
+
+// 組件掛載時加載數據
+onMounted(fetchProductDetails);
 </script>
+
+<style scoped>
+.product-detail-container {
+  display: flex;
+  gap: 20px;
+  padding: 20px;
+}
+
+.product-images {
+  display: flex;
+}
+
+.thumbnail-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.thumbnail {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  cursor: pointer;
+  border: 2px solid transparent;
+}
+
+.thumbnail:hover {
+  border-color: #fcb900;
+}
+
+.main-image img {
+  width: 400px;
+  height: auto;
+}
+
+.product-info {
+  flex: 1;
+}
+
+.price {
+  display: flex;
+  gap: 10px;
+}
+
+.current-price {
+  font-size: 24px;
+  color: red;
+}
+
+.original-price {
+  text-decoration: line-through;
+  color: gray;
+}
+
+.add-to-cart {
+  background-color: #fcb900;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.tabs {
+  display: flex;
+  gap: 20px;
+  cursor: pointer;
+}
+
+.tabs .active {
+  font-weight: bold;
+  color: #fcb900;
+}
+</style>

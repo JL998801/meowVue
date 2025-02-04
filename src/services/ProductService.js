@@ -26,10 +26,10 @@ export const ProductService = {
     }
   },
 
-  // ✅ 3. 搜尋商品（根據名稱、價格區間、庫存）
+  // ✅ 3. 搜尋商品（根據商品名稱、類別、價格區間）
   async searchProducts(searchParams) {
     try {
-      const response = await jsonRequest("post", "/products/search", searchParams);
+      const response = await jsonRequest("get", "/products/search", searchParams);
       console.log("API 回應:", response.data);
       return response.data?.products || response.data;
     } catch (error) {
