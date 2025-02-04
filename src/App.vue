@@ -1,20 +1,16 @@
-<template>
-  <div id="app">
-    <header>
-      <h1>歡迎來到我的購物網站</h1>
-      <nav>
-        <RouterLink to="/">首頁</RouterLink>
-        <RouterLink to="/cart">購物車</RouterLink>
-        <RouterLink to="/payment">支付</RouterLink>
-      </nav>
-    </header>
-    <RouterView />
-  </div>
-</template>
-
 <script setup>
-import { RouterLink } from 'vue-router';
+import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap/dist/js/bootstrap.bundle.min.js";
+import { RouterLink, RouterView } from 'vue-router';
+import Navigationbar from "./views/Navigationbar.vue";
+import TopButton from "./views/TopButton.vue";
 </script>
+
+<template>
+  <Navigationbar /> <!-- Navigation bar only appears here -->
+  <RouterView /> <!-- Dynamically render pages based on routing -->
+  <TopButton /> <!-- Always shown button -->
+</template>
 
 <style scoped>
 body {
