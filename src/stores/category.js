@@ -9,11 +9,17 @@ state: () => ({
 }),
 actions: {
     async fetchCategories() {
-    try {
-        this.categories = await CategoryService.getAllCategories();
-    } catch (error) {
-        console.error("無法獲取商品分類:", error);
-    }
-    }
+        try {
+            const categories = await CategoryService.getAllCategories();
+            
+            // 🔹 確保 `categories` 是陣列
+            this.categories = Array.isArray(categories) ? categories : [];
+    
+            console.log("載入的 categories:", this.categories);
+        } catch (error) {
+            console.error("無法獲取商品分類:", error);
+            this.categories = []; // 避免前端報錯
+        }
+    }    
 }
 });

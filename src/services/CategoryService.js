@@ -9,11 +9,11 @@ export const CategoryService = {
         const response = await jsonRequest("get", "/categories");
         console.log("獲取的分類 API 回應:", response.data);
         
-        // ✅ 確保 categories 不為 null
-        return response.data||[];
+        // 🔹 確保返回 categories 陣列，不返回 undefined
+        return response.data?.categories || []; 
       } catch (error) {
         console.error("獲取所有類別失敗:", error);
-        throw error;
+        return []; // 失敗時回傳空陣列
       }
     },
 

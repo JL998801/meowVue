@@ -1,15 +1,15 @@
 <template>
-  <div class="card my-3 product-card" @click="goToProductDetails">
+  <div class="card my-3 product-card" @click.stop="goToProductDetails">
 
 
     <div class="card-body">
       <h5 class="card-title">{{ product.productName }}</h5>
-          <!-- ✅ 依據 displayMode 來決定顯示方式 -->
+      
     <div v-if="displayMode === 'single'">
-      <img v-if="product.images.length > 0"
-          :src="product.images[0]" 
-          alt="商品首圖" 
-          class="product-image">
+      <img v-if="product.imageUrls && product.imageUrls.length > 0" 
+         :src="product.imageUrls[0]" 
+         alt="產品圖片" 
+         class="product-image"/>
       <p v-else>無商品圖片</p>
     </div>
 

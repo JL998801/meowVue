@@ -1,105 +1,152 @@
 <template>
   <div class="container">
+    <!-- 搜尋框 -->
     <SearchBar @search="handleSearch" />
-    <ProductCard v-for="product in searchResults" :key="product.productId" :product="product" />
 
-    <div v-if="isLoading" class="text-center">正在加載商品資料...</div>
-    <div v-if="errorMessage" class="alert alert-danger text-center">{{ errorMessage }}</div>
-
-    <div v-if="!isLoading">
+    <!-- 搜尋結果區塊 -->
+    <div v-if="searchResults.length">
+      <h3 class="text-center mt-4">搜尋結果</h3>
       <div class="row">
-        <!-- 遍歷分類 -->
-        <div v-for="category in categories" :key="category.categoryId" class="col-md-4">
-          <h3 class="text-center">{{ category.categoryName }}</h3>
-
-          <!-- 確保分類商品存在 -->
-          <ProductCard 
-            v-for="product in categoryProducts[category.categoryName] || []" 
-            :key="product.productId" 
-            :product="product"
-            displayMode="single"
-          />
-        </div>
+        <ProductCard
+          v-for="product in searchResults"
+          :key="product.productId"
+          :product="product"
+        />
       </div>
+    </div>
+
+    <!-- 預設商品分類區塊 (當 searchResults 為空時顯示) -->
+    <div v-if="!searchResults.length">
+      <h3 class="text-center mt-4">商品分類</h3>
+
+      <!-- 🔹 第一部分：使用 categoryStore 獲取的分類 -->
+      <div v-for="category in categoryStore.categories" :key="category.categoryId">
+        <h2>{{ category.categoryName }}</h2>
+
+        <!-- 🔹 Carousel 負責滾動 -->
+        <Carousel>
+          <div class="product-slider" :ref="el => (productSliders[category.categoryId] = el)">
+            <ProductCard
+              v-for="product in category.products"
+              :key="product.productId"
+              :product="product"
+              class="product-item"
+            />
+          </div>
+        </Carousel>
+      </div>
+
+      <!-- 🔹 第二部分：使用 categoryProducts (自定義分類) -->
+      <div v-for="(products, category) in categoryProducts" :key="category">
+        <h4 class="category-title">{{ category }}</h4>
+
+        <Carousel>
+          <div class="product-slider" :ref="el => (productSliders[category] = el)">
+            <ProductCard
+              v-for="product in products"
+              :key="product.productId"
+              :product="product"
+              class="product-item"
+            />
+          </div>
+        </Carousel>
+      </div>
+
+      <!-- <div v-for="(products, category) in categoryProducts" :key="category">
+        <h4 class="category-title">{{ category }}</h4>
+          <div class="product-slider" :ref="el => (productSliders[category] = el)">
+            <ProductCard
+              v-for="product in products"
+              :key="product.productId"
+              :product="product"
+              class="product-item"
+            />
+          </div>
+      </div> -->
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref ,onMounted} from "vue";
+import { ref, onMounted, reactive } from "vue";
+import { useCategoryStore } from "@/stores/category";
+import { ProductService } from "@/services/ProductService";
 import SearchBar from "@/components/SearchBar.vue";
 import ProductCard from "@/components/ProductCard.vue";
-import { useCategoryStore } from "@/stores/category";
+import Carousel from "@/components/Carousel.vue";
 
-const isLoading = ref(true);
-const errorMessage = ref(null);
-const categories = ref([]);
-const categoryProducts = ref({});
-const searchResults = ref([]); // 存放搜尋結果
+// 狀態變數
+const categoryStore = useCategoryStore();
+const searchResults = ref([]); // 搜尋結果
+const categoryProducts = reactive({}); // 分類商品
+const productSliders = reactive({}); // 存放商品滑動區塊的 ref
 
-// 獲取分類與商品
+// const categoryProducts = ref({
+//   "熱門商品": [],
+//   "最新商品": [],
+//   "超值商品": []
+// });
+
+// 商品卡片載入預設三種類別
 const fetchCategoriesAndProducts = async () => {
-  try {
-    const categoryStore = useCategoryStore();
-    await categoryStore.fetchCategories(); // ✅ 使用 Pinia 取得分類
+  await categoryStore.fetchCategories();
+  console.log("已獲取 categories:", categoryStore.categories);
 
-    // 只篩選出 `categoryId` 為 1, 2, 3 的分類
-    categories.value = categoryStore.categories.filter(category =>
-      [1, 2, 3].includes(category.categoryId)
-    );
+  // 預設顯示三種類別
+  const defaultCategories = ["貓用品", "狗用品", "保健品"];
 
-    for (const category of categories.value) {
-      const products = await CategoryService.getProductsByCategory(category.categoryId);
-      console.log(`類別 ${category.categoryName} 的商品:`, products);
-
-      // ✅ 使用 Vue 3 正確的 reactivity 更新方式
-      categoryProducts.value = {
-        ...categoryProducts.value,
-        [category.categoryName]: products,
-      };
+  for (const category of categoryStore.categories) {
+    if (defaultCategories.includes(category.categoryName)) {
+      const products = await ProductService.searchProducts("", category.categoryId);
+      categoryProducts[category.categoryName] = products || [];
     }
-
-    console.log("完整分類商品資訊 (最終):", categoryProducts.value);
-  } catch (error) {
-    errorMessage.value = "無法獲取商品資料，請稍後再試。";
-    console.error(error);
-  } finally {
-    isLoading.value = false;
   }
 };
 
-const handleSearch = async ({ query, category }) => {
-  try {
-    // 檢查 `category` 是否為 `undefined` 或空值
-    let apiUrl = "/categories";
-    if (category && category !== "所有分類") {
-      apiUrl = `/categories/${category}`;
-    }
-
-    // 檢查 `query` 是否有效
-    if (query && query.trim() !== "") {
-      apiUrl += `?query=${encodeURIComponent(query)}`;
-    }
-
-    console.log("請求 API:", apiUrl);
-
-    const response = await fetch(apiUrl);
-
-    if (!response.ok) {
-      throw new Error(`API 回應錯誤: ${response.status} ${response.statusText}`);
-    }
-
-    const data = await response.json();
-    searchResults.value = data.products;
-  } catch (error) {
-    console.error("搜尋失敗:", error);
-    searchResults.value = [];
-  }
+// 處理搜尋
+const handleSearch = async ({ query, categoryId }) => {
+  searchResults.value = await ProductService.searchProducts(query, categoryId);
 };
 
+// 商品卡片滑動
+const scrollLeft = (category) => {
+  productSliders[category].scrollBy({ left: -250, behavior: "smooth" });
+};
 
-onMounted(() => {
-fetchCategoriesAndProducts();
+const scrollRight = (category) => {
+  productSliders[category].scrollBy({ left: 250, behavior: "smooth" });
+};
+
+// 掛載時獲取資料
+onMounted(async () => {
+  fetchCategoriesAndProducts;
+  
+  // 🔹 根據不同邏輯分類商品
+  // categoryProducts.value["熱門商品"] = categoryStore.categories.flatMap(c => c.products).slice(0, 5);
+  // categoryProducts.value["最新商品"] = categoryStore.categories.flatMap(c => c.products).slice(-5);
+  // categoryProducts.value["超值商品"] = categoryStore.categories.flatMap(c => c.products).filter(p => p.salePrice < p.originalPrice);
 });
-
 </script>
+
+<style scoped>
+.category-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  margin-top: 20px;
+}
+
+.product-slider {
+  display: flex;
+  overflow-x: auto;
+  gap: 10px;
+  padding: 10px;
+  scroll-behavior: smooth;
+}
+
+.product-item {
+  flex: 0 0 auto;
+  width: 250px;
+}
+</style>
