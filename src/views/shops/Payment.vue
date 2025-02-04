@@ -43,13 +43,14 @@ const getPaymentData = () => {
 
   return {
     orderId: selectedOrder.value.orderId,
-    amount: selectedOrder.value.finalPrice, // 確保欄位名稱與後端一致
-    productName: selectedOrder.value.orderItems.map((item) => item.productName).join(", ")
+    total: selectedOrder.value.finalPrice.toString(),
+    name: selectedOrder.value.orderItems.map((item) => item.productName).join(", "),
+    desc: `包含 ${selectedOrder.value.orderItems.length} 項商品`
   };
 };
 
 // Handle sending the payment request
-const sendPayment = async () => {
+const sendPayment = () => {
   const paymentData = getPaymentData();
   
   if (!paymentData) {
@@ -57,23 +58,34 @@ const sendPayment = async () => {
     return;
   }
 
-  try {
-    const response = await axios.post(`${apiUrl}/pages/ecpay/send`, paymentData, {
+  // Convert the data to x-www-form-urlencoded format
+  const formData = new URLSearchParams();
+  formData.append("orderId", paymentData.orderId);
+  formData.append("total", paymentData.total);
+  formData.append("name", paymentData.name);
+  formData.append("desc", paymentData.desc);
+
+  // Use x-www-form-urlencoded to send the data
+  axios
+    .post(`${apiUrl}/pages/ecpay/send`, formData, {
       headers: {
-        "Content-Type": "application/json" // 確保 Content-Type 為 application/json
+        "Content-Type": "application/x-www-form-urlencoded" // Ensure the content type is x-www-form-urlencoded
       }
+    })
+    .then((response) => {
+      // Assuming the response contains HTML form to trigger the payment
+      const container = document.createElement("div");
+      container.innerHTML = response.data;
+
+      // Append the form and script to the body
+      document.body.appendChild(container);
+      const script = container.querySelector("script");
+      if (script) eval(script.textContent);  // Execute the script to submit the form
+    })
+    .catch((error) => {
+      console.error("支付失敗：", error);
+      alert("支付請求失敗，請稍後重試！");
     });
-    
-    // 假設 response 返回的是 HTML 表單，用於提交支付請求
-    const container = document.createElement("div");
-    container.innerHTML = response.data;
-    document.body.appendChild(container);
-    const script = container.querySelector("script");
-    if (script) eval(script.textContent);  // 執行綠界付款的提交腳本
-  } catch (error) {
-    console.error("支付失敗：", error);
-    alert("支付請求失敗，請稍後重試！");
-  }
 };
 </script>
 

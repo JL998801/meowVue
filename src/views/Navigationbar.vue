@@ -8,9 +8,9 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNavDropdown">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item dropdown" title="通報案件">
+                    <li class="nav-item dropdown" title="浪浪案件">
                         <span class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <font-awesome-icon :icon="['fas', 'paw']" size="2xl" style="color: #c4bc7f;" /></span>
+                            浪浪案件</span>
                         <ul class="dropdown-menu">
                             <li>
                                 <RouterLink class="dropdown-item" to="/pets/products">流浪救援</RouterLink>
@@ -23,14 +23,15 @@
                             </li>
                         </ul>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item" title="寵物商城">
                         <RouterLink class="nav-link active" aria-current="page" to="/shops/products1">寵物商城</RouterLink>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item" title="救援活動">
                         <RouterLink class="nav-link active" aria-current="page" to="/pets/products">救援活動</RouterLink>
                     </li>
-                    <li class="nav-item">
-                        <RouterLink class="nav-link active" aria-current="page" to="/pets/products">地圖</RouterLink>
+                    <li class="nav-item" title="地圖">
+                        <RouterLink class="nav-link active" aria-current="page" to="/pets/products">
+                            <font-awesome-icon :icon="['fas', 'map-location-dot']" size="xl" style="color: #c4bc7f;" /></RouterLink>
                     </li>
                     <li class="nav-item">
                         <RouterLink class="nav-link" to="/secure/login">登入/註冊</RouterLink>
