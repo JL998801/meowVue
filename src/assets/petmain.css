@@ -3,3 +3,12 @@
     margin: 0;
     letter-spacing: 1px;
 }
+
+body {
+    background-image: url('@/assets/背景圖2.png');
+    background-size: auto;
+    background-position: center;
+    background-attachment: fixed;
+    margin: 0;
+    padding: 0;
+}
