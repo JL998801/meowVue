@@ -16,11 +16,11 @@ export const store = createStore({
       if (found) {
         found.quantity += product.quantity || 1;
       } else {
-        state.cart.push({ 
-          ...product, 
-          quantity: product.quantity || 1, 
-          selected: false, 
-          cartId: product.cartId, 
+        state.cart.push({
+          ...product,
+          quantity: product.quantity || 1,
+          selected: false,
+          cartId: product.cartId,
           productName: product.productName // 确保商品名稱被存储
         });
       }
