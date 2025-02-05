@@ -9,6 +9,7 @@ import LostForm from '@/views/pets/LostForm.vue';
 import Products1 from '@/views/shops/products1.vue';
 import AdminManagement from '@/views/AdminManagement.vue';
 import Adopt from '../components/Adopt.vue';
+import MemberCenter from '@/views/secure/MemberCenter.vue'
 
 const routes = [
   { path: "/", component: Home, name: "home-link" },
@@ -21,6 +22,7 @@ const routes = [
   { path: "/shops/products1", component: Products1, name: "shops-products1-link" },
   { path: "/admin/management", component: AdminManagement, name: "admin-management-link" },
   { path: "/adopt", component: Adopt, name: "adopt-link" },
+  { path: "/member-center", component: MemberCenter, name: "member-center-link" },
 ];
 
 const route = createRouter({

@@ -1,6 +1,6 @@
 <template>
+    <h2>遺失通報表單</h2>
     <div class="container">
-        <h2>遺失通報表單</h2>
         <form @submit.prevent="submitForm">
             <!-- 案件標題 -->
             <div class="form-group">
