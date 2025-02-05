@@ -50,7 +50,7 @@ import useUserStore from "@/stores/user.js";
 
  //使用 Pinia 的 userStore "Pinia": Unknown word.
 const userStore = useUserStore();
-const isloggedIn = computed(() => userStore.isLogin); //直接從 Store 獲取
+const isLoggedIn = computed(() => userStore.isLogin); //直接從 Store 獲取
 </script>
     
 <style>

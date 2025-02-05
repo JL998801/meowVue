@@ -57,7 +57,7 @@ const displayedCases = ref({
 // 獲取 Banner 資料，過濾已隱藏的並按時間排序
 const fetchBannerData = async () => {
     try {
-        const response = await axios.get("http://localhost:8080/api/banners");
+        const response = await axios.get("http://localhost:8080/banners");
         let banners = response.data;
 
         // 過濾掉 `isHidden: true` 的 Banner
