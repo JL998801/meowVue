@@ -24,7 +24,7 @@
                         </ul>
                     </li>
                     <li class="nav-item" title="寵物商城">
-                        <RouterLink class="nav-link active" aria-current="page" to="/shops/products1">寵物商城</RouterLink>
+                        <RouterLink class="nav-link active" aria-current="page" to="/shop">寵物商城</RouterLink>
                     </li>
                     <li class="nav-item" title="救援活動">
                         <RouterLink class="nav-link active" aria-current="page" to="/pets/products">救援活動</RouterLink>

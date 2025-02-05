@@ -1,26 +1,28 @@
 <template>
   <div class="card my-3 product-card" @click.stop="goToProductDetails">
-
-
     <div class="card-body">
+          <!-- 標籤區塊 -->
+    <div class="product-tags">
+      <span v-for="tag in product.tags" :key="tag" class="tag">{{ tag }}</span>
+    </div>
+
+      <div v-if="displayMode === 'single'">
+        <img v-if="product.imageUrls && product.imageUrls.length > 0" 
+          :src="product.imageUrls[0]" 
+          alt="產品圖片" 
+          class="product-image"/>
+        <p v-else>無商品圖片</p>
+      </div>
+
+      <div v-else-if="displayMode === 'all'">
+        <img v-for="(image, index) in product.images" 
+            :key="index" 
+            :src="image" 
+            alt="商品圖片" 
+            class="product-image">
+      </div>
+
       <h5 class="card-title">{{ product.productName }}</h5>
-      
-    <div v-if="displayMode === 'single'">
-      <img v-if="product.imageUrls && product.imageUrls.length > 0" 
-         :src="product.imageUrls[0]" 
-         alt="產品圖片" 
-         class="product-image"/>
-      <p v-else>無商品圖片</p>
-    </div>
-
-    <div v-else-if="displayMode === 'all'">
-      <img v-for="(image, index) in product.images" 
-          :key="index" 
-          :src="image" 
-          alt="商品圖片" 
-          class="product-image">
-    </div>
-
       <p class="card-text">價格: {{ product.salePrice }} 元</p>
       <p class="card-text">庫存: {{ product.stockQuantity }} </p>
       <p class="card-text">單位: {{ product.unit }} </p>
@@ -39,14 +41,28 @@
       </div>
 
       <!-- 操作按鈕，對應到js中的設定 -->
-      <button class="btn btn-success mt-2 me-2" @click.stop="addToCart">加入購物車</button>
-      <button class="btn btn-outline-danger mt-2" @click.stop="AddToWishlist">加入願望清單</button>
+      <button class="btn btn-success mt-2 me-2" 
+      @click.stop="addToCart"  
+      title="購物車">
+        <font-awesome-icon :icon="['fas', 'cart-shopping']" size="xl" />
+      </button>
+
+      <button 
+      class="btn btn-outline-danger mt-2 wish-btn" 
+      data-toggle="popover" title="" data-content="已加入"
+      @click.stop="AddToWishlist" 
+      @mouseover="isHovered = true" 
+      @mouseleave="isHovered = false" 
+      >
+      <font-awesome-icon v-if="!isHovered" :icon="['far', 'heart']"/>
+      <font-awesome-icon v-else :icon="['fas', 'heart']" size="xl"/>
+    </button>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref ,defineProps } from "vue";
 import { useRouter } from "vue-router";
 import { useStore } from 'vuex';
 
@@ -61,6 +77,7 @@ const props = defineProps({
 
 // 狀態管理
 const quantity = ref(1);
+const isHovered = ref(false);
 const store = useStore();
 const router = useRouter();
 
@@ -89,6 +106,29 @@ const AddToWishlist = (event) => {
 </script>
 
 <style scoped>
+.tag {
+  background: #ffd700;
+  color: #333;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.product-tags {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: flex;
+  gap: 5px;
+}
+
+.product-image {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;     
+  border-radius: 8px;;
+}
+
 .product-card {
   width: 350px;
   border: 2px solid #FEBA07;
@@ -97,30 +137,19 @@ const AddToWishlist = (event) => {
   background-color: #fff;
   cursor: pointer;
   transition: transform 0.2s ease-in-out;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .product-card:hover {
   transform: scale(1.02);
 }
 
-.product-image {
-  width: 100%;        
-  max-width: 350px;    
-  height: auto;       
-  object-fit: cover;  
-  border-radius: 8px; 
+.wish-btn {
+  transition: transform 0.2s ease-in-out;
 }
 
-button {
-  background-color: #c6bc77;
-  color: white;
-  padding: 10px;
-  border: none;
-  cursor: pointer;
+.wish-btn:hover {
+  transform: scale(1.1);
 }
 
-button:hover {
-  background-color: #716f71;
-  color: #FEBA07;
-}
 </style>

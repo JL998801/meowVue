@@ -1,56 +1,36 @@
 <template>
-    <div id="shop-app">
-      <header>
-        <nav>
-          <RouterLink to="/shop">商城首頁</RouterLink>
-          <RouterLink to="/shop/cart">購物車</RouterLink>
-          <RouterLink to="/shop/details">交易明細</RouterLink>
-          <RouterLink to="/shop/payment">支付</RouterLink>
-        </nav>
-      </header>
-      <!-- 顯示子路由內容 -->
-      <router-view />
-    </div>
-  </template>
-  
-  <script setup>
-  import { RouterLink } from 'vue-router';
-  </script>
-  
-  <style scoped>
-  body {
-    font-family: Arial, sans-serif;
-    background-color: #c6bc77;
-    margin: 0;
-    padding: 0;
-  }
-  
-  #shop-app {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-  }
-  
-  header {
-    background-color: #c6bc77;
-    color: white;
-    padding: 20px;
-    text-align: center;
-  }
-  
-  nav {
-    margin-top: 15px;
-  }
-  
-  nav a {
-    margin: 0 20px;
-    text-decoration: none;
-    color: #716f71;
-    font-size: 18px;
-  }
-  
-  nav a:hover {
-    text-decoration: underline;
-  }
-  </style>
-  
+  <div id="shop-layout">
+    <!-- 商城的主要內容 -->
+    <main>
+      <router-view /> <!-- ✅ 載入 `ShopHome.vue` 或其他商城頁面 -->
+    </main>
+
+    <!-- 商城專用 Footer -->
+    <footer>
+      <p>© 2024 壁爐之家商城. All rights reserved.</p>
+    </footer>
+  </div>
+</template>
+
+<script setup>
+</script>
+
+<style scoped>
+#shop-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+main {
+  flex-grow: 1;
+  padding: 20px;
+}
+
+footer {
+  background: #f8f9fa;
+  text-align: center;
+  padding: 10px;
+  margin-top: 20px;
+}
+</style>

@@ -4,11 +4,9 @@ import NotFound from '@/views/NotFound.vue';
 import Forbidden from '@/views/Forbidden.vue';
 import LoginMember from '@/views/secure/LoginMember.vue';
 import LoginAdmin from '@/views/secure/LoginAdmin.vue';
-import Product from '@/views/pets/Products.vue';
-// import LostForm from '@/views/pets/LostForm.vue';
-import products1 from '@/views/shops/Products1.vue';
 import AdminManagement from '@/views/AdminManagement.vue';
-import Adopt from '../component/Adopt.vue';
+import { routes as shopRoutes } from "@/router/shopRoute"; // 商城的 `shopRoute.js` 路由配置
+import ShopLayout from '../views/shops/ShopLayout.vue';
 
 const routes = [
   { path: "/", component: Home, name: "home-link" },
@@ -16,11 +14,8 @@ const routes = [
   { path: "/403", component: Forbidden, name: "forbidden-link" },
   { path: '/secure/login', component: LoginMember, name: 'login-link' },
   { path: '/secure/loginadmin', component: LoginAdmin, name: 'login-admin-link' },
-  { path: "/pets/products", component: Product, name: "pets-products-link" },
-  // { path: "/pets/LostCase/Form", component: LostForm, name: "pets-LostForm-link" },
-  { path: "/shops/products1", component: Product1, name: "shops-products1-link" },
   { path: "/admin/management", component: AdminManagement, name: "admin-management-link" },
-  { path: "/adopt", component: Adopt, name: "adopt-link" },
+  {path:"/shop",component:ShopLayout,children:shopRoutes}, // 載入 `shopRoute.js` 的商城路由
 ];
 
 const route = createRouter({
@@ -28,4 +23,3 @@ const route = createRouter({
   history: createWebHistory(),
 });
 export default route;
-products1
