@@ -7,8 +7,9 @@ import TopButton from "./views/TopButton.vue";
 </script>
 
 <template>
-  <Navigationbar></Navigationbar>
-  <RouterView />
+    <Navigationbar></Navigationbar>
+    <RouterView />
+    <TopButton />
 </template>
 
 <style scoped>

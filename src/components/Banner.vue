@@ -9,19 +9,21 @@
             <router-link :to="category.moreLink" class="more-button">查看更多</router-link>
             </div>
 
-        <div class="carousel-wrapper">
-            <button @click="prevSlide(category.type)" class="nav-button">‹</button>
+            <div class="carousel-wrapper">
+                <button @click="prevSlide(category.type)" class="nav-button">‹</button>
                 <div class="carousel">
                     <div
-                        v-for="(caseItem, index) in displayedCases[category.type]"
+                        v-for="caseItem in displayedCases[category.type]"
                         :key="caseItem.id"
                         class="carousel-item"
-                    >           
+                        @click="goToCaseDetail(caseItem)" 
+                        style="cursor: pointer;"
+                    >
                         <img :src="caseItem.imageUrl" alt="案件圖片" class="case-image" />
                         <p class="case-title">{{ caseItem.caseTitle }}</p>
                     </div>
                 </div>
-            <button @click="nextSlide(category.type)" class="nav-button">›</button>
+                <button @click="nextSlide(category.type)" class="nav-button">›</button>
             </div>
         </div>
     </div>
@@ -31,11 +33,11 @@
 import { ref, onMounted } from "vue";
 import axios from "axios";
 
-// 分類設定
+// 案件分類
 const caseCategories = ref([
-    { title: "流浪救援", type: "RESCUE", moreLink: "/rescue", icon: "/icons/rescue.svg" },
-    { title: "遺失協尋", type: "LOST", moreLink: "/lost", icon: "/icons/lost.svg" },
-    { title: "動物認養", type: "ADOPT", moreLink: "/adopt", icon: "/icons/adopt.svg" }
+    { title: "流浪救援", type: "RESCUE", moreLink: "/rescue" },
+    { title: "遺失協尋", type: "LOST", moreLink: "/lost" },
+    { title: "動物認養", type: "ADOPT", moreLink: "/adopt" }
 ]);
 
 // 存儲所有案件
@@ -45,44 +47,67 @@ const cases = ref({
     ADOPT: []
 });
 
-// 當前顯示的 5 個案件
+// 當前顯示的 5 個最新案件
 const displayedCases = ref({
     RESCUE: [],
     LOST: [],
     ADOPT: []
 });
 
-// 獲取案件資料
-const fetchCases = async () => {
+// 獲取 Banner 資料，過濾已隱藏的並按時間排序
+const fetchBannerData = async () => {
     try {
-        const response = await axios.get("http://localhost:8080/Banners");
-        response.data.forEach((item) => {
-            if (cases.value[item.caseType]) {
-            cases.value[item.caseType].push(item);
+        const response = await axios.get("http://localhost:8080/banners");
+        let banners = response.data;
+
+        // 過濾掉 `isHidden: true` 的 Banner
+        banners = banners.filter(banner => !banner.isHidden);
+
+        // 按 `onlineDate` 降冪排序，確保最新的 Banner 在最前面
+        banners.sort((a, b) => new Date(b.onlineDate) - new Date(a.onlineDate));
+
+        // 清空 `cases`，避免重複資料
+        cases.value = { RESCUE: [], LOST: [], ADOPT: [] };
+
+        banners.forEach(banner => {
+            if (cases.value[banner.bannerType]) {
+                cases.value[banner.bannerType].push({
+                    id: banner.lostCaseId || banner.adoptionCaseId || banner.rescueCaseId,
+                    caseTitle: banner.caseTitle || "未知標題",
+                    imageUrl: banner.imageUrl || "http://localhost:5173/images/default.png",
+                    type: banner.bannerType // 儲存案件類型，方便導向詳情頁
+                });
             }
         });
 
-        // 設定初始顯示的 5 個案件
-        caseCategories.value.forEach(category => {
-            displayedCases.value[category.type] = cases.value[category.type].slice(0, 5);
-        });
+        // 只顯示最新的 5 條案件
+        displayedCases.value = {
+            RESCUE: cases.value.RESCUE.slice(0, 5),
+            LOST: cases.value.LOST.slice(0, 5),
+            ADOPT: cases.value.ADOPT.slice(0, 5)
+        };
 
-        startAutoSlide();
     } catch (error) {
-        console.error("獲取案件失敗", error);
+        console.error("獲取 Banner 資料失敗:", error);
     }
+};
+
+// 點擊 Banner，導向對應的案件詳情頁面
+const goToCaseDetail = (caseItem) => {
+    if (!caseItem.id || !caseItem.type) return;
+    window.location.href = `/cases/${caseItem.type.toLowerCase()}/${caseItem.id}`;
 };
 
 // 自動輪播
 const startAutoSlide = () => {
     setInterval(() => {
         caseCategories.value.forEach(category => {
-        nextSlide(category.type);
+            nextSlide(category.type);
         });
     }, 3000);
 };
 
-// 下一個
+// 下一組
 const nextSlide = (type) => {
     if (cases.value[type].length > 5) {
         cases.value[type].push(cases.value[type].shift());
@@ -90,7 +115,7 @@ const nextSlide = (type) => {
     }
 };
 
-// 上一個
+// 上一組
 const prevSlide = (type) => {
     if (cases.value[type].length > 5) {
         cases.value[type].unshift(cases.value[type].pop());
@@ -98,8 +123,13 @@ const prevSlide = (type) => {
     }
 };
 
-onMounted(fetchCases);
+// 進入頁面時執行
+onMounted(async () => {
+    await fetchBannerData(); // 先獲取最新案件
+    startAutoSlide(); // 開啟自動輪播
+});
 </script>
+
 
 <style scoped>
 /* 背景與容器 */

@@ -13,6 +13,7 @@ const useUserStore = defineStore("user", () => {
             return false;
         }
     })
+
     return {
         email,
         setEmail,

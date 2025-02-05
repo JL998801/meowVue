@@ -42,21 +42,21 @@ const caseCategories = ref([
 ]);
 
 const cases = ref({
-    rescue: [
+    RESCUE: [
         { id: 1, caseTitle: "台北市發現受傷流浪狗", imageUrl:'http://localhost:5173/images/image2.png' },
         { id: 2, caseTitle: "新北市夜市發現浪浪貓", imageUrl: 'http://localhost:5173/images/lostcat1.png' },
         { id: 3, caseTitle: "中市高架橋下發現流浪狗", imageUrl: 'http://localhost:5173/images/image2.png'},
         { id: 4, caseTitle: "南投偏鄉小村流浪狗", imageUrl: 'http://localhost:5173/images/image2.png' },
         { id: 5, caseTitle: "台南市公園內浪浪需要安置", imageUrl: 'http://localhost:5173/images/lostcat1.png' },
     ],
-    lost: [
+    LOST: [
         { id: 6, caseTitle: "尋找走失的柴犬（台北市）", imageUrl: 'http://localhost:5173/images/image2.png' },
         { id: 7, caseTitle: "貓咪走失且胡須很短（新竹市）", imageUrl: 'http://localhost:5173/images/lostcat1.png' },
         { id: 8, caseTitle: "遺失貓咪，特徵為虎斑（台中市）", imageUrl: 'http://localhost:5173/images/lostcat1.png' },
         { id: 9, caseTitle: "尋找遺失的虎斑貓（台南市）", imageUrl: 'http://localhost:5173/images/lostcat1.png' },
         { id: 10, caseTitle: "台北夜市發現的虎斑貓", imageUrl: 'http://localhost:5173/images/lostcat1.png' },
     ],
-    adopt: [
+    ADOPT: [
         { id: 11, caseTitle: "可愛橘貓待認養（新北市）", imageUrl: 'http://localhost:5173/images/lostcat1.png' },
         { id: 12, caseTitle: "白色米克斯犬待領養（桃園市）", imageUrl: 'http://localhost:5173/images/image2.png' },
         { id: 13, caseTitle: "溫順黑白貓尋找新家（高雄市）", imageUrl: 'http://localhost:5173/images/lostcat1.png' },
