@@ -39,19 +39,12 @@ import { ref, onMounted, reactive } from "vue";
 import { useCategoryStore } from "@/stores/categoryStore";
 import { ProductService } from "@/services/ProductService";
 import ProductCard from "@/components/ProductCard.vue";
-// import Carousel from "@/components/Carousel.vue";
 
 // 狀態變數
 const categoryStore = useCategoryStore();
 const searchResults = ref([]); // 搜尋結果
 const categoryProducts = reactive({}); // 分類商品
 const productSliders = ref({}); // 存放商品滑動區塊的 ref
-
-// const categoryProducts = ref({
-//   "熱門商品": [],
-//   "最新商品": [],
-//   "超值商品": []
-// });
 
 // 商品卡片載入預設三種類別
 const fetchCategoriesAndProducts = async () => {

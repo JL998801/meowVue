@@ -1,4 +1,5 @@
 <template>
+    <h3>首頁 {{ userStore.email }}</h3>
     <!-- 導覽按鈕 -->
     <div class="main-link-box">
         <ul class="list-unstyled">
@@ -41,6 +42,7 @@ const navLinks = ref([
 ]);
 console.log("Home.vue 加載成功");
 </script>
+
 <style scoped>
 /* 導覽按鈕 */
 .main-link-box {

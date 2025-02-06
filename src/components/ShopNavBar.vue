@@ -42,30 +42,10 @@
                         <!-- <input type="range" v-model="maxPrice" :min="priceRange.min" :max="priceRange.max" step="10" /> -->
                         <span class="price-range">{{ maxPrice }}</span>
                 </p>
-            </form>
-        </div>
-    </nav>
-    <!-- <nav class="navbar navbar-expand-lg bg-body-tertiary">
-        <div class="container-fluid">
-            <RouterLink class="navbar-brand" aria-current="page" to="/">
-            <img src="../assets/petLogo.png" alt="Logo圖示" width="80" title="首頁">壁爐之家</RouterLink>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNavDropdown">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item" title="商城首頁">
-                        <RouterLink class="nav-link active" aria-current="page" to="/shop">商城首頁</RouterLink>
-                    </li>
-                    <li class="nav-item">
-                        <RouterLink class="nav-link" to="/secure/login">登入/註冊</RouterLink>
-                    </li>
-                </ul>
+                </form>
             </div>
-        </div>
-    </nav> -->
-</template>
-
+        </nav>
+    </template>
     <!-- ✅ 已登入時顯示 -->
     <template v-else>
         <nav class="navbar navbar-expand-lg bg-body-tertiary">
@@ -103,35 +83,25 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from "vue";
+import { ref, computed, inject, onMounted, watch } from "vue";
 import { useCategoryStore } from "@/stores/categoryStore";
 import { CategoryService } from "@/services/CategoryService";
 import { ProductService } from "@/services/ProductService";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
-import { useRouter } from "vue-router";
 
-const router = useRouter();
-const isLoggedIn = ref(false); // 登入狀態
+// 從 shopLayout provide()取得登入資訊
+const isLoggedIn = inject("isLoggedIn"); // 登入狀態
+const logout = inject("logout"); // 登出函數
+
 const categoryStore = useCategoryStore();
 const searchQuery = ref("");
 const selectedCategory = ref("");
 const minPrice = ref(0);
 const maxPrice = ref(5000); // 假設最大價格
+const priceRange = ref({ min: 0, max: 5000 }); // 設定價格範圍
 const categories = ref([]);
 const products = ref([]);
 const emit = defineEmits(["search"]);
-
-// ✅ 檢查登入狀態 (從 localStorage 取得 token)
-const checkAuth = () => {
-isLoggedIn.value = !!localStorage.getItem("authToken");
-};
-
-// ✅ 登出 (清除 token，回到首頁)
-const logout = () => {
-localStorage.removeItem("authToken");
-isLoggedIn.value = false;
-router.push("/shop");
-};
 
 // searchBar取得預設分類商品
 const fetchCategoriesAndProducts= async () => {
@@ -153,9 +123,6 @@ const fetchCategoriesAndProducts= async () => {
         console.error("fetchCategoriesAndProducts 發生錯誤:", error);
     }
 };
-
-// 設定價格範圍
-const priceRange = ref({ min: 0, max: 5000 });
 
 // 計算價格分佈 (計算不同價格區間內的商品數量)
 const priceDistribution = computed(() => {
@@ -207,9 +174,8 @@ maxPrice: maxPrice.value,
 });
 };
 
-// 掛載時檢查登入狀態、獲取分類與商品資料
+// 掛載時獲取分類與商品資料
 onMounted(() => {
-    checkAuth();
 fetchCategories();
 fetchProducts();
 });
@@ -220,6 +186,7 @@ if (!newCategories.find(cat => cat.categoryId === selectedCategory.value)) {
 selectedCategory.value = "";
 }
 });
+
 </script>
 
 <style scoped>

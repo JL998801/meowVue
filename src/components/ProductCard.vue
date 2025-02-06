@@ -92,7 +92,7 @@ const goToProductDetails = () => {
   router.push(`/product/${props.product.productId}`);
 };
 
-// 加入購物車--配合cart.js (待檢視)
+// 加入購物車--配合cartService.js
 const addToCart = (event) => {
   store.dispatch('addToCart', { ...props.product, quantity: quantity.value });
   event.stopPropagation(); // 防止點擊購物車按鈕時導向詳情
