@@ -15,12 +15,12 @@ const routes = [
     children: [
       {
         path: '',  // 默認路徑為商城首頁
-        name: 'ShopHome', // 移動 name 屬性到子路由，避免 Vue Router 警告
+        name: 'ShopHome',
         component: ShopHome
       },
       {
-        path: 'cart',
-        name: 'ShopCart',
+        path: 'cart', // 這裡的路徑應該是 'cart'，因為它是子路由
+        name: 'Cart',
         component: ShopCart
       },
       {
