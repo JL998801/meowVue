@@ -7,7 +7,10 @@ export const store = createStore({
     return {
       cart: cartData && cartData !== 'undefined' ? JSON.parse(cartData) : [],
       memberId: 1, // 假设从用户信息中动态获取会员ID
-      selectedOrder: null, // 新增: 存储交易明细
+      creditCard: "4311-9511-1111-1111",  // 假設信用卡號
+      shippingAddress: "123 Main St",  // 假設運送地址
+      cartId: 1, // 假設購物車 ID
+      selectedOrder: null, // 新增: 存储交易明細
     };
   },
   mutations: {

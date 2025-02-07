@@ -108,12 +108,13 @@ const goToCart = () => {
     position: absolute;
     top: 0;
     right: 0;
-    background-color: #c6bc77;
+    background-color: #ffffff;
     border: 1px solid #ccc;
     padding: 10px;
     width: 250px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     display: block;
+    color: black;  /* 這行設置字體顏色為黑色 */
 }
 
 .cart-item {
