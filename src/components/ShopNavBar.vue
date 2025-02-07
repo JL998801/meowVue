@@ -1,51 +1,56 @@
 <template>
     <!-- ✅ 未登入時顯示 -->
-    <template v-if="!isLoggedIn">
+    <template v-if="!isLoggedIn" class="shop-nav">
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
             <a class="navbar-brand" href="#"><RouterLink class="navbar-brand" aria-current="page" to="/">
             <img src="../assets/petLogo.png" alt="Logo圖示" width="80" title="首頁">壁爐之家</RouterLink></a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
+            <span class="navbar-toggler-icon"></span>
         </button>
 
         <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
-        <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
-            <li class="nav-item active">
-            <a class="nav-link" href="#"><RouterLink class="nav-link active" aria-current="page" to="/shop">商城首頁</RouterLink></a>
-            </li>
-            <li class="nav-item">
-            <a class="nav-link" href="#"><RouterLink class="nav-link" to="/secure/login">登入</RouterLink></a>
-            </li>
-        </ul>
-            <form class="form-inline my-2 my-lg-0">
-                <div class="search-bar">
-                    <input class="search-input"
-                    type="text" 
-                    v-model="searchQuery" 
-                    placeholder="搜尋商品..." 
-                    @input="emitSearch"
-                    />
-                    <select v-model="selectedCategory" class="category-select" @change="emitSearch">
-                        <option value="">所有分類</option>
-                        <option v-for="category in categoryStore.categories" :key="category.categoryId" :value="category.categoryId">
-                        {{ category.categoryName }}
-                        </option>
-                    </select>
-                    <button class="search-button" @click="applyFilters">
-                        <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
-                    </button>
-                </div>
-                <p class="price-filter">
-                        <label><font-awesome-icon icon="dollar-sign" style="color: #c6bc77;" /></label>
-                        <span class="price-range">{{ minPrice }}</span>
-                            <input type="range" v-model="minPrice" :min="priceRange.min" :max="priceRange.max" step="5" />
-                        <!-- <input type="range" v-model="maxPrice" :min="priceRange.min" :max="priceRange.max" step="10" /> -->
-                        <span class="price-range">{{ maxPrice }}</span>
-                </p>
+            <ul>
+                <li><router-link to="/shop/cart">購物車</router-link></li>
+                <li><router-link to="/shop/wish">願望清單</router-link></li>
+                <li><router-link to="/shop/note">通知</router-link></li>
+                <li><router-link to="/secure/login">登入</router-link></li>
+            </ul>
+
+            <!-- ✅ 組件組合在 `ShopNavBar.vue` 內部 -->
+            <ShopCart />
+            <WishList />
+            <Notifications />
+
+                <form class="form-inline my-2 my-lg-0">
+                    <div class="search-bar">
+                        <input class="search-input"
+                        type="text" 
+                        v-model="searchQuery" 
+                        placeholder="搜尋商品..." 
+                        @input="emitSearch"
+                        />
+                        <select v-model="selectedCategory" class="category-select" @change="emitSearch">
+                            <option value="">所有分類</option>
+                            <option v-for="category in categoryStore.categories" :key="category.categoryId" :value="category.categoryId">
+                            {{ category.categoryName }}
+                            </option>
+                        </select>
+                        <button class="search-button" @click="applyFilters">
+                            <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
+                        </button>
+                    </div>
+                    <p class="price-filter">
+                            <label><font-awesome-icon icon="dollar-sign" style="color: #c6bc77;" /></label>
+                            <span class="price-range">{{ minPrice }}</span>
+                                <input type="range" v-model="minPrice" :min="priceRange.min" :max="priceRange.max" step="5" />
+                            <!-- <input type="range" v-model="maxPrice" :min="priceRange.min" :max="priceRange.max" step="10" /> -->
+                            <span class="price-range">{{ maxPrice }}</span>
+                    </p>
                 </form>
             </div>
         </nav>
     </template>
+
     <!-- ✅ 已登入時顯示 -->
     <template v-else>
         <nav class="navbar navbar-expand-lg bg-body-tertiary">
@@ -87,7 +92,31 @@ import { ref, computed, inject, onMounted, watch } from "vue";
 import { useCategoryStore } from "@/stores/categoryStore";
 import { CategoryService } from "@/services/CategoryService";
 import { ProductService } from "@/services/ProductService";
+import { CartService } from '@/services/CartService';
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+
+import WishList from '../components/WishList.vue'; // 願望清單
+import Notifications from '../components/Notifications.vue'; //通知小鈴鐺
+import smallCart from '../components/SmallCart.vue'; // 購物車
+import CartDropdown from '@/components/CartDropdown.vue'; // 要保留?
+
+const cartCount = ref(0);
+const isDropdownOpen = ref(false);
+
+// 🔹 獲取購物車數量
+const loadCartCount = async () => {
+  try {
+    const cartItems = await CartService.getCart(memberId);
+    cartCount.value = cartItems.length;
+  } catch (error) {
+    console.error("載入購物車數量失敗:", error);
+  }
+};
+
+// 🔹 切換彈出式購物車
+const toggleDropdown = () => {
+  isDropdownOpen.value = !isDropdownOpen.value;
+};
 
 // 從 shopLayout provide()取得登入資訊
 const isLoggedIn = inject("isLoggedIn"); // 登入狀態

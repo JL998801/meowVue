@@ -39,6 +39,7 @@ import { ref, onMounted, reactive } from "vue";
 import { useCategoryStore } from "@/stores/categoryStore";
 import { ProductService } from "@/services/ProductService";
 import ProductCard from "@/components/ProductCard.vue";
+import ShopLayout from '../views/shops/ShopLayout.vue';
 
 // 狀態變數
 const categoryStore = useCategoryStore();

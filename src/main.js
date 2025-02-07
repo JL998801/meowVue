@@ -1,6 +1,6 @@
 import { createApp } from 'vue';
 import App from './App.vue';
-import route from './router/routers';
+import router from './router/routers';
 import { createPinia } from 'pinia';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import '@/plugins/fontawesome.js';
@@ -11,5 +11,5 @@ app.component('font-awesome-icon', FontAwesomeIcon);
 
 const pinia = createPinia();
 app.use(pinia);
-app.use(route);
+app.use(router);
 app.mount('#app');

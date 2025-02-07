@@ -5,7 +5,6 @@ import { RouterLink, RouterView } from 'vue-router';
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import Navigationbar from "./views/Navigationbar.vue";
-import ShopNavBar from "@/components/ShopNavBar.vue"; // 商城專用導覽列
 import TopButton from "./views/TopButton.vue";
 
 const router = useRouter(); // 頁面挑轉
@@ -16,13 +15,6 @@ const isLoggedIn = ref(false);
 // ✅ 檢查登入狀態 (從 localStorage 取得 token)
 const checkAuth = () => {
   isLoggedIn.value = !!localStorage.getItem("authToken");
-};
-
-// ✅ 登出 (清除 token，回到首頁)
-const logout = () => {
-  localStorage.removeItem("authToken");
-  isLoggedIn.value = false;
-  router.push("/");
 };
 
 // ✅ 頁面載入時檢查登入狀態
@@ -36,14 +28,12 @@ watchEffect(() => {
   isLoggedIn.value = !!localStorage.getItem("authToken");
 });
 
-// ✅ 使用 provide() 讓所有子組件存取 isLoggedIn 和 logout
-provide("isLoggedIn", isLoggedIn);
-provide("logout", logout);
 </script>
 
 <template>
 <Navigationbar v-if="!isShopRoute" />
 <ShopNavBar v-if="isShopRoute" />  <!--若從商城按鈕進入-->
+<router-view />
 <TopButton />
 </template>
 

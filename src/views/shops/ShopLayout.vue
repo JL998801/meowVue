@@ -30,43 +30,22 @@
 </template>
 
 <script setup>
-import { ref, onMounted, inject, watchEffect } from "vue";
-import { CartService } from '../../services/CartService';
+import { onMounted, computed, watchEffect } from "vue";
+import useUserStore from "@/stores/user";
 import ShopNavBar from '@/components/ShopNavBar.vue';
-import CartDropdown from '@/components/CartDropdown.vue';
 
-// 從 App.vue provide()取得登入資訊
-const isLoggedIn = inject("isLoggedIn"); // 登入狀態
-const logout = inject("logout"); // 登出函數
-
-const cartCount = ref(0);
-const isDropdownOpen = ref(false);
-
-// 🔹 獲取購物車數量
-const loadCartCount = async () => {
-  try {
-    const cartItems = await CartService.getCart(memberId);
-    cartCount.value = cartItems.length;
-  } catch (error) {
-    console.error("載入購物車數量失敗:", error);
-  }
-};
-
-// 🔹 切換彈出式購物車
-const toggleDropdown = () => {
-  isDropdownOpen.value = !isDropdownOpen.value;
-};
+const userStore = useUserStore();
+const isLogin = computed(() => userStore.isLogin);
 
 // ✅ 頁面載入時檢查登入狀態
 onMounted(() => {
-  checkAuth();
-  isLoggedIn.value = !!localStorage.getItem("memberId");
+  isLogin.value = !!localStorage.getItem("memberId");
   loadCartCount;
 });
 
 // ✅ 監聽 localStorage 變更，確保狀態同步
 watchEffect(() => {
-  isLoggedIn.value = !!localStorage.getItem("authToken");
+  isLogin.value = !!localStorage.getItem("authToken");
 });
 
 </script>

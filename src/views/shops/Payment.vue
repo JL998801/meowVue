@@ -28,13 +28,16 @@ import { computed } from "vue";
 import { useStore } from "vuex";
 import axios from "axios";
 
-const store = useStore();
+// Get API URL from environment variables
 const apiUrl = import.meta.env.VITE_API_URL;
 
-// 從 Vuex 取得選擇的訂單
+// Vuex store to manage selected order
+const store = useStore();
+
+// Computed property to get selected order from Vuex
 const selectedOrder = computed(() => store.state.selectedOrder);
 
-// 構造支付請求所需的數據
+// Prepare payment data based on selected order
 const getPaymentData = () => {
   if (!selectedOrder.value) return null;
 
@@ -46,7 +49,7 @@ const getPaymentData = () => {
   };
 };
 
-// 發送支付請求
+// Handle sending the payment request
 const sendPayment = () => {
   const paymentData = getPaymentData();
   
@@ -55,14 +58,29 @@ const sendPayment = () => {
     return;
   }
 
+  // Convert the data to x-www-form-urlencoded format
+  const formData = new URLSearchParams();
+  formData.append("orderId", paymentData.orderId);
+  formData.append("total", paymentData.total);
+  formData.append("name", paymentData.name);
+  formData.append("desc", paymentData.desc);
+
+  // Use x-www-form-urlencoded to send the data
   axios
-    .post(`${apiUrl}/pages/ecpay/send`, paymentData)
+    .post(`${apiUrl}/pages/ecpay/send`, formData, {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded" // Ensure the content type is x-www-form-urlencoded
+      }
+    })
     .then((response) => {
+      // Assuming the response contains HTML form to trigger the payment
       const container = document.createElement("div");
       container.innerHTML = response.data;
+
+      // Append the form and script to the body
       document.body.appendChild(container);
       const script = container.querySelector("script");
-      if (script) eval(script.textContent);
+      if (script) eval(script.textContent);  // Execute the script to submit the form
     })
     .catch((error) => {
       console.error("支付失敗：", error);

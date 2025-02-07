@@ -6,7 +6,7 @@
     </div>
     <div v-else>
       <div v-for="item in cart" :key="item.cartItemId">
-        <input type="checkbox" v-model="item.selected" @change="updateSelection(item)" />
+        <input type="checkbox" v-model="selectedItems" :value="item.cartItemId" />
         <p>
           {{ item.product?.productName || '商品名稱加載中...' }} - 單價:
           {{ item.product?.salePrice || 0 }}元 ×
@@ -27,7 +27,6 @@
         <button @click="clearCart">一鍵清空購物車</button>
       </div>
 
-      <!-- Form to enter Credit Card and Shipping Address -->
       <div>
         <h3>填寫交易資訊</h3>
         <label for="creditCard">信用卡號</label>
@@ -52,21 +51,22 @@ const apiUrl = import.meta.env.VITE_API_URL;
 const store = useStore();
 const router = useRouter();
 const cart = computed(() => store.state.cart || []);
+const selectedItems = ref([]);
 
-const defaultCreditCard = '4311-9511-1111-1111'; // Default Credit Card value
-const defaultShippingAddress = '123 Main St';  // Default Shipping Address value
-
-// Variables to bind the form inputs for credit card and shipping address
+// Default values for transaction info
+const defaultCreditCard = '4311-9511-1111-1111';
+const defaultShippingAddress = '123 Main St';
 const creditCard = ref(defaultCreditCard);
 const shippingAddress = ref(defaultShippingAddress);
 
+// 計算總價格
 const totalPrice = computed(() => {
-  if (!cart.value.length) return 0;
   return cart.value
-    .filter(item => item.selected)
+    .filter(item => selectedItems.value.includes(item.cartItemId))
     .reduce((total, item) => total + (item.product?.salePrice || 0) * item.quantity, 0);
 });
 
+// 同步數量到後端
 const syncQuantityWithDatabase = async (item) => {
   try {
     if (item.editQuantity < 0 || isNaN(item.editQuantity)) {
@@ -75,10 +75,9 @@ const syncQuantityWithDatabase = async (item) => {
       return;
     }
     const memberId = store.state.memberId;
-    const productId = item.product.productId;
     await axios.post(`${apiUrl}/pages/cart/add`, {
       memberId: memberId,
-      productId: productId,
+      productId: item.product.productId,
       quantity: item.editQuantity,
     });
     store.dispatch('updateQuantity', { cartItemId: item.cartItemId, quantity: item.editQuantity });
@@ -89,6 +88,7 @@ const syncQuantityWithDatabase = async (item) => {
   }
 };
 
+// 清空購物車
 const clearCart = async () => {
   if (confirm('確定要清空購物車嗎？')) {
     try {
@@ -103,15 +103,7 @@ const clearCart = async () => {
   }
 };
 
-const updateSelection = async (item) => {
-  try {
-    store.commit('setSelected', { cartItemId: item.cartItemId, selected: item.selected });
-  } catch (error) {
-    console.error('更新選擇狀態失敗:', error);
-    alert('更新選擇狀態失敗，請稍後重試！');
-  }
-};
-
+// 移除單個商品
 const removeItem = async (cartItemId) => {
   if (cartItemId && confirm('確定要刪除此商品嗎？')) {
     try {
@@ -125,26 +117,32 @@ const removeItem = async (cartItemId) => {
   }
 };
 
+// 前往交易明細
 const goToPayment = async () => {
   try {
     const memberId = store.state.memberId;
-    const selectedItems = cart.value.filter(item => item.selected);
-    console.log('Selected Items:', selectedItems);  // Debugging line to check cartItemId
+    const selectedCartItems = cart.value.filter(item => selectedItems.value.includes(item.cartItemId));
 
-    // 確保 cartId 是在最外層，並將 selectedItems 放在 items 屬性中
-    await axios.post(`${apiUrl}/orders/submit`, {
-      cartId: selectedItems.length > 0 ? selectedItems[0].cartItemId : null,  // 使用選中的第一個 cartItemId
+    if (selectedCartItems.length === 0) {
+      alert('請選擇至少一個商品進行結帳');
+      return;
+    }
+
+    const orderData = {
+      cartId: 1, // Fix the cartId to be consistent
       member: memberId,
       creditCard: creditCard.value,
       shippingAddress: shippingAddress.value,
-      items: selectedItems.map(item => ({
+      selectedItems: selectedCartItems.map(item => ({
         productId: item.product.productId,
         quantity: item.quantity,
-        cartId: item.cartItemId,  // 使用每個 item 的 cartItemId
-        creditCard: creditCard.value,
-        shippingAddress: shippingAddress.value,
+        cartId: 1, // Ensure the cartId remains the same for all items
       })),
-    });
+    };
+
+    console.log("發送的訂單資訊:", orderData);
+
+    await axios.post(`${apiUrl}/orders/submit`, orderData);
 
     alert('訂單提交成功！');
     router.push('/shop/details');
@@ -154,7 +152,7 @@ const goToPayment = async () => {
   }
 };
 
-
+// 驗證輸入數量
 const validateInput = (item) => {
   if (item.editQuantity < 0 || isNaN(item.editQuantity)) {
     alert('請輸入正確的商品數量');
@@ -162,12 +160,13 @@ const validateInput = (item) => {
   }
 };
 
+// 組件掛載時獲取購物車數據
 onMounted(async () => {
   try {
-    cart.value.forEach(item => {
-      item.editQuantity = item.quantity || 0;
-    });
     await store.dispatch('fetchCartDataFromServer');
+    cart.value.forEach(item => {
+      item.editQuantity = item.quantity || 0; // 初始化 editQuantity
+    });
   } catch (error) {
     console.error('獲取購物車數據失敗:', error);
     alert('獲取購物車數據失敗，請稍後重試！');
