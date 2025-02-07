@@ -1,3 +1,4 @@
+// store/index.js
 import { createStore } from 'vuex';
 import axios from 'axios';
 
@@ -6,11 +7,10 @@ export const store = createStore({
     const cartData = localStorage.getItem('cart');
     return {
       cart: cartData && cartData !== 'undefined' ? JSON.parse(cartData) : [],
-      memberId: 1, // 假设从用户信息中动态获取会员ID
-      creditCard: "4311-9511-1111-1111",  // 假設信用卡號
-      shippingAddress: "123 Main St",  // 假設運送地址
-      cartId: 1, // 假設購物車 ID
-      selectedOrder: null, // 新增: 存储交易明細
+      memberId: 1,
+      creditCard: "4311-9511-1111-1111",
+      shippingAddress: "123 Main St",
+      selectedOrder: null,
     };
   },
   mutations: {
@@ -23,8 +23,8 @@ export const store = createStore({
           ...product,
           quantity: product.quantity || 1,
           selected: false,
-          cartId: product.cartId,
-          productName: product.productName // 确保商品名稱被存储
+          cartId: Date.now(), // 使用時間戳作為唯一的 cartId
+          productName: product.productName
         });
       }
       localStorage.setItem('cart', JSON.stringify(state.cart));
@@ -54,28 +54,29 @@ export const store = createStore({
       }
     },
     setSelectedOrder(state, order) {
-      state.selectedOrder = order; // 設定交易明細
+      state.selectedOrder = order;
     },
   },
   actions: {
-    addToCart({ commit }, product) {
+    async addToCart({ commit, dispatch }, product) {
       commit('addToCart', product);
-      this.dispatch('syncCartWithServer');
+      await dispatch('syncCartWithServer');
+      await dispatch('fetchCartDataFromServer'); // 確保前端更新
     },
-    removeFromCart({ commit }, cartId) {
+    async removeFromCart({ commit, dispatch }, cartId) {
       commit('removeFromCart', cartId);
-      this.dispatch('syncCartWithServer');
+      await dispatch('syncCartWithServer');
+      await dispatch('fetchCartDataFromServer');
     },
-    updateQuantity({ commit }, { cartId, quantity }) {
+    async updateQuantity({ commit, dispatch }, { cartId, quantity }) {
       commit('updateQuantity', { cartId, quantity });
-      this.dispatch('syncCartWithServer');
+      await dispatch('syncCartWithServer');
+      await dispatch('fetchCartDataFromServer');
     },
-    clearCart({ commit }) {
+    async clearCart({ commit, dispatch }) {
       commit('clearCart');
-      this.dispatch('syncCartWithServer');
-    },
-    updateSelectedOrder({ commit }, order) {
-      commit('setSelectedOrder', order);
+      await dispatch('syncCartWithServer');
+      await dispatch('fetchCartDataFromServer');
     },
     async syncCartWithServer({ state }) {
       try {
@@ -85,7 +86,7 @@ export const store = createStore({
             quantity: item.quantity,
             selected: item.selected,
             productId: item.productId,
-            productName: item.productName // 确保商品名稱同步到後端
+            productName: item.productName
           }));
           await axios.put('http://localhost:8080/pages/cart/update', cartData);
         }
@@ -101,7 +102,7 @@ export const store = createStore({
           const updatedCart = response.data.map(item => ({
             ...item,
             cartId: item.cartId || item.id,
-            productName: item.productName || (item.product ? item.product.name : '未知商品') // 确保商品名稱存在
+            productName: item.productName || (item.product ? item.product.name : '未知商品')
           }));
           commit('setCart', updatedCart);
         } else {
@@ -112,19 +113,56 @@ export const store = createStore({
         commit('clearCart');
       }
     },
+    // Here we define the updateSelectedOrder action correctly
+    updateSelectedOrder({ commit }, order) {
+      commit('setSelectedOrder', order);
+    },
+    async submitOrder({ state, commit }) {
+      try {
+        const selectedItems = state.cart.filter(item => item.selected).map(item => ({
+          productId: item.productId,
+          quantity: item.quantity,
+          cartId: item.cartId, // 使用購物車中商品的 cartId
+        }));
+        if (selectedItems.length === 0) {
+          alert('請選擇至少一個商品進行結帳');
+          return;
+        }
+
+        const orderData = {
+          member: state.memberId,
+          creditCard: state.creditCard,
+          shippingAddress: state.shippingAddress,
+          selectedItems,
+        };
+
+        const response = await axios.post('http://localhost:8080/pages/order/create', orderData);
+
+        if (response.data.success) {
+          alert('訂單提交成功！');
+          commit('setSelectedOrder', response.data.order);
+        } else {
+          alert('訂單提交失敗，請稍後再試！');
+        }
+      } catch (error) {
+        console.error('Failed to submit order:', error);
+        alert('提交訂單失敗，請稍後再試！');
+      }
+    },
   },
   getters: {
     selectedCartItems(state) {
       return state.cart.filter(item => item.selected).map(item => ({
         ...item,
-        productName: item.productName || '未知商品' // 確保前端獲取商品名稱
+        productName: item.productName || '未知商品'
       }));
     },
     totalCartPrice(state) {
       return state.cart.reduce((total, item) => total + (item.product.salePrice * item.quantity), 0);
     },
     selectedOrder(state) {
-      return state.selectedOrder; // 新增: 取得交易明細
+      return state.selectedOrder;
     },
   },
 });
+
