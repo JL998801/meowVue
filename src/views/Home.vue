@@ -1,4 +1,5 @@
 <template>
+    <h3>首頁 {{ userStore.email }}</h3>
     <!-- 導覽按鈕 -->
     <div class="main-link-box">
         <ul class="list-unstyled">

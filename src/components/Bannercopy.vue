@@ -36,9 +36,9 @@ import { ref, onMounted } from "vue";
 
 // 假案件數據
 const caseCategories = ref([
-    { type: "rescue", title: "流浪救援", moreLink: "/pets/rescue" },
-    { type: "lost", title: "遺失協尋", moreLink: "/pets/lost" },
-    { type: "adopt", title: "動物認養", moreLink: "/adopt" }
+    { type: "RESCUE", title: "流浪救援", moreLink: "/pets/rescue" },
+    { type: "LOST", title: "遺失協尋", moreLink: "/pets/lost" },
+    { type: "ADOPT", title: "動物認養", moreLink: "/adopt" }
 ]);
 
 const cases = ref({
