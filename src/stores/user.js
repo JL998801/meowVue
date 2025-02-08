@@ -1,4 +1,4 @@
-import { computed, ref } from 'vue'
+import { computed, ref, watchEffect } from 'vue'
 import { defineStore } from 'pinia'
 import axios from "axios";
 
@@ -85,6 +85,11 @@ const useUserStore = defineStore("user", () => {
         return token.value !== null && token.value !== "" && isTokenValid.value;;
     });
 
+    // ✅ 監聽 localStorage，確保 token 保持同步 (老米)
+    watchEffect(() => {
+        token.value = localStorage.getItem("authToken") || "";
+    });
+
     return {
         email,
         setEmail,
@@ -101,4 +106,4 @@ const useUserStore = defineStore("user", () => {
             storage: localStorage, paths: ["email","token" ]    // 當 email 或 token 被更新時會自動存入 localStorage
         }
     });
-export default useUserStore;    
+export default useUserStore;

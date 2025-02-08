@@ -7,6 +7,7 @@ export const useCategoryStore = defineStore("category", {
 state: () => ({
     categories: []
 }),
+
 actions: {
     async fetchCategories() {
         try {

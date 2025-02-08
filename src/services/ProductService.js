@@ -2,6 +2,19 @@ import axiosapi, { jsonRequest, uploadFile } from "@/plugins/axios";
 
 // 商品服務 API
 export const ProductService = {
+    // 分頁排序
+  async getPagedProducts(page = 0, size = 10, sortBy = "productName", order = "asc") {
+    try {
+        const response = await axios.get("/products/paged", {
+            params: { page, size, sortBy, order }
+        });
+        return response.data;
+    } catch (error) {
+        console.error("獲取分頁商品失敗:", error);
+        return { content: [], totalPages: 0 };
+    }
+  },
+  
   // ✅ 1. 獲取所有商品
   async getAllProducts() {
     try {

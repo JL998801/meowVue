@@ -4,24 +4,20 @@
     <nav>
       <ShopNavBar />
     </nav>
+
+    <div class="shop-container">
+      <!-- 左側:搜尋條件列表 -->
+      <aside>
+        <ShopSearch/>
+      </aside>
     
-    <!-- 商城的主要內容 -->
-    <main>
-      <router-view /> 
-      <!-- ✅ 載入 `ShopHome.vue` 或其他商城頁面 -->
-    </main>
-
-    <!-- 側邊攔:購物車 -->
-    <aside>
-      <div class="cart-icon" @click="toggleDropdown">
-        <font-awesome-icon :icon="['fas', 'shopping-cart']" />
-        <span class="cart-count">{{ cartCount }}</span>
-      </div>
-
-      <!-- ✅ 購物車彈出視窗 -->
-      <CartDropdown :isOpen="isDropdownOpen" />
-    </aside>
-
+      <!-- 右側: 商城的主要內容 -->
+      <main class="shop-content">
+        <router-view /> 
+        <!-- ✅ 載入 `ShopHome.vue` 或其他商城頁面 -->
+      </main>
+    </div>
+    
     <!-- 商城專用 Footer -->
     <footer>
       <p>© 2024 壁爐之家商城. All rights reserved.</p>
@@ -30,36 +26,44 @@
 </template>
 
 <script setup>
-import { onMounted, computed, watchEffect } from "vue";
+import { ref,onMounted } from "vue";
 import useUserStore from "@/stores/user";
 import ShopNavBar from '@/components/ShopNavBar.vue';
+import ShopSearch from '@/components/ShopSearch.vue';
 
+// ✅ 判斷是否登入；user.js有加入watchEffect()`token` & `isLogin` 會自動同步
 const userStore = useUserStore();
-const isLogin = computed(() => userStore.isLogin);
 
 // ✅ 頁面載入時檢查登入狀態
 onMounted(() => {
-  isLogin.value = !!localStorage.getItem("memberId");
-  loadCartCount;
-});
-
-// ✅ 監聽 localStorage 變更，確保狀態同步
-watchEffect(() => {
-  isLogin.value = !!localStorage.getItem("authToken");
+  userStore.token = ref(localStorage.getItem("token") || "");
 });
 
 </script>
 
 <style scoped>
-#shop-layout {
+.shop-layout {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100vh;
 }
 
-main {
-  flex-grow: 1;
+.shop-container {
+  display: flex;
+  flex: 1;
+}
+
+.shop-search {
+  width: 250px;
+  padding: 15px;
+  background: #f8f9fa;
+  border-right: 1px solid #ddd;
+}
+
+.shop-content {
+  flex: 1;
   padding: 20px;
+  overflow-y: auto;
 }
 
 .cart-icon {

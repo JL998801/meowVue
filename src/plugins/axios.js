@@ -24,11 +24,11 @@ export const jsonRequest = (method, url, data = {}) => {
     });
   };
   
-  // **Form-Data 上傳圖片**
-  export const uploadFile = (url, formData) => {
-    return axiosapi.post(url, formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
-  };
+// **Form-Data 上傳圖片**
+export const uploadFile = (url, formData) => {
+  return axiosapi.post(url, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+};
 
 export default axiosapi;
