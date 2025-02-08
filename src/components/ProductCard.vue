@@ -1,10 +1,9 @@
 <template>
   <div class="card my-3 product-card" @click.stop="goToProductDetails">
-    <div class="card-body">
-          <!-- 標籤區塊 -->
-    <div class="product-tags">
-      <span v-for="tag in product.tags" :key="tag" class="tag">{{ tag }}</span>
-    </div>
+    <div v-if="products.length" class="card-body">
+      <div class="product-tags">
+        <span v-for="tag in product.tags" :key="tag" class="tag">{{ tag }}</span>
+      </div>
 
       <div v-if="displayMode === 'single'">
         <img v-if="product.imageUrls && product.imageUrls.length > 0" 
@@ -23,11 +22,10 @@
       </div>
 
       <h5 class="card-title">{{ product.productName }}</h5>
+      <p class="card-text">描述: {{ product.description }}</p>
       <p class="card-text">價格: {{ product.salePrice }} 元</p>
       <p class="card-text">庫存: {{ product.stockQuantity }} </p>
       <p class="card-text">單位: {{ product.unit }} </p>
-
-      <!-- 數量選擇 -->
       <div class="d-flex align-items-center">
         <label class="me-2">數量:</label>
         <input 
@@ -54,17 +52,23 @@
       @mouseover="isHovered = true" 
       @mouseleave="isHovered = false" 
       >
-      <font-awesome-icon v-if="!isHovered" :icon="['far', 'heart']"/>
-      <font-awesome-icon v-else :icon="['fas', 'heart']" size="xl"/>
-    </button>
+        <font-awesome-icon v-if="!isHovered" :icon="['far', 'heart']"/>
+        <font-awesome-icon v-else :icon="['fas', 'heart']" size="xl"/>
+      </button>
     </div>
+    <p v-else>沒有商品</p>
   </div>
 </template>
 
 <script setup>
-import { ref ,defineProps } from "vue";
-import { useRouter } from "vue-router";
-import { useStore } from 'vuex';
+import { ref ,defineProps,onMounted } from "vue";
+import { useRouter } from "vue-router"; 
+import { ProductService } from "@/services/ProductService";
+
+const quantity = ref(1);
+const isHovered = ref(false);
+const router = useRouter();  // 點擊後跳轉，連接後端api資料
+const products = ref([]); // ✅ 預設為空陣列
 
 // 定義 Props
 const props = defineProps({
@@ -75,11 +79,15 @@ const props = defineProps({
   }
 });
 
-// 狀態管理
-const quantity = ref(1);
-const isHovered = ref(false);
-const store = useStore();
-const router = useRouter();
+// 獲取商品資料
+const fetchProducts = async () => {
+  try {
+    const response = await ProductService.getAllProducts();
+    products.value = response;
+  } catch (error) {
+    console.error("獲取商品失敗:", error);
+  }
+};
 
 // 點擊卡片導向商品詳情
 const goToProductDetails = () => {
@@ -92,7 +100,7 @@ const goToProductDetails = () => {
   router.push(`/product/${props.product.productId}`);
 };
 
-// 加入購物車--配合cartService.js
+// 加入購物車
 const addToCart = (event) => {
   store.dispatch('addToCart', { ...props.product, quantity: quantity.value });
   event.stopPropagation(); // 防止點擊購物車按鈕時導向詳情
@@ -103,6 +111,10 @@ const AddToWishlist = (event) => {
   console.log(`加入願望清單: ${props.product.productName}`);
   event.stopPropagation(); // 防止點擊願望清單按鈕時導向詳情
 };
+
+onMounted(() => {
+  fetchProducts();
+});
 </script>
 
 <style scoped>

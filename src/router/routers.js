@@ -8,7 +8,7 @@ import LoginMember from '@/views/secure/LoginMember.vue';
 import LoginAdmin from '@/views/secure/LoginAdmin.vue';
 import Register from '@/views/pages/Register.vue';
 import AdminManagement from '@/views/AdminManagement.vue';
-import { routes as shopRoutes } from './shopRoute'; // 引入商城路由
+import { shopRoutes } from './shopRouter'; // 引入商城路由
 import ShopLayout from '../views/shops/ShopLayout.vue';
 // import RescueCase from '@/views/pages/pet/rescue/RescueCase.vue';
 // import EditRescueCase from '../views/pages/pet/rescue/EditRescueCase.vue';

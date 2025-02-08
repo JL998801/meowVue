@@ -26,20 +26,61 @@
                 <div class="total">
                     <span>總金額: {{ totalPrice }}元</span>
                 </div>
-                <button class="go-to-cart-btn" @click="goToCart">前往購物車</button>
+                <!-- 按鈕操作 -->
+                <div class="cart-actions">
+                    <button @click="removeItem(item.id)">❌</button>
+                    <button @click="clearCart" v-if="cartItems.length">清空購物車</button>
+                    <button class="go-to-cart-btn" @click="goToCart">查看購物車</button>
+                </div>
             </div>
         </div>
     </div>
 </template>
 
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, ref,onMounted } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
+import useUserStore from "@/stores/user";
+import { CartService } from "@/services/CartService";
 
 const store = useStore();
+const userStore = useUserStore();
 const router = useRouter();
+
 const cart = computed(() => store.state.cart || []);
+const cartItems = ref([]);
+const cartCount = computed(() => cartItems.value.length);
+
+// ✅ 取得會員購物車內容
+const fetchCart = async () => {
+  if (!userStore.isLogin) return;
+  try {
+    cartItems.value = await CartService.getCart(userStore.memberId);
+  } catch (error) {
+    console.error("購物車加載失敗", error);
+  }
+};
+
+// ✅ 移除購物車商品
+const removeItem = async (cartItemId) => {
+  try {
+    await CartService.removeFromCart(cartItemId);
+    cartItems.value = cartItems.value.filter(item => item.id !== cartItemId);
+  } catch (error) {
+    console.error("刪除商品失敗", error);
+  }
+};
+
+// ✅ 清空購物車
+const clearCart = async () => {
+  try {
+    await CartService.clearCart(userStore.memberId);
+    cartItems.value = [];
+  } catch (error) {
+    console.error("清空購物車失敗", error);
+  }
+};
 
 // 用來控制購物車顯示與隱藏
 const showCart = ref(false);
@@ -72,6 +113,10 @@ const cartQuantity = computed(() => {
 const goToCart = () => {
     router.push('/shop/cart'); // 確保路由正確
 };
+
+onMounted(() => {
+  fetchCart();
+});
 </script>
 
 <style scoped>
