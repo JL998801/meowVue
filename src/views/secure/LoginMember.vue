@@ -21,6 +21,10 @@
 			</tr>
         </tbody>
 	</table>
+
+	<div>
+		<RouterLink class="link" to="/pages/Register">註冊會員</RouterLink>
+	</div>
 	
 </template>
 <script setup>
@@ -39,42 +43,63 @@ const userStore = useUserStore();
 async function login() {
     document.querySelector(".error").innerHTML = "";
     message.value = "";
-	if (username.value== "") {
-		username.value = null;
-	}
-	if (password.value == "") {
-		password.value= null;
-	}
-	const body = {
-		"email": username.value,  
-		"password": password.value,
-	};
-	xxx.defaults.headers.authorization="";
-	userStore.setEmail("")
+    if (username.value == "") {
+        username.value = null;
+    }
+    if (password.value == "") {
+        password.value = null;
+    }
+    const body = {
+        "email": username.value,
+        "password": password.value,
+    };
+    
+    // 清空之前的 header 授權信息
+    xxx.defaults.headers.authorization = "";
+    userStore.setEmail("");
+
     try {
-		const response = await xxx.post("/ajax/secure/login", body);
-		console.log("response", response);
-		if (response.data.success) {
-			await Swal.fire({
-				title: response.data.message,
-				icon: "success"
-			});
-			xxx.defaults.headers.authorization="Bearer"+response.data.token;
-			userStore.setEmail(response.data.user);
-            router.push({path:"/"})
-		} else {
-			document.querySelector(".error").innerHTML = response.data.message;
-			Swal.fire({
-				title: response.data.message,
-				icon: "warning"
-			});
-		}
-	} catch (error) {
-		console.log("error", error);
-		Swal.fire({
-			title: "執行失敗:" + error.message,
-			icon: "error"
-		});
-	}
+        const response = await xxx.post("/ajax/secure/login", body);
+        console.log("response",  response.data);
+        
+        if (response.data.success) {
+            // 登入成功後顯示訊息
+            await Swal.fire({
+                title: response.data.message,
+                icon: "success"
+            });
+
+            // 儲存登入資訊到 localStorage，將資料轉換成字串格式
+            localStorage.setItem("memberId", response.data.user.memberId);  // 儲存 `memberId`
+            localStorage.setItem("email", response.data.user.email);        // 儲存 `email`
+            localStorage.setItem("token", response.data.token);             // 儲存 JWT Token
+            localStorage.setItem("nickname", response.data.user.nickname);  // 儲存 `nickname`
+
+            // 設定 authorization header
+            xxx.defaults.headers.authorization = "Bearer " + response.data.token;
+            
+            // 儲存使用者資訊到狀態管理 (如果有)
+            userStore.setEmail(response.data.user);
+
+            // 跳轉到會員中心
+            router.push({ path: "/pages/MemberCenter" });
+        } else {
+            // 登入失敗，顯示錯誤訊息
+            document.querySelector(".error").innerHTML = response.data.message;
+            Swal.fire({
+                title: response.data.message,
+                icon: "warning"
+            });
+        }
+    } catch (error) {
+        console.log("error", error);
+        // 捕獲錯誤並顯示
+        Swal.fire({
+            title: "執行失敗:" + error.message,
+            icon: "error"
+        });
+    }
 }
+
+
 </script>

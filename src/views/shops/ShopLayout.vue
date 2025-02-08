@@ -1,61 +1,92 @@
 <template>
-  <div id="shop-app">
-    <header>
-      <h1>歡迎來到我的購物網站</h1>
-      <nav>
-        <RouterLink to="/shop">寵物商品</RouterLink>
-        <RouterLink to="/shop/cart">購物車</RouterLink>
-        <RouterLink to="/shop/details">交易明細</RouterLink>
-        <RouterLink to="/shop/payment">支付</RouterLink>
-      </nav>
+  <div id="shop-layout">
+    <!-- 商城導覽列 -->
+    <nav>
+      <ShopNavBar />
+    </nav>
 
-      <!-- 小購物車，放在 header 中 -->
-      <SmallCart />
-    </header>
-
-    <!-- 顯示子路由內容 -->
-    <router-view />
+    <div class="shop-container">
+      <!-- 左側:搜尋條件列表 -->
+      <aside>
+        <ShopSearch/>
+      </aside>
+    
+      <!-- 右側: 商城的主要內容 -->
+      <main class="shop-content">
+        <router-view /> 
+        <!-- ✅ 載入 `ShopHome.vue` 或其他商城頁面 -->
+      </main>
+    </div>
+    
+    <!-- 商城專用 Footer -->
+    <footer>
+      <p>© 2024 壁爐之家商城. All rights reserved.</p>
+    </footer>
   </div>
 </template>
 
 <script setup>
-import { RouterLink } from 'vue-router';
-import SmallCart from '../../components/SmallCart.vue'; // 引入小購物車組件
+import { ref,onMounted } from "vue";
+import useUserStore from "@/stores/user";
+import ShopNavBar from '@/components/ShopNavBar.vue';
+import ShopSearch from '@/components/ShopSearch.vue';
+
+// ✅ 判斷是否登入；user.js有加入watchEffect()`token` & `isLogin` 會自動同步
+const userStore = useUserStore();
+
+// ✅ 頁面載入時檢查登入狀態
+onMounted(() => {
+  userStore.token = ref(localStorage.getItem("token") || "");
+});
+
 </script>
 
 <style scoped>
-body {
-  font-family: Arial, sans-serif;
-  background-color: #f0f0f0;
-  margin: 0;
-  padding: 0;
+.shop-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
 }
 
-#shop-app {
-  max-width: 1200px;
-  margin: 0 auto;
+.shop-container {
+  display: flex;
+  flex: 1;
+}
+
+.shop-search {
+  width: 250px;
+  padding: 15px;
+  background: #f8f9fa;
+  border-right: 1px solid #ddd;
+}
+
+.shop-content {
+  flex: 1;
   padding: 20px;
+  overflow-y: auto;
 }
 
-header {
-  background-color: #343a40;
+.cart-icon {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.cart-count {
+  background: red;
   color: white;
-  padding: 20px;
+  font-size: 12px;
+  border-radius: 50%;
+  padding: 2px 6px;
+  position: absolute;
+  top: -5px;
+  right: -5px;
+}
+
+footer {
+  background: #f8f9fa;
   text-align: center;
-}
-
-nav {
-  margin-top: 15px;
-}
-
-nav a {
-  margin: 0 20px;
-  text-decoration: none;
-  color: #007bff;
-  font-size: 18px;
-}
-
-nav a:hover {
-  text-decoration: underline;
+  padding: 10px;
+  margin-top: 20px;
 }
 </style>

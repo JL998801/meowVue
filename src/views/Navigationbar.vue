@@ -2,7 +2,7 @@
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
         <div class="container-fluid">
             <RouterLink class="navbar-brand" aria-current="page" to="/">
-            <img src="../images/petLogo.png" alt="Logo圖示" width="80" title="首頁">壁爐之家</RouterLink>
+            <img src="../assets/petLogo.png" alt="Logo圖示" width="80" title="首頁">壁爐之家</RouterLink>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -24,7 +24,7 @@
                         </ul>
                     </li>
                     <li class="nav-item" title="寵物商城">
-                        <RouterLink class="nav-link active" aria-current="page" to="/shops/products1">寵物商城</RouterLink>
+                        <RouterLink class="nav-link active" aria-current="page" to="/shop">寵物商城</RouterLink>
                     </li>
                     <li class="nav-item" title="救援活動">
                         <RouterLink class="nav-link active" aria-current="page" to="/pets/products">救援活動</RouterLink>
@@ -45,6 +45,7 @@
 <script setup>
 import useUserStore from "@/stores/user.js";
 const userStore = useUserStore();
+
 </script>
     
 <style>
