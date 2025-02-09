@@ -1,26 +1,29 @@
 import { defineStore } from "pinia";
 import { CategoryService } from "@/services/CategoryService";
+import Swal from "sweetalert2";
 
-// pinia負責管理狀態
+const useCategoryStore = defineStore("category", {
+  state: () => ({
+    categories: [], // ✅ 存放所有分類
+  }),
 
-export const useCategoryStore = defineStore("category", {
-state: () => ({
-    categories: []
-}),
-
-actions: {
+  actions: {
+    // ✅ 取得所有分類
     async fetchCategories() {
-        try {
-            const categories = await CategoryService.getAllCategories();
-            
-            // 🔹 確保 `categories` 是陣列
-            this.categories = Array.isArray(categories) ? categories : [];
-    
-            console.log("載入的 categories:", this.categories);
-        } catch (error) {
-            console.error("無法獲取商品分類:", error);
-            this.categories = []; // 避免前端報錯
-        }
-    }    
-}
+      try {
+        const response = await CategoryService.getAllCategories();
+        this.categories = response?.categories ?? []; // ✅ 確保只存 `categories`
+        console.log("獲取的 categories:", JSON.stringify(this.categories, null, 2));
+      } catch (error) {
+        console.error("無法獲取商品分類:", error);
+        this.categories = []; // 避免前端報錯
+        Swal.fire({
+          icon: "error",
+          title: "載入失敗",
+          text: errorMessage.value,
+        });
+      }
+    },
+  },
 });
+export default useCategoryStore;

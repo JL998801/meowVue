@@ -1,121 +1,127 @@
+<script setup>
+import { computed, defineProps, onMounted } from "vue";
+import Carousel from "@/components/Carousel.vue";
+import ProductCard from "@/components/ProductCard.vue";
+import Pagination from "@/components/Pagination.vue"
+
+// 接收 shopSidebar.vue 搜尋資料
+const props = defineProps({
+  products:Array,
+  filteredProducts: Array,
+  isSearching: Boolean,
+});
+
+console.log("shopHome init");
+console.log(props.products);
+
+// 監聽當前頁面和總頁數
+const currentPage = computed(() => productStore.page);
+const totalPages = computed(() => productStore.totalPages);
+const pageSize = computed(() => productStore.size); // ✅ 每頁顯示數量
+
+// 加入購物車
+const addToCart = (product) => {
+  cartStore.addToCart(product.productId);
+  Swal.fire({
+    title: "商品添加成功！",
+    text: `"${product.productName}" 已成功加入購物車！`,
+    icon: "success",
+    confirmButtonText: "確定",
+  });
+};
+
+// 加入願望清單
+const addToWishlist = (product) => {
+  wishlistStore.addToWishList(product.productId);
+  Swal.fire({
+    title: "商品已加入願望清單！",
+    text: `"${product.productName}" 已成功加入您的願望清單！`,
+    icon: "success",
+    confirmButtonText: "確定",
+  });
+};
+
+// ✅ 更新每頁顯示的商品數量
+const updatePageSize = (event) => {
+  productStore.size = Number(event.target.value);
+  productStore.page = 1; // ✅ 切回第一頁，避免超出範圍
+  productStore.fetchProducts();
+};
+
+// ✅ 切換分頁
+const updatePage = (newPage) => {
+  productStore.page = newPage;
+  productStore.fetchProducts();
+};
+
+onMounted(()=>{
+  console.log("test");
+})
+</script>
+
 <template>
-  <div>
-    <ShopSearch v-model="searchQuery" />
-
-    <!-- 🔹 有搜尋條件時，顯示搜尋結果 -->
+  <div class="shop-home">
+    <!-- 🔹 如果有搜尋結果，顯示商品卡片 -->
     <div v-if="isSearching">
-      <h3>搜尋結果</h3>
-      <div v-if="products.length">
-        <ProductCard v-for="product in products" :key="product.id" :product="product" />
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>搜尋結果</h2>
+          <!-- 🔹 商品卡片 -->
+          <div class="product-grid">
+            <ProductCard
+              v-for="product in filteredProducts"
+              :key="product.productId"
+              :product="product"
+              @add-to-cart="addToCart"
+              @add-to-wishlist="addToWishlist"
+            />
+          </div>
+
+          <!-- 🔹 分頁控制 -->
+          <div class="pagination">
+            <Pagination 
+              v-if="filteredProducts.length > 10"
+              :currentPage="currentPage" 
+              :totalPages="totalPages" 
+              @update-page="updatePage"
+            />
+          </div>
+        <label for="pageSizeSelect" class="me-2">每頁顯示：</label>
+        <select id="pageSizeSelect" class="form-select w-auto" :value="pageSize" @change="updatePageSize">
+          <option :value="10">10</option>
+          <option :value="20">20</option>
+          <option :value="50">50</option>
+        </select>
       </div>
-      <p v-else>未找到相關商品。</p>
-
-      <!-- 🔹 分頁控制 -->
-      <div class="pagination">
-        <button @click="page--" :disabled="page === 0">上一頁</button>
-        <button @click="page++" :disabled="page >= totalPages - 1">下一頁</button>
-      </div>
-
-      <!-- 🔹 排序選擇 -->
-      <label>排序：</label>
-      <select v-model="sortBy">
-        <option value="productName">商品名稱</option>
-        <option value="salePrice">價格</option>
-        <option value="createdAt">上架時間</option>
-      </select>
-
-      <select v-model="order">
-        <option value="asc">升序</option>
-        <option value="desc">降序</option>
-      </select>
     </div>
 
-    <!-- 🔹 無搜尋條件時，顯示預設類別商品 -->
+    <!-- 🔹 如果沒有搜尋，顯示預設類別輪播 -->
     <div v-else>
-      <h3>推薦商品</h3>
-      <div v-if="products.length">
-        <ProductCard v-for="product in products" :key="product.id" :product="product" />
-      </div>
-      <p v-else>目前沒有推薦商品。</p>
+      <h2>推薦商品</h2>
+      <Carousel 
+        v-if="products.length"
+        :products="products"
+       />
     </div>
   </div>
 </template>
 
-<script setup>
-import { ref, onMounted, reactive,watch } from "vue";
-import { useCategoryStore } from "@/stores/categoryStore";
-import { ProductService } from "@/services/ProductService";
-import ShopSearch from "@/components/ShopSearch.vue";
-import ProductCard from "@/components/ProductCard.vue";
-
-const products = ref([]); // 存放搜尋結果
-const searchQuery = ref(""); // 來自 ShopSearch.vue 的搜尋關鍵字
-const isSearching = ref(false);
-const categoryStore = useCategoryStore(); //類別狀態
-const categoryProducts = reactive({}); // 分類商品
-const defaultCategories = ["貓用品", "狗用品", "保健品"];
-
-// 分頁排序
-const page = ref(0);
-const size = ref(10);
-const sortBy = ref("productName");
-const order = ref("asc");
-const totalPages = ref(1);
-
-// ✅ 取得預設三種類別商品
-const fetchDefaultProducts = async () => {
-  try {
-    const promises = defaultCategories.map(category =>
-      ProductService.searchProducts(category)
-    );
-    const results = await Promise.all(promises);
-    products.value = results.flat(); // 合併不同類別的商品
-  } catch (error) {
-    console.error("載入預設類別商品失敗", error);
-  }
-};
-
-// ✅ 取得搜尋結果（分頁 + 排序）
-const fetchProducts = async () => {
-  if (searchQuery.value) {
-    isSearching.value = true;
-    const response = await ProductService.getPagedProducts(
-      searchQuery.value, page.value, size.value, sortBy.value, order.value
-    );
-    products.value = response.content;
-    totalPages.value = response.totalPages;
-  } else {
-    isSearching.value = false;
-    await fetchDefaultProducts();
-  }
-};
-
-// ✅ 監聽搜尋變化，觸發 API
-watch([searchQuery, page, size, sortBy, order], fetchProducts);
-
-// ✅ 頁面載入時，取得預設商品
-onMounted(fetchProducts);
-</script>
-
 <style scoped>
-.category-title {
+/* 讓下拉選單更緊湊 */
+select.form-select {
+  max-width: 80px;
+}
+
+/* 商品卡片排版 */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+/* 分頁控制 */
+.pagination {
   display: flex;
-  align-items: center;
   justify-content: center;
-  font-size: 20px;
   margin-top: 20px;
-}
-
-.product-slider {
-  display: flex;
-  overflow-x: auto;
-  gap: 10px;
-  padding: 10px;
-  scroll-behavior: smooth;
-}
-
-.product-item {
-  flex: 0 0 auto;
-  width: 250px;
 }
 </style>

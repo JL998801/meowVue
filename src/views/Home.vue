@@ -23,7 +23,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 // import '@/assets/petmain.css'; 
 import { RouterLink } from "vue-router";
 // import GoogleMap from "@/components/GoogleMap.vue";
@@ -41,6 +41,9 @@ const navLinks = ref([
     { title: "救援活動", subtitle: "浪浪需要你的援手", url: "/pets/products", iconClass: "flo-icon icon-about" }
 ]);
 console.log("Home.vue 加載成功");
+onMounted(()=>{
+    console.log("test");
+})
 </script>
 
 <style scoped>

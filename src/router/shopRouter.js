@@ -1,4 +1,4 @@
-import ShopHome from '../views/shops/ShopHome.vue';  // 商品搜尋頁
+import ShopHome from '../views/shops/shopHome.vue';  // 商品搜尋頁
 import ProductDetails from '../views/shops/ProductDetails.vue'; // 商品詳細頁
 import Cart from '../views/shops/Cart.vue';  // 購物車清單
 import ShopDetails from '../views/shops/ShopDetails.vue'; // 訂單明細

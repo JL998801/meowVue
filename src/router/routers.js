@@ -9,7 +9,9 @@ import LoginAdmin from '@/views/secure/LoginAdmin.vue';
 import Register from '@/views/pages/Register.vue';
 import AdminManagement from '@/views/AdminManagement.vue';
 import { shopRoutes } from './shopRouter'; // 引入商城路由
-import ShopLayout from '../views/shops/ShopLayout.vue';
+import ShopLayout from '@/views/shops/ShopLayout.vue';
+import MemberCenter from '@/views/pages/MemberCenter.vue';
+import MemberCard from '@/views/pages/MemberCard.vue';
 // import RescueCase from '@/views/pages/pet/rescue/RescueCase.vue';
 // import EditRescueCase from '../views/pages/pet/rescue/EditRescueCase.vue';
 // import NewRescueProgress from '../views/pages/pet/rescue/NewRescueProgress.vue';
@@ -32,7 +34,9 @@ const routes = [
     path: "/shop",
     component: ShopLayout,
     children: [...shopRoutes] // ✅ 正確展開商城子路由
-  }
+  },
+  { path: "/pages/MemberCenter", component: MemberCenter, name: "MemberCenter-link" },
+  { path: "/pages/MemberCard", component: MemberCard, name: "MemberCard-link" },
   // { path: "/pet/rescue/search", component: RescueSearch, name: "pet-rescueSearch-link"}, 
   // { path: "/pet/rescueCase/:id", component: RescueCase, name: "pet-rescueCase-link",  props: true},  // 使用 props 傳遞參數產生動態路由(新增案件)
   // { path: "/pet/rescueCase/edit/:id", component: EditRescueCase, name: "pet-rescueCase-edit-link",  props: true},  // 使用 props 傳遞參數產生動態路由(編輯案件)
@@ -63,9 +67,11 @@ router.beforeEach(async (to, from, next) => {
   //用來判斷救援案件頁面路徑，需要是公開
   const isRescueCaseDetail = to.path.startsWith("/pet/rescueCase/") && to.path.split("/").length === 4; 
 
+  console.log(!publicPages.includes(to.path))
+  console.log(!isRescueCaseDetail)
+
   // 需要驗證的路由，startsWith會包括上述路由所有/**`，some() 會逐個檢查 publicPages 陣列中的每個元素，確保 只要前綴匹配就視為公開頁面
   const authRequired = !publicPages.includes(to.path) && !isRescueCaseDetail;
-  
   if (authRequired) {
     const isValid = await userStore.validateToken();    //自定義方法檢查Token是否有效
     if (!isValid) {

@@ -80,7 +80,7 @@ async function login() {
             
             // 儲存使用者資訊到狀態管理 (如果有)
             userStore.setEmail(response.data.user);
-
+            
             // 跳轉到會員中心
             router.push({ path: "/pages/MemberCenter" });
         } else {

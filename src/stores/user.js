@@ -1,6 +1,7 @@
 import { computed, ref, watchEffect } from 'vue'
 import { defineStore } from 'pinia'
 import axios from "axios";
+import Swal from 'sweetalert2';
 
 const useUserStore = defineStore("user", () => {
     const token = ref("");
@@ -49,6 +50,11 @@ const useUserStore = defineStore("user", () => {
         } catch (error) {
         console.error("Token validation failed:", error);
         isTokenValid.value = false;
+        Swal.fire({
+            icon: "error",
+            title: "載入失敗",
+            text: errorMessage.value,
+          });
         return false;
         }
     }

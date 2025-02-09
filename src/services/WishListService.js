@@ -1,46 +1,21 @@
-import axios from "axios";
+import { jsonRequest } from "@/plugins/axios";
 
-const API_BASE_URL = "/wishlists";
+const API_URL = "/wishlists";
 
 export const WishListService = {
-// ✅ 新增商品到願望清單
-async addToWishList(productId, memberId) {
-try {
-    const response = await fetch(`${API_BASE_URL}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ memberId, productId })
-    });
-    return await response.json();
-} catch (error) {
-    console.error("加入願望清單失敗:", error);
-    return null;
-}
-},
+  async addToWishList(productId, memberId) {
+    return jsonRequest("post", API_URL, { memberId, productId });
+  },
 
-// ✅ 從願望清單移除商品
-async removeFromWishList(productId, memberId) {
-try {
-    const response = await fetch(`${API_BASE_URL}`, {
-    method: "DELETE",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ memberId, productId })
-    });
-    return await response.json();
-} catch (error) {
-    console.error("從願望清單移除商品失敗:", error);
-    return null;
-}
-},
+  async removeFromWishList(productId, memberId) {
+    return jsonRequest("delete", API_URL, { memberId, productId });
+  },
 
-// ✅ 查詢會員的願望清單
-async getWishList(memberId) {
-try {
-    const response = await fetch(`${API_BASE_URL}?memberId=${memberId}`);
-    return await response.json();
-} catch (error) {
-    console.error("獲取願望清單失敗:", error);
-    return null;
-}
-}
+  async getWishList(memberId) {
+    if (!memberId) {
+      console.error("❌ 未提供 `memberId`，無法獲取願望清單");
+      return [];
+    }
+    return jsonRequest("get", `${API_URL}?memberId=${memberId}`);
+  },
 };
