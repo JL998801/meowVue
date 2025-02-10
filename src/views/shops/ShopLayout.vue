@@ -127,8 +127,10 @@ onMounted(async() => {
 
 <style scoped>
 .shop-layout {
+.shop-layout {
   display: flex;
   flex-direction: column;
+  height: 100vh;
   height: 100vh;
 }
 

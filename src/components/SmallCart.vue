@@ -12,6 +12,10 @@ const props = defineProps({
 const goToCart = () => {
   router.push("/shop/cart");
 };
+
+onMounted(() => {
+  fetchCart();
+});
 </script>
 
 <template>
