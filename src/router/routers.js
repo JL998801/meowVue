@@ -28,6 +28,19 @@ const routes = [
   { path: '/secure/login', component: LoginMember, name: 'login-link' },
   { path: '/secure/loginadmin', component: LoginAdmin, name: 'login-admin-link' },
   { path: "/pages/products", component: Product, name: "pages-products-link" },
+  { path: "/admin/management", component: AdminManagement, name: "admin-management-link" },
+  { path: "/adopt", component: Adopt, name: "adopt-link" },
+  { path: "/pages/Register", component: Register, name: "register-link" },
+  { path: "/pages/MemberCenter", component: MemberCenter, name: "MemberCenter-link" },
+  { path: "/pages/MemberCard", component: MemberCard, name: "MemberCard-link" },
+  // { path: "/pet/rescue/search", component: RescueSearch, name: "pet-rescueSearch-link" },
+  // { path: "/pet/rescueCase/:id", component: RescueCase, name: "pet-rescueCase-link", props: true },  // 使用 props 傳遞參數產生動態路由(新增案件)
+  // { path: "/pet/rescueCase/edit/:id", component: EditRescueCase, name: "pet-rescueCase-edit-link", props: true },  // 使用 props 傳遞參數產生動態路由(編輯案件)
+  // { path: "/advanced-settings", component: LineMessage, name: "advanced-settings-link" },
+  // { path: "/pet/rescue/add", component: NewRescueCase, name: "newRescueCase-link" },
+  // { path: "/pet/map", component: GoogleMap, name: "googleMap-link" },
+  // { path: "/pet/rescueCase/update/:id", component: NewRescueProgress, name: "newRescueProgress-link" }, // 使用 props 傳遞參數產生動態路由(編輯案件)
+
 ];
 const route = createRouter({
   routes: routes,
