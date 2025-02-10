@@ -7,7 +7,7 @@ const router = useRouter();
 
 // ✅ 定義 Props
 const props = defineProps({
-  product: Object,  //單個商品物件
+  product: Object, // ✅ 接收 `ShopHome.vue` 傳來的 `product`
 });
 
 // ✅ 點擊商品卡片跳轉詳情
@@ -21,21 +21,36 @@ const goToProductDetails = () => {
 
 // ✅ 觸發父組件事件 (購物車 & 願望清單)
 const emit = defineEmits(["add-to-cart", "add-to-wishlist"]);
+
+// **點擊加入購物車**
+const handleAddToCart = () => {
+  emit("add-to-cart", props.product); // ✅ 發送 `add-to-cart` 事件給 `ShopHome.vue`
+};
+
+// **點擊加入願望清單**
+const handleAddToWishlist = () => {
+  emit("add-to-wishlist", props.product); // ✅ 發送 `add-to-wishlist` 事件給 `ShopHome.vue`
+};
 </script>
 
 <template>
   <div class="product-card" @click="goToProductDetails">
-    <img :src="product.image" :alt="product.productName" class="product-image" />
+    <img
+      :src="product.imageUrls?.[0] || '/assets/lostcat5.png'" 
+      :alt="product.productName || '無圖片'" 
+      class="product-image" 
+    />
 
     <div class="product-info">
-      <h5>{{ product.productName }}</h5>
-      <p>${{ product.price }}</p>
+      <h3>{{ product.productName }}</h3>
+      <p>{{ product.description }}</p>
+      <p>價格: ${{ product.salePrice }}</p>
 
       <!-- 加入購物車按鈕 -->
-      <button class="btn btn-primary" @click.stop="emit('add-to-cart', product)">🛒 加入購物車</button>
+      <button class="btn btn-primary" @click="handleAddToCart">加入購物車</button>
 
       <!-- 加入願望清單按鈕 -->
-      <button class="btn btn-outline-danger" @click.stop="emit('add-to-wishlist', product)">💖 加入願望清單</button>
+      <button class="btn btn-outline-danger" @click="handleAddToWishlist">加入願望清單</button>
     </div>
   </div>
 </template>

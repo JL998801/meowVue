@@ -16,8 +16,8 @@ const useProductStore = defineStore("shop", {
         async fetchProducts() {
         try {
             const response = await ProductService.getAllProducts();
-        this.products = response?.products ?? []; // ✅ 確保只存 `categories`
-        console.log("獲取的 categories:", JSON.stringify(this.products, null, 2));
+        this.products = response?.products ?? [];
+        // console.log("獲取的 products:", JSON.stringify(this.products, null, 2));
         } catch (error) {
             console.error("載入預設商品失敗", error);
             Swal.fire({
@@ -41,6 +41,20 @@ const useProductStore = defineStore("shop", {
             errorMessage.value = "無法獲取商品列表，請稍後再試。";
             } finally {
             loading.value = false;
+            }
+        },
+
+        // ✅ 動態查詢: 商品名稱+價格區間+類別
+        async fetchFilteredProducts(filter) {
+            try {
+            const response = await ProductService.searchProducts(filter);
+            if (response.success) {
+                this.filteredProducts = response.products || [];
+            } else {
+                this.filteredProducts = [];
+            }
+            } catch (error) {
+            console.error("篩選商品載入失敗:", error);
             }
         },
     },

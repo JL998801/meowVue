@@ -13,7 +13,7 @@ const useCategoryStore = defineStore("category", {
       try {
         const response = await CategoryService.getAllCategories();
         this.categories = response?.categories ?? []; // ✅ 確保只存 `categories`
-        console.log("獲取的 categories:", JSON.stringify(this.categories, null, 2));
+        // console.log("獲取的 categories:", JSON.stringify(this.categories, null, 2));
       } catch (error) {
         console.error("無法獲取商品分類:", error);
         this.categories = []; // 避免前端報錯

@@ -64,6 +64,9 @@ router.beforeEach(async (to, from, next) => {
     "/shop",
   ];  // 不需要驗證的路由
   
+ // 🔥 `/shop` 及其所有子路由都不需要驗證 (開發用byNaomi)
+  const isPublicPage = publicPages.includes(to.path) || to.path.startsWith("/shop");
+
   //用來判斷救援案件頁面路徑，需要是公開
   const isRescueCaseDetail = to.path.startsWith("/pet/rescueCase/") && to.path.split("/").length === 4; 
 

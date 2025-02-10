@@ -70,9 +70,7 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import ProductCard from "@/components/ProductCard.vue";
 import { useRoute } from "vue-router";
-import { ProductService } from "@/services/ProductService";
 
 const route = useRoute();
 const selectedProduct = ref(null);
@@ -85,19 +83,12 @@ const addToCart = (product) => {
   alert("商品已加入購物車");
 };
 
-// 獲取商品詳情
-const fetchProductDetails = async () => {
-  try {
-    const productId = route.params.id;
-    selectedProduct.value = await ProductService.getProductById(productId);
-    selectedImage.value = selectedProduct.value.images[0] || ""; // 設定第一張圖片
-  } catch (error) {
-    console.error("獲取商品詳情失敗:", error);
-  }
-};
+// 獲取商品詳情: 從shopLayout父組件獲取商品詳情
+
+
 
 // 組件掛載時加載數據
-onMounted(fetchProductDetails);
+onMounted();
 </script>
 
 <style scoped>

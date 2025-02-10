@@ -1,13 +1,16 @@
 <script setup>
 import { defineProps } from "vue";
 import { useRouter } from "vue-router";
-import useUserStore from "../stores/user";
+import useUserStore from "@/stores/user";
 import Swal from "sweetalert2";
+import BadgeCounter from "../home/BadgeCounter.vue";
 
+// ✅ 接收來自 `shopNavBar.vue` 的 `props`
 const props = defineProps({
-  cartCount: Number,
-  wishlistCount: Number,
-  notificationCount: Number
+  isLogin: Boolean,        // 是否登入
+  cartCount: Number,       // 購物車數量
+  wishlistCount: Number,   // 願望清單數量
+  notificationCount: Number, // 通知數量
 });
 
 const userStore = useUserStore();
@@ -42,25 +45,17 @@ const handleLogout = async () => {
         <li class="nav-item">
             <RouterLink class="navbar-brand" aria-current="page" to="/shop">商城首頁</RouterLink>
         </li>
-        <!-- 🔹 願望清單 -->
+
         <li class="nav-item">
-          <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#wishlistModal">
-            💖 願望清單 <span v-if="props.wishlistCount" class="badge bg-danger">{{ props.wishlistCount }}</span>
-          </button>
+          <BadgeCounter icon="🛒" :count="props.cartCount" modalTarget="#cartModal" />
         </li>
 
-        <!-- 🔹 購物車 -->
         <li class="nav-item">
-          <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#cartModal">
-            🛒 購物車 <span v-if="props.cartCount" class="badge bg-warning">{{ props.cartCount }}</span>
-          </button>
+          <BadgeCounter icon="❤️" :count="props.wishlistCount" modalTarget="#wishlistModal" />
         </li>
 
-        <!-- 🔹 訊息通知 -->
         <li class="nav-item">
-          <button class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#notificationModal">
-            🔔 訊息通知 <span v-if="props.notificationCount" class="badge bg-info">{{ props.notificationCount }}</span>
-          </button>
+          <BadgeCounter icon="🔔" :count="props.notificationCount" modalTarget="#notificationModal" />
         </li>
 
         <!-- 🔹 登出 -->

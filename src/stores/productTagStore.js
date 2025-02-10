@@ -12,7 +12,7 @@ const useProductTagStore = defineStore("productTag", {
             try {
                 const response = await ProductTagService.getAllTags();
                 this.tags = response?.tags ?? []; // ✅ 確保只存 `tags`
-                console.log("獲取的 tags:", JSON.stringify(this.tags, null, 2));
+                // console.log("獲取的 tags:", JSON.stringify(this.tags, null, 2));
             } catch (error) {
                 console.error("標籤獲取失敗:", error);
                 this.tags = []; // ✅ 確保不會變 undefined
@@ -20,7 +20,7 @@ const useProductTagStore = defineStore("productTag", {
                     icon: "error",
                     title: "載入失敗",
                     text: error.message,
-                  });
+                });
             }
         }
     }

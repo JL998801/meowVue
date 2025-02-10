@@ -7,16 +7,12 @@
       :wishListCount="wishListCount"
       :notificationCount="notificationCount"
     />
-
     <!-- 🔹 商城主要內容區域 -->
     <main class="shop-container">
       <!-- 🔹 商品篩選側邊欄 (左側) -->
       <aside class="shop-sidebar">
+      <!-- 接收來自子組件 shopSideBar 的資料 emit -->
         <ShopSideBar
-          v-if="categoryStore.categories?.length || productTagStore.tags?.length"
-          :categories="categoryStore.categories"
-          :tags="productTagStore.tags"
-          :products="productStore.products"
           @update-filter="handleFilterUpdate"
         />
       </aside>
@@ -24,15 +20,11 @@
       <!-- 🔹 商品顯示區域 (右側) -->
       <section class="shop-content">
         <router-view 
-          v-if="productStore.products?.length || !isSearching"
-          :productCount="productCount"
-          :products="productStore.products"
+          :products="products"
           :categories="categories"
           :tags="tags"
-          :filteredProducts="filteredProducts"
-          :isSearching="isSearching"
+          :filter="selectedFilter"
         />
-        <p v-else class="no-products">無法獲取商品資料，請稍後重試。</p>
       </section>
     </main>
 
@@ -53,8 +45,8 @@ import useProductTagStore from "@/stores/productTagStore";
 import useCartStore from "@/stores/cartStore";
 import useWishListStore from "@/stores/wishlistStore";
 import useNotificationStore from "@/stores/wishlistStore";
-import ShopNavBar from '@/components/ShopNavBar.vue';  // 導覽列
-import ShopSideBar from "@/components/ShopSideBar.vue"; //左側搜尋欄
+import ShopNavBar from '@/components/shop/home/ShopNavBar.vue';  // 導覽列
+import ShopSideBar from "@/components/shop/home/ShopSideBar.vue"; //左側搜尋欄
 
 // 初始化: Store、空陣列
 const userStore = useUserStore();
@@ -65,49 +57,32 @@ const cartStore = useCartStore();
 const wishListStore = useWishListStore();
 const notificationStore = useNotificationStore();
 
-const products = ref([]);
-const categories = ref([]);
-const tags = ref([]);
+const selectedFilter = ref({});
 
-// ✅ 確保 `filteredProducts` 為陣列，避免 `undefined` 錯誤
-const filteredProducts = computed(() => productStore.products?.value ?? []);
-const isSearching = ref(false);
+// **接收 `ShopSideBar.vue` 傳遞的篩選條件**
+const handleFilterUpdate = (filter) => {
+  selectedFilter.value = filter;
+  console.log("篩選條件更新:", filter);
+};
 
 // 計算: 登入狀態、購物車 & 願望清單 & 通知數量(使用 watchEffect() 已經在 `user.js` 監聽 `token`)
 const isUserLoggedIn = computed(() => userStore.isLogin);
-const productCount = computed(() => productStore.products?.length || 0);
 const cartCount = computed(() => cartStore.cartItems?.length || 0);
 const wishListCount = computed(() => wishListStore.wishListItems?.length || 0);
 const notificationCount = computed(() => notificationStore.notifications?.length || 0);
-
-// 更新搜尋狀態 傳入 ShopSideBar 左側搜尋欄
-const handleFilterUpdate = (filters) => {
-  console.log("接收到篩選條件:", filters);
-  
-  isSearching.value = true;
-
-  // ✅ 依據條件篩選商品
-  filteredProducts.value = products.value.filter(product => {
-    return (!filters.category || product.category === filters.category) &&
-           (!filters.searchQuery || product.productName.includes(filters.searchQuery)) &&
-           (!filters.tags.length || filters.tags.every(tag => product.tags.includes(tag))) &&
-           (product.salePrice >= filters.priceRange[0] && product.salePrice <= filters.priceRange[1]);
-  });
-};
 
 // async() 確保加載 api 資料後才執行程式碼，避免因為非同步請求，未抓到資料就執行導致 undefined 參數產生
 onMounted(async() => {
   // 登入後才加載會員資料
   if (isUserLoggedIn.value) {
     try {
-      console.log("fetchProducts");
       await productStore.fetchProducts();
       await categoryStore.fetchCategories();
       await productTagStore.fetchTags();
       await cartStore.fetchCart();
       await wishListStore.fetchWishList();
       await notificationStore.fetchNotifications();
-      // products.value = productStore.products; //確保 products 在整個商城頁面內可用
+      console.log("after login fetchData");
     } catch (error) {
       console.error("資料載入失敗:", error);
     } 
@@ -117,7 +92,7 @@ onMounted(async() => {
       await productStore.fetchProducts();
       await categoryStore.fetchCategories();
       await productTagStore.fetchTags();
-      // products.value = productStore.products; //確保 products 在整個商城頁面內可用
+      console.log("before login fetchData");
     }catch(error){
       console.error("資料載入失敗:", error);
     }
@@ -127,33 +102,37 @@ onMounted(async() => {
 
 <style scoped>
 .shop-layout {
-.shop-layout {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  height: 100vh;
 }
 
-/* ✅ 主內容區域 */
 .shop-container {
-  display: flex;
-  grid-template-columns: 250px 1fr; /* 側邊欄 250px，內容區域佔剩餘空間 */
-  gap: 20px; /* 設定間距，防止重疊 */
-  max-width: 1200px;
-  /* margin: auto; 讓整個區塊置中 */
+  display: flex; /* 讓 aside 和 section 在同一行排列 */
+  gap: 50px; /*設定 aside 和 section 之間的間距*/
+  max-width: 1000px;
+  margin: auto; /* 讓整個區塊置中 */
+
+  overflow-x: hidden; /* 限制左右溢出 */
+  overflow-y: auto; /* 允許垂直滾動 */
 }
 
-/* ✅ 側邊欄 */
 .shop-sidebar {
-  flex: 1; /* 側邊欄佔 1 份 */
-  min-width: 250px; /* 設定最小寬度，防止過窄 */
+  width: 250px; /* 設定固定寬度，確保不會壓縮 */
+  flex-shrink: 0; /* 防止縮小 */
+  background-color: #f4f4f4;
+  max-width: 100%; /* 確保不超過父組件 */
+  max-height: 100%;
+  overflow: visible; /* 讓內部內容顯示完整 */
 }
 
-/* ✅ 主要內容 */
 .shop-content {
-  flex: 3; /* 內容區域佔 3 份，確保有較大空間 */
-  min-width: 600px;
-  overflow-y: auto;
+  flex: 1; /* 讓 .shop-content 佔據剩餘空間 */
+  min-width: 0; /* 避免內容過長時影響 flex 計算 */
+  background-color: #ffffff;
+  max-width: 100%; /* 確保不超過父組件 */
+  max-height: 100%;
+  overflow: visible; /* 讓內部內容顯示完整 */
 }
 
 /* ✅ 頁尾 (footer) */

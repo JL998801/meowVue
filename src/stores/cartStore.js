@@ -40,12 +40,16 @@ const useCartStore = defineStore("cart", {
     async addToCart(productId) {
       try {
         await CartService.addItemToCart(productId);
-        await this.fetchCart(); // 重新取得購物車內容
+        await this.fetchCart(); // 🔥 重新載入購物車，確保同步
+        Swal.fire({
+          icon: "success",
+          title: "成功加入購物車",
+        });
       } catch (error) {
         console.error("添加商品到購物車失敗:", error);
         Swal.fire({
           icon: "error",
-          title: "載入失敗",
+          title: "添加失敗",
           text: errorMessage.value,
         });
       }
