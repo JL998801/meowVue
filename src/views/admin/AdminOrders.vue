@@ -44,7 +44,20 @@ export default {
     async fetchOrders() {
       try {
         const response = await axios.get("http://localhost:8080/orders/admin");
-        this.orders = response.data.map(order => ({ ...order, newStatus: order.orderStatus }));
+        this.orders = response.data.map(order => ({
+          ...order,
+          newStatus: order.orderStatus, // 預設選擇當前狀態
+        }));
+        // 根據訂單狀態自動選定下一步狀態
+        this.orders.forEach(order => {
+          if (order.orderStatus === "已付款") {
+            order.newStatus = "備貨中";
+          } else if (order.orderStatus === "備貨中") {
+            order.newStatus = "出貨中";
+          } else if (order.orderStatus === "出貨中") {
+            order.newStatus = "已到貨";
+          }
+        });
       } catch (error) {
         console.error("獲取訂單資料失敗:", error);
       }
@@ -52,11 +65,15 @@ export default {
     // 更新訂單狀態
     async updateStatus(order) {
       try {
-        await axios.put(`http://localhost:8080/orders/${order.orderId}`, {
+        const response = await axios.put(`http://localhost:8080/orders/${order.orderId}`, {
           orderStatus: order.newStatus,
         });
-        alert("狀態更新成功");
-        this.fetchOrders(); // 更新訂單列表
+        if (response.status === 200) {
+          alert("狀態更新成功");
+          this.fetchOrders(); // 更新訂單列表
+        } else {
+          alert("狀態更新失敗");
+        }
       } catch (error) {
         console.error("更新訂單狀態失敗:", error);
         alert("狀態更新失敗");

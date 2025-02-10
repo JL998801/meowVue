@@ -58,7 +58,7 @@ const sendPayment = () => {
   const paymentData = getPaymentData();
   
   if (!paymentData) {
-    alert("訂單資料缺失，請返回訂單頁面重新選擇！");
+    alert("訂單資料缺失，請返回訂單頁面後重新選擇！");
     return;
   }
 

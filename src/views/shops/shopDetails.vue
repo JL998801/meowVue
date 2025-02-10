@@ -17,7 +17,7 @@
           <p>訂單狀態: <span :class="getStatusClass(order.orderStatus)">{{ order.orderStatus }}</span></p>
           <ul>
             <li v-for="item in order.orderItems" :key="item.orderItemId">
-              {{ item.productName ? item.productName : '未知商品' }} - 單價: {{ item.purchasedPrice }} 元，數量: {{ item.orderQuantity }}
+              {{ item.productName ? item.productName : '未知的商品' }} - 單價: {{ item.purchasedPrice }} 元，數量: {{ item.orderQuantity }}
             </li>
           </ul>
           <button @click="cancelOrder(order.orderId)" :disabled="order.orderStatus !== '備貨中'">取消訂單</button>
