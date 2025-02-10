@@ -17,6 +17,7 @@
                             </li>
                             <li>
                                 <RouterLink class="dropdown-item" to="/adopt">動物認養</RouterLink>
+                                <RouterLink class="dropdown-item" to="/adopt">動物認養</RouterLink>
                             </li>
                             <li>
                                 <RouterLink class="dropdown-item" to="/pets/products">遺失協尋</RouterLink>
@@ -34,7 +35,9 @@
                             <font-awesome-icon :icon="['fas', 'map-location-dot']" size="xl" style="color: #c4bc7f;" /></RouterLink>
                     </li>
                     <li class="nav-item">
-                        <RouterLink class="nav-link" to="/secure/login">登入/註冊</RouterLink>
+                        <!--- 根據是否已登入顯示不同的 RouterLink -->
+                        <RouterLink v-if="isLoggedIn" class="nav-link" to="/pages/MemberCenter">會員中心</RouterLink>
+                        <RouterLink v-else class="nav-link" to="/secure/login">會員登入</RouterLink>
                     </li>
                 </ul>
             </div>
@@ -43,9 +46,12 @@
 </template>
 
 <script setup>
+import { computed } from 'vue'
 import useUserStore from "@/stores/user.js";
-const userStore = useUserStore();
 
+ //使用 Pinia 的 userStore "Pinia": Unknown word.
+const userStore = useUserStore();
+const isLoggedIn = computed(() => userStore.isLogin); //直接從 Store 獲取
 </script>
     
 <style>

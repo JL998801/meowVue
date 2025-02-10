@@ -2,12 +2,17 @@ import { computed, ref, watchEffect } from 'vue'
 import { defineStore } from 'pinia'
 import axios from "axios";
 import Swal from 'sweetalert2';
+import axios from "axios";
 
 const useUserStore = defineStore("user", () => {
+    const token = ref("");
     const token = ref("");
     const email = ref("");
     const isTokenValid = ref(true); // 標記 token 是否有效
      
+    // 設置 Email
+    const isTokenValid = ref(true); // 標記 token 是否有效
+
     // 設置 Email
     function setEmail(data) {
         email.value = data;
@@ -105,6 +110,11 @@ const useUserStore = defineStore("user", () => {
         logout,
         validateToken,
         memberId,
+        token,
+        setToken,
+        logout,
+        validateToken,
+        memberId,
     }
 },
     { 
@@ -112,4 +122,4 @@ const useUserStore = defineStore("user", () => {
             storage: localStorage, paths: ["email","token" ]    // 當 email 或 token 被更新時會自動存入 localStorage
         }
     });
-export default useUserStore;
+export default useUserStore;    

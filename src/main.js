@@ -1,17 +1,18 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
-import { createApp } from 'vue';
-import App from './App.vue';
-import router from './router/routers';
-import { createPinia } from 'pinia';
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-import '@/plugins/fontawesome.js';
-
-const app = createApp(App);
-
-app.component('font-awesome-icon', FontAwesomeIcon);
+import { createApp } from 'vue'
+import App from './App.vue'
+import routes from './router/routers.js'
+import { createPinia } from 'pinia'
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
+import FontAwesomeIcon from './plugins/fontawesome.js'
+import "@/assets/petmain.css";
 
 const pinia = createPinia();
-app.use(pinia);
-app.use(router);
-app.mount('#app');
+pinia.use(piniaPluginPersistedstate)
+
+createApp(App)
+    .use(pinia)
+    .use(routes)
+    .component('font-awesome-icon', FontAwesomeIcon)
+    .mount('#app')

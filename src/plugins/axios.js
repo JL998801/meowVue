@@ -55,4 +55,4 @@ export const uploadFile = (url, formData) => {
   });
 };
 
-export default axiosapi;
+export default xxx;
