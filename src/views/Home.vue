@@ -1,4 +1,5 @@
 <template>
+    <h3>首頁 {{ userStore.email }}</h3>
     <!-- 導覽按鈕 -->
     <div class="main-link-box">
         <ul class="list-unstyled">
@@ -19,6 +20,10 @@
     <div>
         <Banner />
     </div>
+    <!-- 舉報按鈕 -->
+    <div>
+        <Reportbtn />
+    </div>
 </template>
 
 <script setup>
@@ -26,7 +31,8 @@ import { ref } from "vue";
 import '@/assets/petmain.css'; 
 import { RouterLink } from "vue-router";
 // import GoogleMap from "@/components/GoogleMap.vue";
-import Banner from "@/components/Banner.vue";
+import Banner from "@/components/pet/banner/Banner.vue";
+import Reportbtn from "@/views/pets/report/ReportButton.vue";
 import useUserStore from "@/stores/user.js";
 
 const userStore = useUserStore();
@@ -35,7 +41,7 @@ const userStore = useUserStore();
 const navLinks = ref([
     { title: "救援通報", subtitle: "我發現受傷或走失的浪浪", url: "/pets/products", iconClass: "flo-icon icon-rescue" },
     { title: "送養計畫", subtitle: "我想幫助浪浪找一個家", url: "/adopt", iconClass: "flo-icon icon-adoption" },
-    { title: "協尋系統", subtitle: "我家的寶寶走失了", url: "/pets/LostForm", iconClass: "flo-icon icon-lost" },
+    { title: "協尋系統", subtitle: "我家的寶寶走失了", url: "/pets/lostform", iconClass: "flo-icon icon-lost" },
     { title: "寵物商城", subtitle: "想讓我家的寶寶過得更好", url: "/shops/products1", iconClass: "flo-icon icon-about" },
     { title: "救援活動", subtitle: "浪浪需要你的援手", url: "/pets/products", iconClass: "flo-icon icon-about" }
 ]);

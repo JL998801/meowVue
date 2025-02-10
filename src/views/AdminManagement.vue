@@ -62,12 +62,12 @@
         </ul>
       </div>
     </div>
-  </template>
+</template>
   
   <script>
   import xxx from '@/plugins/axios.js';
   import Swal from 'sweetalert2';
- 
+
 
 export default {
   name: "memberManagement",

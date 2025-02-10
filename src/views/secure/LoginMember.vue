@@ -3,7 +3,7 @@
 	<table>
         <tbody>
             <tr>
-                <td>ID : </td>
+                <td>ID : </td>  <!-- 帳號是e-mail -->
                 <td><input type="text" v-model="username" @keyup.enter="login"></td>
                 <td><span class="error">{{ message }}</span></td>
             </tr>

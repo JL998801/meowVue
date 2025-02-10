@@ -1,6 +1,6 @@
 <template>
+    <h2>遺失通報表單</h2>
     <div class="container">
-        <h2>遺失通報表單</h2>
         <form @submit.prevent="submitForm">
             <!-- 案件標題 -->
             <div class="form-group">
@@ -10,30 +10,33 @@
         
             <!-- 寵物種類 -->
             <div class="form-group">
-                <label>*寵物種類：</label>
-                <select v-model="form.speciesId" required>
-                    <option v-for="species in speciesList" :key="species.id" :value="species.id">
-                        {{ species.name }}
+                <label for="species">*寵物種類：</label>
+                <select v-model="form.speciesId">
+                    <option value="">請選擇</option>
+                    <option v-for="species in speciesList" :key="species.speciesId" :value="species.speciesId">
+                        {{ species.species }}
                     </option>
                 </select>
             </div>
         
             <!-- 品種 -->
             <div class="form-group">
-                <label>品種：</label>
+                <label for="breed">品種：</label>
                 <select v-model="form.breedId">
-                    <option v-for="breed in breedList" :key="breed.id" :value="breed.id">
-                        {{ breed.name }}
+                    <option value="">請選擇</option>
+                    <option v-for="breed in breedList" :key="breed.breedId" :value="breed.breedId">
+                        {{ breed.breed }}
                     </option>
                 </select>
             </div>
         
             <!-- 毛色 -->
             <div class="form-group">
-                <label>毛色：</label>
+                <label for="furColor">毛色：</label>
                 <select v-model="form.furColorId">
-                    <option v-for="color in furColorList" :key="color.id" :value="color.id">
-                        {{ color.name }}
+                    <option value="">請選擇</option>
+                    <option v-for="fur in furColorList" :key="fur.furColorId" :value="fur.furColorId">
+                        {{ fur.furColor }}
                     </option>
                 </select>
             </div>
@@ -70,30 +73,43 @@
 
             <!-- 晶片號碼 -->
             <div class="form-group">
-                <label>晶片號碼：</label>
-                <input v-model="form.microChipNumber" type="text" />
+                <label for="microChipNumber">晶片號碼：</label>
+                <input
+                type="text"
+                id="microChipNumber"
+                v-model="microChipNumber"
+                @input="validateMicroChipNumber"
+                placeholder="請輸入10位數字"
+                />
+                <p v-if="microChipNumber.length !== 10 && microChipNumber.length > 0" style="color: red;">
+                晶片號碼必須為 10 位數字
+                </p>
             </div>
 
             <!-- 縣市與鄉鎮區 -->
             <div class="form-group">
-                <label>*縣市：</label>
-                <select v-model="form.cityId" required>
-                    <option v-for="city in cityList" :key="city.id" :value="city.id">
-                        {{ city.name }}
+                <label for="city">城市：</label>
+                <select v-model="form.cityId" @change="fetchDistrictAreas">
+                    <option value="">請選擇</option>
+                    <option v-for="city in cityList" :key="city.cityId" :value="city.cityId">
+                        {{ city.city }}
                     </option>
                 </select>
-                <label>*鄉鎮區：</label>
-                <select v-model="form.distinctAreaId" required>
-                    <option v-for="area in distinctAreaList" :key="area.id" :value="area.id">
-                        {{ area.name }}
+
+                <!-- 區域選擇 -->
+                <label for="district">區域：</label>
+                <select v-model="form.districtAreaId">
+                    <option value="">請選擇</option>
+                    <option v-for="district in districtAreaList" :key="district.districtAreaId" :value="district.districtAreaId">
+                        {{ district.districtAreaName }}
                     </option>
                 </select>
             </div>
 
             <!-- 走失地點 -->
             <div class="form-group">
-                <label>*詳細地址：</label>
-                <input v-model="form.street" type="text" required />
+                <label>詳細地址：</label>
+                <input v-model="form.street" type="text" />
             </div>
 
             <!-- 走失經過 -->
@@ -133,9 +149,25 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted,watch } from "vue";
 import axios from "axios";
+import { useRouter } from "vue-router";
 
+const router = useRouter();
+
+// **檢查是否已登入**
+// const checkLogin = () => {
+//     const storedMemberId = localStorage.getItem("memberId");
+//     if (!storedMemberId) {
+//         alert("請先登入會員！");
+//         router.push("/secure/login"); // 跳轉登入頁面
+//         return false;
+//     }
+//     form.value.memberId = storedMemberId;
+//     return true;
+// };
+
+// **表單數據**
 const form = ref({
     caseTitle: "",
     speciesId: "",
@@ -147,88 +179,124 @@ const form = ref({
     age: null,
     microChipNumber: null,
     cityId: "",
-    distinctAreaId: "",
+    districtAreaId: "",
     street: "",
     lostExperience: "",
     featureDescription: "",
     contactInformation: "",
-    images: []
+    caseStateId: 5,  // 固定為 "待協尋"
+    memberId: 2,   // 會員 ID
+    // images: []  // 👉 這行可以刪除
 });
 
+// **存放後端數據**
 const speciesList = ref([]);
 const breedList = ref([]);
 const furColorList = ref([]);
 const cityList = ref([]);
-const distinctAreaList = ref([]);
-const lostCases = ref([]);
+const districtAreaList = ref([]);
+const caseStateList = ref([]);
 
-// 獲取後端資料
+// **獲取後端資料**
 const fetchData = async () => {
     try {
-        const [speciesRes, breedRes, colorRes, cityRes, areaRes, lostCasesRes] = await Promise.all([
+        const [speciesRes, breedRes, colorRes, cityRes, caseStateRes] = await Promise.all([
             axios.get("http://localhost:8080/pet/allSpecies"),
             axios.get("http://localhost:8080/pet/allBreed"),
             axios.get("http://localhost:8080/pet/allFurColor"),
             axios.get("http://localhost:8080/pet/allCity"),
-            axios.get("http://localhost:8080/pet//districtAreasByCity/{cityId}"),
-            axios.get("http://localhost:8080/pet//allCaseState"),
-            axios.get("http://localhost:8080/lostcases")
+            axios.get("http://localhost:8080/pet/allCaseState"),
         ]);
-        
+
         speciesList.value = speciesRes.data;
         breedList.value = breedRes.data;
         furColorList.value = colorRes.data;
         cityList.value = cityRes.data;
-        distinctAreaList.value = areaRes.data;
-        lostCases.value = lostCasesRes.data;
+        caseStateList.value = caseStateRes.data;
+
+        console.log("✅ 物種:", speciesList.value);
+        console.log("✅ 品種:", breedList.value);
+        console.log("✅ 毛色:", furColorList.value);
+        console.log("✅ 城市:", cityList.value);
+        console.log("✅ 案件狀態:", caseStateList.value);
     } catch (error) {
-        console.error("獲取資料失敗:", error);
+        console.error("❌ 獲取資料失敗:", error);
     }
 };
 
-// 圖片預覽
+// **根據城市獲取區域**
+const fetchDistrictAreas = async () => {
+    if (!form.value.cityId) return; // 確保 `cityId` 有選擇
+
+    try {
+        const response = await axios.get(`http://localhost:8080/pet/districtAreasByCity/${form.value.cityId}`);
+        districtAreaList.value = response.data;
+        console.log("✅ 獲取區域成功:", districtAreaList.value);
+    } catch (error) {
+        console.error("❌ 無法獲取區域:", error);
+    }
+};
+
+// **監聽 `cityId` 變化，自動獲取區域**
+watch(() => form.value.cityId, (newCityId) => {
+    if (newCityId) {
+        fetchDistrictAreas();
+    } else {
+        districtAreaList.value = []; // 清空區域列表
+    }
+});
+
+// 定義 microChipNumber
+const microChipNumber = ref("");
+
+// 限制輸入只能是 10 位數字
+const validateMicroChipNumber = () => {
+    microChipNumber.value = microChipNumber.value.replace(/\D/g, "").slice(0, 10);
+};
+
+// **圖片預覽**
 const previewImages = ref([]);
 
-// 處理圖片上傳
-const handleFileUpload = (event) => {
-    const files = Array.from(event.target.files);
-    if (files.length > 3) {
-        alert("最多只能上傳 3 張圖片！");
+// // **處理圖片上傳**
+// const handleFileUpload = (event) => {
+//     const files = Array.from(event.target.files);
+//     if (files.length > 3) {
+//         alert("最多只能上傳 3 張圖片！");
+//         return;
+//     }
+
+//     form.value.images = files; // 儲存圖片數據
+//     previewImages.value = files.map((file) => URL.createObjectURL(file));
+// };
+
+// **提交表單**
+const submitForm = async () => {
+    // if (!checkLogin()) return; // **確保使用者登入**
+    
+    // **確保所有必要欄位填寫**
+    if (!form.value.caseTitle || !form.value.speciesId || !form.value.cityId || !form.value.districtAreaId) {
+        alert("請確保所有必填項目都有填寫！");
         return;
     }
 
-    form.value.images = files; // 儲存圖片數據
-    previewImages.value = files.map((file) => URL.createObjectURL(file));
-};
-
-// 提交表單
-const submitForm = async () => {
-    const formData = new FormData();
-    
-    // 將表單數據加入 formData
-    Object.keys(form.value).forEach((key) => {
-        if (key === "images") {
-            form.value.images.forEach((image) => formData.append("images", image));
-        } else {
-            formData.append(key, form.value[key]);
-        }
-    });
-
     try {
-        const response = await axios.post("http://localhost:8080/lostcase/create", formData, {
-            headers: {
-                "Content-Type": "multipart/form-data",
-            },
+        const response = await axios.post("http://localhost:8080/lostcases/create", form.value, {
+            headers: { "Content-Type": "application/json" },
         });
+
         alert("案件已成功提交！");
-        console.log("回應資料：", response.data);
+        console.log("✅ 回應資料：", response.data);
     } catch (error) {
-        console.error("提交表單失敗：", error);
-        alert("提交失敗，請重試");
+        console.error("❌ 提交表單失敗：", error.response ? error.response.data : error.message);
+        alert("提交失敗，請檢查資料是否完整！");
     }
 };
 
-onMounted(fetchData);
+// **頁面載入時執行**
+onMounted(() => {
+    // checkLogin();
+    fetchData();
+});
 
 </script>
 <style scoped>
