@@ -27,11 +27,6 @@
         />
       </section>
     </main>
-
-    <!-- 🔹 頁尾 -->
-    <footer class="shop-footer">
-      <p>&copy; 2024 壁爐之家 - All Rights Reserved.</p>
-    </footer>
   </div>
 </template>
 
