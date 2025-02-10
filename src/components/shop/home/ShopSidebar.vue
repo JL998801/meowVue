@@ -1,12 +1,16 @@
 <script setup>
-import { ref, computed, defineProps, defineEmits,watch } from "vue";
+import { ref, onMounted, defineProps, defineEmits,watch } from "vue";
 import useProductStore from "@/stores/productStore";
+import useCategoryStore from "@/stores/categoryStore";
+import useProductTagStore from "@/stores/productTagStore";
 
-// 接收來自 `ShopLayout.vue` 的 `props`
-const props = defineProps({
-  products:Array,
-  categories: Array,
-  tags: Array,
+const categoryStore = useCategoryStore();
+const tagStore = useProductTagStore();
+const selectedTags = ref([]); // ✅ 存儲使用者選擇的標籤
+
+onMounted(async() => {
+  await categoryStore.fetchCategories(); // 取得類別數據
+  await tagStore.fetchTags(); // 取得標籤數據
 });
 
 // 傳遞給父組件 shopLayout.vue
@@ -55,13 +59,40 @@ const applyFilter = async() => {
 
     <!-- 🔹 商品分類 -->
     <div class="category-filter">
-      <label class="form-label">商品分類</label>
-      <select v-model="selectedCategory" class="form-select">
+      <!-- <label class="form-label">商品分類</label> -->
+      <select v-model="selectedCategory" class="form-select" placeholder="選擇分類" >
         <option :value="null">全部</option>
-        <option v-for="category in productStore.categories" :key="category.categoryId" :value="category">
+        <option v-for="category in categoryStore.categories" :key="category.categoryId" :value="category">
           {{ category.categoryName }}
         </option>
       </select>
+    </div>
+
+    <!-- 🔹 多選按鈕組 -->
+    <div>
+      <label class="form-label">選擇標籤篩選</label>
+      <div class="btn-group" role="group">
+        <div v-for="tag in tagStore.tags" :key="tag.tagId">
+        <!-- ✅ 讓標籤按鈕與 input 綁定 -->
+          <input 
+            type="checkbox" 
+            class="btn-check" 
+            :id="`tag-${tag.tagId}`"
+            :value="tag.tagName"
+            v-model="selectedTags"
+          />
+          <label 
+            class="btn"
+            :class="selectedTags.includes(tag.tagName) ? 'btn-primary' : 'btn-outline-primary'"
+            :for="`tag-${tag.tagId}`"
+          >
+            {{ tag.tagName }}
+          </label>
+        </div>
+      </div>
+
+      <!-- 🔹 顯示已選擇的標籤 -->
+      <!-- <p class="mt-3">已選擇標籤: {{ selectedTags }}</p> -->
     </div>
 
     <!-- 價格範圍 -->
@@ -87,14 +118,31 @@ const applyFilter = async() => {
   margin: 2px;
   background-color: #d0ccd0;
   border-radius: 5%;
+  row-gap: 10px;
+  gap: 10px;
 }
 .search-bar {
   display: flex;
   gap: 10px;
 }
-.tag-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
+
+/* ✅ 當標籤被選中時，改變背景顏色 */
+.btn-check:checked + .btn {
+  background-color: #007bff; /* ✅ 藍色高亮 */
+  color: white;
+  border-color: #007bff;
+}
+
+/* ✅ 預設狀態 */
+.btn-outline-primary {
+  color: #007bff;
+  border-color: #007bff;
+  transition: 0.3s;
+}
+
+/* ✅ 滑鼠懸停時變色 */
+.btn-outline-primary:hover {
+  background-color: #007bff;
+  color: white;
 }
 </style>

@@ -71,11 +71,22 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
+import useProductStore from "@/stores/productStore";
 
 const route = useRoute();
 const selectedProduct = ref(null);
 const selectedImage = ref("");
 const activeTab = ref("description");
+const productStore = useProductStore();
+const productId = route.params.id; 
+selectedProduct.value = productStore.products.find(product => {
+  console.log("商品 ID:", product.productId);
+  console.log("商品:", product.productId === Number(productId));
+  return product.productId === Number(productId);
+});
+console.log("商品 ID:", route.params.id);
+console.log("商品:", selectedProduct.value);
+console.log("商品:", productStore.products);
 
 // 加入購物車功能
 const addToCart = (product) => {
@@ -85,10 +96,10 @@ const addToCart = (product) => {
 
 // 獲取商品詳情: 從shopLayout父組件獲取商品詳情
 
-
-
 // 組件掛載時加載數據
-onMounted();
+onMounted(()=>{
+  console.log("商品 ID:", productId);
+});
 </script>
 
 <style scoped>

@@ -6,6 +6,7 @@ import Swal from "sweetalert2";
 const useProductStore = defineStore("shop", {
     state: () => ({
         products: [],
+        filteredProducts: [],
         totalPages: ref(0),
         currentPage: ref(0),
         loading: ref(false),
@@ -28,21 +29,27 @@ const useProductStore = defineStore("shop", {
         }},
 
         // ✅ 獲取分頁商品列表
-        async fetchPagedProducts (page = 0, size = 10, sortBy = "productName", order = "asc") {
+        async fetchPagedProducts(page = 0, size = 10, sortBy = "productName", order = "asc") {
             loading.value = true;
             errorMessage.value = null;
+            
             try {
-            const response = await ProductService.getPagedProducts(page, size, sortBy, order);
-            products.value = response.data.products || []; // 確保獲取 `products`
-            totalPages.value = response.data.totalPages || 0;
-            currentPage.value = page;
+              const response = await ProductService.getPagedProducts(page, size, sortBy, order);
+          
+              // ✅ 根據 API 回應結構更新變數
+              products.value = response.data.content || []; // ✅ 產品數據來自 `content`
+              totalPages.value = response.data.totalPages || 0; // ✅ 總頁數
+              currentPage.value = response.data.pageable.pageNumber || 0; // ✅ 目前頁碼
+              totalProducts.value = response.data.totalElements || 0; // ✅ 總產品數量
+          
             } catch (error) {
-            console.error("獲取商品失敗:", error);
-            errorMessage.value = "無法獲取商品列表，請稍後再試。";
+              console.error("獲取商品失敗:", error);
+              errorMessage.value = "無法獲取商品列表，請稍後再試。";
             } finally {
-            loading.value = false;
+              loading.value = false;
             }
         },
+          
 
         // ✅ 動態查詢: 商品名稱+價格區間+類別
         async fetchFilteredProducts(filter) {

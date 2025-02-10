@@ -61,12 +61,16 @@ const handleAddToWishlist = () => {
   padding: 10px;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
+  background-color: #ddd;
 }
 .product-card:hover {
   transform: scale(1.05);
 }
 .product-image {
-  width: 100%;
-  height: auto;
+  width: 100%;   /* ✅ 讓圖片自適應容器寬度 */
+  height: 100px; /* ✅ 設定固定高度 */
+  object-fit: cover; /* ✅ 保持比例，裁切超出部分 */
+
+  aspect-ratio: 6 / 4; /* ✅ 自動計算高度，保持 4:3 比例 */
 }
 </style>

@@ -4,6 +4,7 @@ import { useRouter } from "vue-router";
 import useUserStore from "@/stores/user";
 import Swal from "sweetalert2";
 import BadgeCounter from "../home/BadgeCounter.vue";
+import petLogo from "@/assets/petLogo.png"; // Logo 圖示
 
 // ✅ 接收來自 `shopNavBar.vue` 的 `props`
 const props = defineProps({
@@ -39,7 +40,7 @@ const handleLogout = async () => {
   <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container-fluid">
         <RouterLink class="navbar-brand" aria-current="page" to="/">
-            <img src="../assets/petLogo.png" alt="Logo圖示" width="80" title="首頁">壁爐之家</RouterLink>
+          <img :src="petLogo" alt="Logo圖示" width="80" title="首頁">壁爐之家</RouterLink>
 
       <ul class="navbar-nav ms-auto">
         <li class="nav-item">

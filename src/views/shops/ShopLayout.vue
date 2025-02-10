@@ -10,7 +10,7 @@
     <!-- 🔹 商城主要內容區域 -->
     <main class="shop-container">
       <!-- 🔹 商品篩選側邊欄 (左側) -->
-      <aside class="shop-sidebar">
+      <aside>
       <!-- 接收來自子組件 shopSideBar 的資料 emit -->
         <ShopSideBar
           @update-filter="handleFilterUpdate"
@@ -96,47 +96,47 @@ onMounted(async() => {
 </script>
 
 <style scoped>
+/* 🔹 讓 shop-layout 佔滿整個瀏覽器 */
 .shop-layout {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 100vh; /* ✅ 填滿整個視窗 */
+  width: 100vw; /* ✅ 確保佔滿整個寬度 */
 }
 
+/* 🔹 設定 aside + section 水平排列 */
 .shop-container {
-  display: flex; /* 讓 aside 和 section 在同一行排列 */
-  gap: 50px; /*設定 aside 和 section 之間的間距*/
-  max-width: 1000px;
-  margin: auto; /* 讓整個區塊置中 */
-
-  overflow-x: hidden; /* 限制左右溢出 */
-  overflow-y: auto; /* 允許垂直滾動 */
+  display: flex; /* ✅ 讓 .shop-sidebar 和 .shop-content 在同一行 */
+  flex: 1; /* ✅ 讓 .shop-container 填滿 .shop-layout */
+  gap: 20px; /* ✅ 設定間距 */
+  max-width: 1200px; /* ✅ 最大寬度，避免過寬 */
+  width: 100%; /* ✅ 讓內容自適應 */
+  margin: auto; /* ✅ 讓內容置中 */
+  height: calc(100vh - 80px); /* ✅ 讓 shop-container 滿版（減去 Navbar 高度） */
 }
 
+/* 🔹 固定側邊欄的大小 */
 .shop-sidebar {
-  width: 250px; /* 設定固定寬度，確保不會壓縮 */
-  flex-shrink: 0; /* 防止縮小 */
+  width: 250px; /* ✅ 固定寬度 */
+  flex-shrink: 0; /* ✅ 防止側邊欄縮小 */
   background-color: #f4f4f4;
-  max-width: 100%; /* 確保不超過父組件 */
-  max-height: 100%;
-  overflow: visible; /* 讓內部內容顯示完整 */
+  height: 100%; /* ✅ 讓側邊欄填滿 .shop-container */
+  overflow-y: auto; /* ✅ 允許側邊欄滾動 */
 }
 
+/* 🔹 讓主內容最大化填充剩餘空間 */
 .shop-content {
-  flex: 1; /* 讓 .shop-content 佔據剩餘空間 */
-  min-width: 0; /* 避免內容過長時影響 flex 計算 */
-  background-color: #ffffff;
-  max-width: 100%; /* 確保不超過父組件 */
-  max-height: 100%;
-  overflow: visible; /* 讓內部內容顯示完整 */
+  flex: 1; /* ✅ 讓 .shop-content 填滿剩餘空間 */
+  min-width: 0; /* ✅ 防止內容超出父容器 */
+  height: 100%; /* ✅ 讓內容區域填滿 .shop-container */
+  overflow-y: auto; /* ✅ 允許滾動 */
+  scrollbar-width: none; /* ✅ 隱藏滾動條（Firefox） */
+  -ms-overflow-style: none; /* ✅ 隱藏滾動條（IE/Edge） */
 }
 
-/* ✅ 頁尾 (footer) */
-.shop-footer {
-  background-color: #f8f9fa;
-  color: black;
-  text-align: center;
-  padding: 15px;
-  font-size: 14px;
-  width: 100%;
+/* ✅ 讓主內容區滾動時不影響整個頁面 */
+.shop-content::-webkit-scrollbar {
+  display: none;
 }
+
 </style>

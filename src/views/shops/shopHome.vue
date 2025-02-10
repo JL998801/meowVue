@@ -1,5 +1,5 @@
 <script setup>
-import { computed, defineProps } from "vue";
+import { computed, defineProps, onMounted} from "vue";
 import Carousel from "@/components/shop/home/Carousel.vue";
 import ProductCard from "@/components/shop/home/ProductCard.vue";
 import Pagination from "@/components/shop/home/Pagination.vue";
@@ -30,29 +30,20 @@ const filteredProducts = computed(() => {
 
 // 監聽當前頁面和總頁數
 const currentPage = computed(() => productStore.page);
+console.log("currentPage", currentPage);
 const totalPages = computed(() => productStore.totalPages);
 const pageSize = computed(() => productStore.size); // ✅ 每頁顯示數量
 
 // 加入購物車:  調用 `cartStore.js` 更新購物車
 const addToCart = (product) => {
   cartStore.addToCart(product.productId);
-  Swal.fire({
-    title: "商品添加成功！",
-    text: `"${product.productName}" 已成功加入購物車！`,
-    icon: "success",
-    confirmButtonText: "確定",
-  });
+  alert("商品已加入購物車"); //跳出彈窗
 };
 
 // 加入願望清單
 const addToWishlist = (product) => {
   wishlistStore.addToWishList(product.productId);
-  Swal.fire({
-    title: "商品已加入願望清單！",
-    text: `"${product.productName}" 已成功加入您的願望清單！`,
-    icon: "success",
-    confirmButtonText: "確定",
-  });
+  alert("商品已加入願望清單！"); //跳出彈窗
 };
 
 // ✅ 更新每頁顯示的商品數量
@@ -79,6 +70,9 @@ const displayedCategories = computed(() =>
   props.categories.filter(category => targetCategories.includes(category.categoryName))
 );
 
+onMounted(() => {
+  fetchPagedProducts(); // ✅ 預設取得第一頁數據
+});
 </script>
 
 <template>
@@ -88,6 +82,7 @@ const displayedCategories = computed(() =>
       <div class="d-flex justify-content-between align-items-center mb-3">
         <h2>搜尋結果</h2>
           <!-- 🔹 分頁控制 -->
+          
           <div class="pagination">
             <Pagination 
               v-if="filteredProducts.length > 10"
