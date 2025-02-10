@@ -4,12 +4,12 @@ import NotFound from '@/views/NotFound.vue';
 import Forbidden from '@/views/Forbidden.vue';
 import LoginMember from '@/views/secure/LoginMember.vue';
 import LoginAdmin from '@/views/secure/LoginAdmin.vue';
-import Product from '@/views/pets/products.vue';
-import LostForm from '@/views/pets/LostForm.vue';
-import ReportForm from '@/views/pets/ReportForm.vue';
+import LostCase from '@/views/pets/lost/LostCase.vue';
+import LostForm from '@/views/pets/lost/LostForm.vue';
+import ReportForm from '@/views/pets/report/ReportForm.vue';
 import Products1 from '@/views/shops/products1.vue';
 import AdminManagement from '@/views/AdminManagement.vue';
-import Adopt from '../components/Adopt.vue';
+import Adopt from '@/components/pet/adopt/Adopt.vue';
 import MemberCenter from '@/views/secure/MemberCenter.vue';
 
 const routes = [
@@ -18,7 +18,7 @@ const routes = [
   { path: "/403", component: Forbidden, name: "forbidden-link" },
   { path: '/secure/login', component: LoginMember, name: 'login-link' },
   { path: '/secure/loginadmin', component: LoginAdmin, name: 'login-admin-link' },
-  { path: "/pets/products", component: Product, name: "pets-products-link" },
+  { path: "/pets/lostcase", component: LostCase, name: "pets-LostCase-link" },
   { path: "/pets/lostform", component: LostForm, name: "pets-LostForm-link" },
   { path: "/pets/reportform", component: ReportForm, name: "pets-ReportForm-link" },
   { path: "/shops/products1", component: Products1, name: "shops-products1-link" },

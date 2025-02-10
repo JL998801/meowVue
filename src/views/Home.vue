@@ -31,8 +31,8 @@ import { ref } from "vue";
 import '@/assets/petmain.css'; 
 import { RouterLink } from "vue-router";
 // import GoogleMap from "@/components/GoogleMap.vue";
-import Banner from "@/components/Banner.vue";
-import Reportbtn from "@/views/pets/ReportButton.vue";
+import Banner from "@/components/pet/banner/Banner.vue";
+import Reportbtn from "@/views/pets/report/ReportButton.vue";
 import useUserStore from "@/stores/user.js";
 
 const userStore = useUserStore();
