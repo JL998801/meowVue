@@ -24,7 +24,6 @@
     <div>
         <Reportbtn />
     </div>
-
 </template>
 
 <script setup>

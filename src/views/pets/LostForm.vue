@@ -73,8 +73,17 @@
 
             <!-- 晶片號碼 -->
             <div class="form-group">
-                <label>晶片號碼：</label>
-                <input v-model="form.microChipNumber" type="text" />
+                <label for="microChipNumber">晶片號碼：</label>
+                <input
+                type="text"
+                id="microChipNumber"
+                v-model="microChipNumber"
+                @input="validateMicroChipNumber"
+                placeholder="請輸入10位數字"
+                />
+                <p v-if="microChipNumber.length !== 10 && microChipNumber.length > 0" style="color: red;">
+                晶片號碼必須為 10 位數字
+                </p>
             </div>
 
             <!-- 縣市與鄉鎮區 -->
@@ -236,6 +245,14 @@ watch(() => form.value.cityId, (newCityId) => {
         districtAreaList.value = []; // 清空區域列表
     }
 });
+
+// 定義 microChipNumber
+const microChipNumber = ref("");
+
+// 限制輸入只能是 10 位數字
+const validateMicroChipNumber = () => {
+    microChipNumber.value = microChipNumber.value.replace(/\D/g, "").slice(0, 10);
+};
 
 // **圖片預覽**
 const previewImages = ref([]);

@@ -3,8 +3,8 @@
         <div v-for="category in caseCategories" :key="category.type" class="carousel-section">
             <div class="carousel-header">
                 <div class="title-container">
-                    <font-awesome-icon :icon="['fas', 'paw']" size="xl" style="color: #c6bc77;" />
-                    <h3>{{ category.title }}</h3>
+                    <!-- <font-awesome-icon :icon="['fas', 'paw']" size="xl" style="color: #c6bc77;" /> -->
+                    <h3>🐾 {{ category.title }} </h3>
                     <!-- <p>🏷️ 類別: {{ category.type }}</p>
                     <p>📊 資料筆數: {{ displayedCases[category.type]?.length || 0 }}</p> -->
                 </div>
@@ -80,7 +80,7 @@ const fetchBannerData = async () => {
         // 轉換資料格式，確保 `imageUrl` 存在
         const processBanner = (banner) => ({
             id: banner.bannerId,  // ✅ 使用 `bannerId` 作為唯一 ID
-            caseTitle: banner.caseTitle || "未知標題",
+            caseTitle: banner.lostCase?.caseTitle || "未知標題",  // 確保正確讀取
             imageUrl: banner.pictureUrl || "/images/reportcat2.png", // ✅ 確保圖片可用
             type: banner.bannerType
         });
