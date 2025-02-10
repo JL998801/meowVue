@@ -38,12 +38,12 @@
         <SidebarMenu class="fixed-sidebar" />
       </aside>
     </div>
-  </template>
+</template>
   
   <script setup>
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import SidebarMenu from "@/component/SidebarMenu.vue";
+import SidebarMenu from "@/components/member/SidebarMenu.vue";
 import Swal from 'sweetalert2'; // 引入 SweetAlert2
 
 const router = useRouter();

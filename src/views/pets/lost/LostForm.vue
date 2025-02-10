@@ -156,16 +156,16 @@ import { useRouter } from "vue-router";
 const router = useRouter();
 
 // **檢查是否已登入**
-// const checkLogin = () => {
-//     const storedMemberId = localStorage.getItem("memberId");
-//     if (!storedMemberId) {
-//         alert("請先登入會員！");
-//         router.push("/secure/login"); // 跳轉登入頁面
-//         return false;
-//     }
-//     form.value.memberId = storedMemberId;
-//     return true;
-// };
+const checkLogin = () => {
+    const storedMemberId = localStorage.getItem("memberId");
+    if (!storedMemberId) {
+        alert("請先登入會員！");
+        router.push("/secure/login"); // 跳轉登入頁面
+        return false;
+    }
+    form.value.memberId = storedMemberId;
+    return true;
+};
 
 // **表單數據**
 const form = ref({
@@ -294,7 +294,7 @@ const submitForm = async () => {
 
 // **頁面載入時執行**
 onMounted(() => {
-    // checkLogin();
+    checkLogin();
     fetchData();
 });
 

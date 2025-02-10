@@ -11,20 +11,17 @@ import LostForm from '@/views/pets/lost/LostForm.vue';
 import ReportForm from '@/views/pets/report/ReportForm.vue';
 import Products1 from '@/views/shops/products1.vue';
 import AdminManagement from '@/views/AdminManagement.vue';
-import Adopt from '@/components/pet/adopt/Adopt.vue';
-import MemberCenter from '@/views/secure/MemberCenter.vue';
-import AdminManagement from '@/views/AdminManagement.vue';
-import Adopt from '../views/pages/Adopt.vue';
-import Register from '@/views/pages/Register.vue';
-import MemberCenter from '@/views/pages/MemberCenter.vue';
-import MemberCard from '@/views/pages/MemberCard.vue';
-// import RescueCase from '@/views/pages/pet/rescue/RescueCase.vue';
-// import EditRescueCase from '../views/pages/pet/rescue/EditRescueCase.vue';
-// import NewRescueProgress from '../views/pages/pet/rescue/NewRescueProgress.vue';
-// import RescueSearch from '@/views/pages/pet/rescue/RescueSearch.vue';
+import Adopt from '@/views/pets/Adopt.vue';
+import Register from '@/views/pets/Register.vue';
+import MemberCenter from '@/views/pets/MemberCenter.vue';
+import MemberCard from '@/views/pets/MemberCard.vue';
+// import RescueCase from '@/views/pets/pet/rescue/RescueCase.vue';
+// import EditRescueCase from '../views/pets/pet/rescue/EditRescueCase.vue';
+// import NewRescueProgress from '../views/pets/pet/rescue/NewRescueProgress.vue';
+// import RescueSearch from '@/views/pets/pet/rescue/RescueSearch.vue';
 // import LineMessage from '@/views/secure/LineMessage.vue';
-// import NewRescueCase from '../views/pages/pet/rescue/NewRescueCase.vue';
-// import GoogleMap from '@/views/pages/pet/map/GoogleMap.vue';
+// import NewRescueCase from '../views/pets/pet/rescue/NewRescueCase.vue';
+// import GoogleMap from '@/views/pets/pet/map/GoogleMap.vue';
 
 
 const routes = [
@@ -39,12 +36,9 @@ const routes = [
   { path: "/shops/products1", component: Products1, name: "shops-products1-link" },
   { path: "/admin/management", component: AdminManagement, name: "admin-management-link" },
   { path: "/adopt", component: Adopt, name: "adopt-link" },
-  { path: "/member-center", component: MemberCenter, name: "member-center-link" },
-  { path: "/admin/management", component: AdminManagement, name: "admin-management-link" },
-  { path: "/adopt", component: Adopt, name: "adopt-link" },
-  { path: "/pages/Register", component: Register, name: "register-link" },
-  { path: "/pages/MemberCenter", component: MemberCenter, name: "MemberCenter-link" },
-  { path: "/pages/MemberCard", component: MemberCard, name: "MemberCard-link" },
+  { path: "/pets/Register", component: Register, name: "register-link" },
+  { path: "/pets/MemberCenter", component: MemberCenter, name: "MemberCenter-link" },
+  { path: "/pets/MemberCard", component: MemberCard, name: "MemberCard-link" },
   // { path: "/pet/rescue/search", component: RescueSearch, name: "pet-rescueSearch-link" },
   // { path: "/pet/rescueCase/:id", component: RescueCase, name: "pet-rescueCase-link", props: true },  // 使用 props 傳遞參數產生動態路由(新增案件)
   // { path: "/pet/rescueCase/edit/:id", component: EditRescueCase, name: "pet-rescueCase-edit-link", props: true },  // 使用 props 傳遞參數產生動態路由(編輯案件)
@@ -59,9 +53,6 @@ const route = createRouter({
   routes: routes,
   history: createWebHistory(),
 });
-<<<<<<< HEAD
-export default route;
-=======
 // 全域前置守衛，進行用戶token驗證(持有&時效合法)
 route.beforeEach(async (to, from, next) => {
   const userStore = useUserStore();
@@ -71,9 +62,9 @@ route.beforeEach(async (to, from, next) => {
     "/",
     "/pet/rescue/search",
     "/pet/map",
-    "/pages/Register",
-    "/pages/MemberCenter",
-    "/pages/MemberCard",
+    "/pets/Register",
+    "/pets/MemberCenter",
+    "/pets/MemberCard",
     "/adopt",
     "/admin/management",
     "/secure/loginadmin",
@@ -114,4 +105,3 @@ route.beforeEach(async (to, from, next) => {
 
 
 export default route;
->>>>>>> origin/f5-Jude
