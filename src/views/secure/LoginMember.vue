@@ -52,6 +52,8 @@ const isLoggingIn = ref(false);
 const router = useRouter();
 const userStore = useUserStore();
 
+
+
 const googleClientId = '687382637987-mac1n2c8aakto95j4o56keqblhst1j1u.apps.googleusercontent.com';
 
 onMounted(async () => {
@@ -165,8 +167,10 @@ async function submitForm() {
         icon: "success",
       });
 
-      // 儲存登入資訊到 localStorage
+      // 儲存登入資訊到 localStorage，同時儲存到pinia中(原檔案邏輯)
       saveUserInfoToLocalStorage(response.data.user, response.data.token);
+      userStore.setEmail(response.data.user.email);
+      userStore.setToken(response.data.token);
 
       // 設定 authorization header
       xxx.defaults.headers.authorization = `Bearer ${response.data.token}`;
