@@ -16,7 +16,9 @@
   
 <script setup>
 import { useRouter } from "vue-router";
+import UserStore from '@/stores/user.js';
 
+const userStore = UserStore();
 const router = useRouter();
 const menuItems = [
   { label: "會員基本資料", link: "/pages/MemberCard" },
@@ -33,7 +35,9 @@ const logout = () => {
   // 清空 localStorage 和 sessionStorage
   localStorage.clear();
   sessionStorage.clear();
-
+  userStore.setToken("");
+  userStore.setEmail("");
+  
   // 跳轉到首頁
   router.push('/');
 
