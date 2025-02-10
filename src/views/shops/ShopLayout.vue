@@ -1,4 +1,4 @@
-<template>
+<template> 
   <div id="shop-app">
     <header>
       <h1>歡迎來到我的購物網站</h1>
@@ -7,6 +7,7 @@
         <RouterLink to="/shop/cart">購物車</RouterLink>
         <RouterLink to="/shop/details">交易明細</RouterLink>
         <RouterLink to="/shop/payment">支付</RouterLink>
+        <RouterLink to="/admin/orders">管理訂單</RouterLink> <!-- 修正 -->
       </nav>
 
       <!-- 小購物車，放在 header 中 -->
