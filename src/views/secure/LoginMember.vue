@@ -63,18 +63,27 @@ onMounted(async () => {
     console.log('Google 登入初始化成功');
 
     // 渲染 Google 登入按鈕
-    window.google.accounts.id.renderButton(
-      document.getElementById("google-login-btn"),
-      {
-        theme: "outline",
-        size: "large",
-        text: "signin_with",
-        shape: "pill",
-      }
-    );
+    const googleButton = document.getElementById("google-login-btn");
+    if (googleButton) {
+      console.log('Google 登入按鈕渲染中...');
+      window.google.accounts.id.renderButton(
+        googleButton,
+        {
+          theme: "outline",
+          size: "large",
+          text: "signin_with",
+          shape: "pill",
+        }
+      );
+      console.log('Google 登入按鈕已成功渲染');
+    } else {
+      console.warn('無法找到 Google 登入按鈕元素');
+    }
 
     // 設定 Google 登入回應處理函數
     window.google.accounts.id.callback = googleLoginSuccess;
+    console.log('Google 登入回調函數已設定');
+    
   } catch (error) {
     console.error('Google 登入初始化失敗:', error);
     Swal.fire({
@@ -84,13 +93,19 @@ onMounted(async () => {
   }
 });
 
-// Google 登入成功回調
 function googleLoginSuccess(response) {
+  console.log("googleLoginSuccess", response);
   const idToken = response.credential;
   
+  console.log("ID Token:", idToken);  // 確認 ID Token 是否正常
+
   // 這是你的 API 請求，將 idToken 發送給後端進行認證
+  console.log("發送 Google 登入請求...");
+
   xxx.post('/ajax/secure/google-login', { id_token: idToken })
     .then(response => {
+      console.log("後端回應:", response);  // 確認後端回應
+
       if (response.data.success) {
         // 儲存用戶資訊到 localStorage 和 Vuex store
         saveUserInfoToLocalStorage(response.data.user, response.data.token);
@@ -109,7 +124,7 @@ function googleLoginSuccess(response) {
       }
     })
     .catch(error => {
-      console.error('Google 登入失敗', error);
+      console.error('Google 登入失敗', error);  // 確認錯誤
       Swal.fire({
         title: '登入失敗',
         icon: 'error',

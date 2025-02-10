@@ -44,46 +44,60 @@ const router=useRouter()
 const userStore = useUserStore();
 
 async function login() {
-    document.querySelector(".error").innerHTML = "";
-    message.value = "";
-	if (username.value== "") {
-		username.value = null;
-	}
-	if (password.value == "") {
-		password.value= null;
-	}
-	const body = {
-		"username": username.value,
-		"password": password.value,
-	};
-	xxx.defaults.headers.authorization="";
-	userStore.setEmail("")
-    try {
-		const response = await xxx.post("/secure/loginadmin", body);
-		console.log("response", response);
-		if (response.data.success) {
-			await Swal.fire({
-				title: response.data.message,
-				icon: "success"
-			});
-			xxx.defaults.headers.authorization="Bearer"+response.data.token;
-			userStore.setEmail(response.data.user);
-            router.push({path:"/admin/management"})
-		} else {
-			document.querySelector(".error").innerHTML = response.data.message;
-			Swal.fire({
-				title: response.data.message,
-				icon: "warning"
-			});
-		}
-	} catch (error) {
-		console.log("error", error);
-		Swal.fire({
-			title: "執行失敗:" + error.message,
-			icon: "error"
-		});
-	}
+  document.querySelector(".error").innerHTML = "";
+  message.value = "";
+  if (username.value == "") {
+    username.value = null;
+  }
+  if (password.value == "") {
+    password.value = null;
+  }
+
+  const body = {
+    "username": username.value,
+    "password": password.value,
+  };
+
+  xxx.defaults.headers.authorization = "";
+  userStore.setEmail("");
+
+  try {
+    const response = await xxx.post("/secure/loginadmin", body);
+    console.log("response", response);
+
+    if (response.data.success) {
+      // 存儲 token 到 localStorage
+      saveUserInfoToLocalStorage(response.data.token);
+
+      await Swal.fire({
+        title: response.data.message,
+        icon: "success"
+      });
+      xxx.defaults.headers.authorization = "Bearer " + response.data.token;
+      userStore.setEmail(response.data.user);
+      router.push({ path: "/admin/management" });
+    } else {
+      document.querySelector(".error").innerHTML = response.data.message;
+      Swal.fire({
+        title: response.data.message,
+        icon: "warning"
+      });
+    }
+  } catch (error) {
+    console.log("error", error);
+    Swal.fire({
+      title: "執行失敗:" + error.message,
+      icon: "error"
+    });
+  }
 }
+
+// 保存 token 到 localStorage 的函數
+function saveUserInfoToLocalStorage(token) {
+  localStorage.setItem("authToken", token); // 儲存 token
+  console.log("Token saved to localStorage:", token);
+}
+
 </script>
 
 <style scoped>
