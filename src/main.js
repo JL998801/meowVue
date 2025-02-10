@@ -11,6 +11,6 @@ pinia.use(piniaPluginPersistedstate)
 
 createApp(App)
     .use(pinia)
-    .use(router)
+    .use(routes)
     .component('font-awesome-icon', FontAwesomeIcon)
     .mount('#app')
