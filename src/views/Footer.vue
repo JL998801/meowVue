@@ -6,9 +6,9 @@
             </div>
     
             <div class="footer-links">
-            <router-link to="/about" class="footer-link">關於我們</router-link>
-            <router-link to="/contact" class="footer-link">聯絡我們</router-link>
-            <router-link to="/privacy" class="footer-link">隱私政策</router-link>
+            <router-link to="/about" class="footer-link">關於我們</router-link>/
+            <router-link to="/contact" class="footer-link">聯絡我們</router-link>/
+            <router-link to="/privacy" class="footer-link">隱私政策</router-link>/
             <router-link to="/terms" class="footer-link">使用條款</router-link>
             </div>
     

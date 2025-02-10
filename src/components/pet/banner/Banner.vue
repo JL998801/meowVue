@@ -23,7 +23,7 @@
                             style="cursor: pointer;"
                         >
                             <img 
-                                :src="caseItem.imageUrl ? caseItem.imageUrl : '/images/reportcat2.png'"  
+                                :src="caseItem.imageUrl ? caseItem.imageUrl : '/images/default.png'"  
                                 alt="案件圖片"  
                                 class="case-image" 
                             />
@@ -80,8 +80,8 @@ const fetchBannerData = async () => {
         // 轉換資料格式，確保 `imageUrl` 存在
         const processBanner = (banner) => ({
             id: banner.bannerId,  // ✅ 使用 `bannerId` 作為唯一 ID
-            caseTitle: banner.lostCase?.caseTitle || "未知標題",  // 確保正確讀取
-            imageUrl: banner.pictureUrl || "/images/reportcat2.png", // ✅ 確保圖片可用
+            caseTitle: banner.caseTitle || "未知標題",  // 確保正確讀取
+            imageUrl: banner.pictureUrl || "/images/default.png", // ✅ 確保圖片可用
             type: banner.bannerType
         });
 
@@ -121,22 +121,23 @@ const startAutoSlide = () => {
 
 // **下一組**
 const nextSlide = (type) => {
-    if (cases.value[type] && cases.value[type].length > 5) {
-        cases.value[type].push(cases.value[type].shift()); // ✅ 讓最前面的案件移到最後
-        displayedCases.value[type] = [...cases.value[type].slice(0, 5)];
+    if (displayedCases.value[type] && displayedCases.value[type].length > 1) {
+        let temp = displayedCases.value[type].shift(); // 取出第一個元素
+        displayedCases.value[type].push(temp); // 放到最後
     }
 };
 
 // **上一組**
 const prevSlide = (type) => {
-    if (cases.value[type] && cases.value[type].length > 5) {
-        cases.value[type].unshift(cases.value[type].pop()); // ✅ 讓最後一個案件移到最前面
-        displayedCases.value[type] = [...cases.value[type].slice(0, 5)];
+    if (displayedCases.value[type] && displayedCases.value[type].length > 1) {
+        let temp = displayedCases.value[type].pop(); // 取出最後一個元素
+        displayedCases.value[type].unshift(temp); // 放到最前面
     }
 };
 
 // **頁面載入時執行**
 onMounted(async () => {
+    console.log("⏩ 自動輪播觸發")
     await fetchBannerData(); // ✅ 獲取最新案件
     startAutoSlide(); // ✅ 開啟自動輪播
 });
@@ -210,7 +211,7 @@ onMounted(async () => {
     padding: 10px 0; /* 縮小垂直間距 */
     align-items: center; 
     /* 讓所有項目垂直居中 */
-    justify-content: space-between;
+    justify-content: space-around;
     width: 100%;
 }
 
