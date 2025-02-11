@@ -26,6 +26,15 @@ onMounted(() => {
   });
 });
 
+//設置管理員後台不要有背景圖
+watchEffect(() => {
+  if (route.path.startsWith("/admin")) {
+    document.body.classList.add("admin-page");  // 在 /admin 頁面加上 class
+  } else {
+    document.body.classList.remove("admin-page");  // 其他頁面移除 class
+  }
+});
+
 // 定義需要全螢幕顯示的路徑
 const fullWidthRoutes = ["/","/pages/MemberCenter","/pet/map", "/advanced-settings", "/admin"];
 
@@ -77,6 +86,7 @@ const isFullWidth = computed(() => fullWidthRoutes.includes(route.path));
   max-width: 100%;
   max-height: 100%;
   overflow: hidden; /* ✅ 隱藏滾動條 */
+  background-image: none !important;
 }
 
 /*管理員頁面使用樣式*/
@@ -88,5 +98,6 @@ const isFullWidth = computed(() => fullWidthRoutes.includes(route.path));
   max-width: 100%;
   max-height: 100%;
   overflow: auto; /* ✅ 允許滾動 */
+  background-image: none !important;
 }
 </style>

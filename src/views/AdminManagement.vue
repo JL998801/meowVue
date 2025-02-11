@@ -14,7 +14,6 @@
 import sidebar from "@/components/admin/sidebar.vue";
 import { ref } from "vue";
 
-const router = useRouter();
 
 const isCaseMenuOpen = ref(false); // 控制案件管理子選單的開關
 
