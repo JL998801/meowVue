@@ -26,12 +26,11 @@ const isShopRoute = computed(() => route.path.startsWith("/shop"));
 </script>
 
 <template>
-    <nav :class="['navbar', { shrink: isScrolled }]">
-
-      <!--v-show 只是控制 display: none，所以兩個 <Navigationbar> 可能都會被渲染，只是 display: none 影響可見性。
-      v-if 會根據條件來創建或銷毀 DOM 元素，避免兩個 <nav> 同時存在。 -->
-        <Navigationbar v-if="!isShopRoute"></Navigationbar>
-        <!-- <ShopNavBar v-else></ShopNavBar> -->
+    <!--v-show 只是控制 display: none，所以兩個 <Navigationbar> 可能都會被渲染，只是 display: none 影響可見性。
+  v-if 會根據條件來創建或銷毀 DOM 元素，避免兩個 <nav> 同時存在。 -->
+    <!-- app.vue 不再渲染 ShopNavBar，讓 shopLayout.vue 自己管理 -->
+    <nav :class="['navbar', { shrink: isScrolled }]"  v-if="!isShopRoute">
+        <Navigationbar></Navigationbar>
     </nav>
     <main style="margin-top: 100px; margin-bottom: 100px;">
         <RouterView />
@@ -41,6 +40,12 @@ const isShopRoute = computed(() => route.path.startsWith("/shop"));
 </template>
 
 <style scoped>
+#app {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
 /* 🔹 預設 Navbar & Footer 大小 */
 .navbar, .footer {
   width: 100%;  /* ✅ 保持全寬 */

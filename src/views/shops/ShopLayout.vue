@@ -1,14 +1,13 @@
 <template>
-  <!-- <div class="shop-layout"> -->
+  <div class="shop-layout">
     <!-- 🔹 商城導覽列 -->
-    <nav :class="['navbar', { shrink: isScrolled }]">
       <ShopNavBar
+      :class="['navbar', { shrink: isScrolled }]"
         :isUserLoggedIn="isUserLoggedIn"
         :cartCount="cartCount"
         :wishListCount="wishListCount"
         :notificationCount="notificationCount"
       />
-    </nav>
     
     <!-- 🔹 商城主要內容區域 -->
     <main class="shop-container">
@@ -30,7 +29,7 @@
         />
       </section>
     </main>
-  <!-- </div> -->
+  </div>
 </template>
 
 <script setup>
@@ -130,6 +129,7 @@ onMounted(async() => {
   width: 100%; /* ✅ 讓內容自適應 */
   margin: auto; /* ✅ 讓內容置中 */
   height: calc(100vh - 80px); /* ✅ 讓 shop-container 滿版（減去 Navbar 高度） */
+  overflow-y: auto; /* ✅ 允許內部滾動 */
 }
 
 /* 🔹 固定側邊欄的大小 */
