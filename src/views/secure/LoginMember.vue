@@ -140,7 +140,7 @@ function saveUserInfoToLocalStorage(user, token) {
   localStorage.setItem("email", user.email);
   localStorage.setItem("token", token);
   localStorage.setItem("nickname", user.nickname);
-  userStore.setEmail(user.email);
+  // userStore.setToken(token);
 }
 
 // 普通登入邏輯
@@ -169,14 +169,14 @@ async function submitForm() {
 
       // 儲存登入資訊到 localStorage，同時儲存到pinia中(原檔案邏輯)
       saveUserInfoToLocalStorage(response.data.user, response.data.token);
-      userStore.setEmail(response.data.user.email);
-      // userStore.setToken(response.data.token);
+
+      userStore.setToken(response.data.token);
 
       // 設定 authorization header
       axiosapi.defaults.headers.authorization = `Bearer ${response.data.token}`;
 
       // 跳轉到會員中心
-      router.push({ path: "/pets/MemberCenter" });
+      router.push({ path: "/pages/MemberCenter" });
     } else {
       message.value = response.data.message;
       Swal.fire({

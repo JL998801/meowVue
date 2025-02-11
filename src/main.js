@@ -6,7 +6,7 @@ import routes from './router/routers.js'
 import { createPinia } from 'pinia'
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import FontAwesomeIcon from './plugins/fontawesome.js'
-import "@/assets/petmain.css";
+import "@/assets/petmain.css"; //全局樣式表
 
 const pinia = createPinia();
 pinia.use(piniaPluginPersistedstate)

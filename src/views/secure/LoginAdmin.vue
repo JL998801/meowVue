@@ -66,6 +66,7 @@ async function login() {
     if (response.data.success) {
       // 存儲 token 到 localStorage
       saveUserInfoToLocalStorage(response.data.token);
+      userStore.setToken(response.data.token);
 
       await Swal.fire({
         title: response.data.message,
