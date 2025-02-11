@@ -57,7 +57,7 @@ async function login() {
   };
 
   axiosapi.defaults.headers.authorization = "";
-  userStore.setEmail("");
+  // userStore.setEmail("");
 
   try {
     const response = await axiosapi.post("/secure/loginadmin", body);
@@ -73,7 +73,7 @@ async function login() {
         icon: "success"
       });
       axiosapi.defaults.headers.authorization = "Bearer " + response.data.token;
-      userStore.setEmail(response.data.user);
+      // userStore.setEmail(response.data.user);
       router.push({ path: "/admin" });
     } else {
       document.querySelector(".error").innerHTML = response.data.message;

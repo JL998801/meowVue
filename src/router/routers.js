@@ -8,14 +8,11 @@ import LoginMember from '@/views/secure/LoginMember.vue';
 import LoginAdmin from '@/views/secure/LoginAdmin.vue';
 // import LostCase from '@/views/pets/lost/LostCase.vue';
 import LostForm from '@/views/pets/lost/LostForm.vue';
-import Adopt from '@/views/pages/Adopt.vue';
 import ReportForm from '@/views/pets/report/ReportForm.vue';
-import Products1 from '@/views/shops/products1.vue';
-import AdminManagement from '@/views/AdminManagement.vue';
-import Adopt from '@/views/pets/Adopt.vue';
-import Register from '@/views/pets/Register.vue';
-import MemberCenter from '@/views/pets/MemberCenter.vue';
-import MemberCard from '@/views/pets/MemberCard.vue';
+import Adopt from '@/views/pages/Adopt.vue';
+import Register from '@/views/pages/Register.vue';
+import MemberCenter from '@/views/pages/MemberCenter.vue';
+import MemberCard from '@/views/pages/MemberCard.vue';
 import ShopLayout from '@/views/shops/ShopLayout.vue';
 import { shopRoutes } from './shopRouter'; // 引入商城路由
 import ShopManagement from '@/views/shops/ShopManagement.vue';
@@ -25,7 +22,6 @@ import Notifications from '@/views/shops/Notifications.vue';
 // import EditRescueCase from '../views/pets/pet/rescue/EditRescueCase.vue';
 // import NewRescueProgress from '../views/pets/pet/rescue/NewRescueProgress.vue';
 // import RescueSearch from '@/views/pets/pet/rescue/RescueSearch.vue';
-// import LineMessage from '@/views/secure/LineMessage.vue';
 // import NewRescueCase from '../views/pets/pet/rescue/NewRescueCase.vue';
 // import GoogleMap from '@/views/pets/pet/map/GoogleMap.vue';
 
@@ -83,6 +79,9 @@ const routes = [
   { path: "/admin", component: AdminManagement, name: "adminManagement-link", meta: { hideNavbar: true },children: [
     { path: "rescueCase", component: RescueManagement },
     { path: "rescueAnalysis", component: RescueAnalysis },
+    { path: "shopManagement", component: ShopManagement },
+    { path: "productManagement", component: ProductManagement },
+    { path: "notifications", component: Notifications },
    
   ],},
 
@@ -94,7 +93,7 @@ const routes = [
   },
 ];
 
-const route = createRouter({
+const router = createRouter({
   routes: routes,
   history: createWebHistory(),
 });
