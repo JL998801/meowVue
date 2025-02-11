@@ -9,12 +9,12 @@ import LoginAdmin from '@/views/secure/LoginAdmin.vue';
 // import LostCase from '@/views/pets/lost/LostCase.vue';
 import LostForm from '@/views/pets/lost/LostForm.vue';
 import ReportForm from '@/views/pets/report/ReportForm.vue';
-import Products1 from '@/views/shops/products1.vue';
+import LostMember from '@/views/pets/lost/LostMember.vue';
 import AdminManagement from '@/views/AdminManagement.vue';
-import Adopt from '@/views/pets/Adopt.vue';
-import Register from '@/views/pets/Register.vue';
-import MemberCenter from '@/views/pets/MemberCenter.vue';
-import MemberCard from '@/views/pets/MemberCard.vue';
+import Adopt from '@/views/pages/Adopt.vue';
+import Register from '@/views/pages/Register.vue';
+import MemberCenter from '@/views/pages/MemberCenter.vue';
+import MemberCard from '@/views/pages/MemberCard.vue';
 // import RescueCase from '@/views/pets/pet/rescue/RescueCase.vue';
 // import EditRescueCase from '../views/pets/pet/rescue/EditRescueCase.vue';
 // import NewRescueProgress from '../views/pets/pet/rescue/NewRescueProgress.vue';
@@ -30,15 +30,15 @@ const routes = [
   { path: "/403", component: Forbidden, name: "forbidden-link" },
   { path: '/secure/login', component: LoginMember, name: 'login-link' },
   { path: '/secure/loginadmin', component: LoginAdmin, name: 'login-admin-link' },
-  // { path: "/pets/lostcase", component: LostCase, name: "pets-LostCase-link" },
+  // { path: "/lost", component: LostCase, name: "pets-LostCase-link" },
   { path: "/pets/lostform", component: LostForm, name: "pets-LostForm-link" },
   { path: "/pets/reportform", component: ReportForm, name: "pets-ReportForm-link" },
-  { path: "/shops/products1", component: Products1, name: "shops-products1-link" },
+  { path: "/lost/member", component: LostMember, name: "shops-LostMember-link" },
   { path: "/admin/management", component: AdminManagement, name: "admin-management-link" },
   { path: "/adopt", component: Adopt, name: "adopt-link" },
-  { path: "/pets/Register", component: Register, name: "register-link" },
-  { path: "/pets/MemberCenter", component: MemberCenter, name: "MemberCenter-link" },
-  { path: "/pets/MemberCard", component: MemberCard, name: "MemberCard-link" },
+  { path: "/pages/Register", component: Register, name: "register-link" },
+  { path: "/pages/MemberCenter", component: MemberCenter, name: "MemberCenter-link" },
+  { path: "/pages/MemberCard", component: MemberCard, name: "MemberCard-link" },
   // { path: "/pet/rescue/search", component: RescueSearch, name: "pet-rescueSearch-link" },
   // { path: "/pet/rescueCase/:id", component: RescueCase, name: "pet-rescueCase-link", props: true },  // 使用 props 傳遞參數產生動態路由(新增案件)
   // { path: "/pet/rescueCase/edit/:id", component: EditRescueCase, name: "pet-rescueCase-edit-link", props: true },  // 使用 props 傳遞參數產生動態路由(編輯案件)
@@ -62,14 +62,18 @@ route.beforeEach(async (to, from, next) => {
     "/",
     "/pet/rescue/search",
     "/pet/map",
-    "/pets/Register",
-    "/pets/MemberCenter",
-    "/pets/MemberCard",
+    "/pages/Register",
+    "/pages/MemberCenter",
+    "/pages/MemberCard",
     "/adopt",
     "/admin/management",
     "/secure/loginadmin",
     '/secure/loginadmin',
     '/callback',
+    '/pets/lostform',
+    '/pets/reportform',
+    '/lost',
+    '/lost/member',
 
   ];  // 不需要驗證的路由
 
