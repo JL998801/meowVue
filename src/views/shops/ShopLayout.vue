@@ -1,16 +1,19 @@
 <template>
-  <div class="shop-layout">
+  <!-- <div class="shop-layout"> -->
     <!-- 🔹 商城導覽列 -->
-    <ShopNavBar
-      :isUserLoggedIn="isUserLoggedIn"
-      :cartCount="cartCount"
-      :wishListCount="wishListCount"
-      :notificationCount="notificationCount"
-    />
+    <nav :class="['navbar', { shrink: isScrolled }]">
+      <ShopNavBar
+        :isUserLoggedIn="isUserLoggedIn"
+        :cartCount="cartCount"
+        :wishListCount="wishListCount"
+        :notificationCount="notificationCount"
+      />
+    </nav>
+    
     <!-- 🔹 商城主要內容區域 -->
     <main class="shop-container">
       <!-- 🔹 商品篩選側邊欄 (左側) -->
-      <aside>
+      <aside clasee="shop-sidebar">
       <!-- 接收來自子組件 shopSideBar 的資料 emit -->
         <ShopSideBar
           @update-filter="handleFilterUpdate"
@@ -27,7 +30,7 @@
         />
       </section>
     </main>
-  </div>
+  <!-- </div> -->
 </template>
 
 <script setup>
@@ -102,6 +105,20 @@ onMounted(async() => {
   flex-direction: column;
   height: 100vh; /* ✅ 填滿整個視窗 */
   width: 100vw; /* ✅ 確保佔滿整個寬度 */
+  position: relative; /* 🔹 讓內部元素能參考這個父層 */
+}
+
+.navbar {
+  top: 0;
+  width: 100%;  /* ✅ 保持全寬 */
+  height: 80px; /* ✅ 預設高度 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute; /* ✅ 讓 Navbar 依附 `shop-layout` */
+  left: 0;
+  transition: height 0.3s ease-in-out; /* ✅ 只改變高度，動畫順暢 */
+  z-index: 1000;
 }
 
 /* 🔹 設定 aside + section 水平排列 */
@@ -121,7 +138,7 @@ onMounted(async() => {
   flex-shrink: 0; /* ✅ 防止側邊欄縮小 */
   background-color: #f4f4f4;
   height: 100%; /* ✅ 讓側邊欄填滿 .shop-container */
-  overflow-y: auto; /* ✅ 允許側邊欄滾動 */
+  position: fixed; /* ✅ 固定位置 */
 }
 
 /* 🔹 讓主內容最大化填充剩餘空間 */

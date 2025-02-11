@@ -1,4 +1,5 @@
 import { jsonRequest } from "@/plugins/axios";
+import axiosapi from "@/plugins/axios";
 
 const API_URL = "/products";
 
@@ -11,7 +12,7 @@ export const ProductService = {
    * @param {string} order 排序方式 ("asc" 或 "desc")
    */
   async getPagedProducts(page = 0, size = 10, sortBy = "productName", order = "asc") {
-    return axios.get(`${API_URL}/paged`, {
+    return axiosapi.get(`${API_URL}/paged`, {
       params: { page, size, sortBy, order } // ✅ 傳遞 API 參數
     });
   },

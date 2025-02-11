@@ -27,8 +27,11 @@ const isShopRoute = computed(() => route.path.startsWith("/shop"));
 
 <template>
     <nav :class="['navbar', { shrink: isScrolled }]">
+
+      <!--v-show 只是控制 display: none，所以兩個 <Navigationbar> 可能都會被渲染，只是 display: none 影響可見性。
+      v-if 會根據條件來創建或銷毀 DOM 元素，避免兩個 <nav> 同時存在。 -->
         <Navigationbar v-if="!isShopRoute"></Navigationbar>
-        <ShopNavBar v-else></ShopNavBar>
+        <!-- <ShopNavBar v-else></ShopNavBar> -->
     </nav>
     <main style="margin-top: 100px; margin-bottom: 100px;">
         <RouterView />

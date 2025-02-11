@@ -80,13 +80,13 @@ const activeTab = ref("description");
 const productStore = useProductStore();
 const productId = route.params.id; 
 selectedProduct.value = productStore.products.find(product => {
-  console.log("商品 ID:", product.productId);
-  console.log("商品:", product.productId === Number(productId));
+  // console.log("商品 ID:", product.productId);
+  // console.log("商品:", product.productId === Number(productId));
   return product.productId === Number(productId);
 });
-console.log("商品 ID:", route.params.id);
-console.log("商品:", selectedProduct.value);
-console.log("商品:", productStore.products);
+// console.log("商品 ID:", route.params.id);
+// console.log("商品:", selectedProduct.value);
+// console.log("商品:", productStore.products);
 
 // 加入購物車功能
 const addToCart = (product) => {

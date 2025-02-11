@@ -71,7 +71,7 @@ const displayedCategories = computed(() =>
 );
 
 onMounted(() => {
-  fetchPagedProducts(); // ✅ 預設取得第一頁數據
+  productStore.fetchPagedProducts(); // ✅ 預設取得第一頁數據
 });
 </script>
 
@@ -82,7 +82,9 @@ onMounted(() => {
       <div class="d-flex justify-content-between align-items-center mb-3">
         <h2>搜尋結果</h2>
           <!-- 🔹 分頁控制 -->
-          
+          <div class="spinner-grow text-warning" role="status" v-if="productStore.loading">
+            <span class="sr-only">Loading...</span>
+          </div>
           <div class="pagination">
             <Pagination 
               v-if="filteredProducts.length > 10"
