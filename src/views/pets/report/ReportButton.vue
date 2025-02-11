@@ -12,8 +12,8 @@ const router = useRouter();
 
 // 假設 `caseData` 是當前案件的資訊，來自 API 或 Vue 組件的 props
 const caseData = {
-    id: 789123, // 測試用，應該從案件詳情 API 獲取
-    memberId: 456789 // 測試用，應該從案件詳情 API 獲取
+    id: 2, // 測試用，應該從案件詳情 API 獲取
+    memberId: 2 // 測試用，應該從案件詳情 API 獲取
 };
 
 // 點擊舉報按鈕後跳轉到舉報頁面
