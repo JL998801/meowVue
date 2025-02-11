@@ -64,6 +64,7 @@ const isFullWidth = computed(() => fullWidthRoutes.includes(route.path));
   background-color: #ffffff;
   padding: 0 70px;
   margin: 0 auto;
+  background-image: url('@/assets/背景圖2.png');
 }
 
 /* 當 `isFullWidth` 為 true，讓 `.container` 變成全寬而且不要有卷軸 */
