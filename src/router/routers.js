@@ -64,6 +64,7 @@ route.beforeEach(async (to, from, next) => {
     '/secure/loginadmin',
     '/callback',
 
+
   ];  // 不需要驗證的路由
 
 

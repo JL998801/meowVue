@@ -1,75 +1,73 @@
 <template>
-    <div>
-      <div class="sidebar">
-        <h2>商城後台管理系统</h2>
-        <a href="2" class="active">用戶管理</a>
-        <a href="3">分類管理</a>
-        <a href="4">訂單管理</a>
-        <a href="5">商品管理</a>
-        <a href="6">評論管理</a>
-        <a href="7">運營管理</a>
-        <a href="8">日誌管理</a>
-        <a href="9">系统信息</a>
-      </div>
-  
-      <div class="main-content">
-        <div class="header">
-          <div class="title">用戶管理</div>
-          <div class="member-info" style="display: flex; align-items: center;">
-            <h6>管理員[admin]</h6>
-            <a href="/" style="margin-right: 10px;">登出</a>
-            
-        </div>
-        </div>
-  
-        <button @click="fetchmembers">更新</button>
-        <button @click="addMember">新增</button>
-        <input type="text" v-model="searchQuery" placeholder="用户名">
-        <button @click="searchmembers">搜尋</button>
-  
-        <table>
-          <thead>
-            <tr>
-              <th>序號</th>
-              <th>帳號</th>
-              <th>名稱</th>
-              <th>更新日期</th>
-              <th>地址</th>
-              <th>手機</th>
-              <th>操作</th>
-            </tr>
-          </thead>
-          <tbody>
-  <tr v-for="(member, index) in members" :key="member.memberId">
-    <td>{{ index + 1 }}</td>
-    <td>{{ member.email }}</td>
-    <td>{{ member.nickName }}</td>
-    <td>{{ member.createDate }}</td>
-    <td>{{ member.address }}</td>
-    <td>{{ member.phone }}</td>
-    <td>
-      <button @click="editMember(member.memberId)">编辑</button>
-      <button @click="deleteMember(member.memberId)">删除</button>
-    </td>
-  </tr>
-</tbody>
-        </table>
-  
-        <ul class="pagination">
-          <li><a href="13">1</a></li>
-          <li><a href="14">2</a></li>
-          <li><a href="15">3</a></li>
-          <li><a href="16">4</a></li>
-          <li><a href="17">5</a></li>
-        </ul>
-      </div>
+  <div>
+    <div class="sidebar">
+      <h2>商城後台管理系统</h2>
+      <a href="2" class="active">用戶管理</a>
+      <a href="3">分類管理</a>
+      <a href="4">訂單管理</a>
+      <a href="5">商品管理</a>
+      <a href="6">評論管理</a>
+      <a href="7">運營管理</a>
+      <a href="8">日誌管理</a>
+      <a href="9">系统信息</a>
     </div>
-  </template>
-  
-  <script>
-  import xxx from '@/plugins/axios.js';
-  import Swal from 'sweetalert2';
- 
+
+    <div class="main-content">
+      <div class="header">
+        <div class="title">用戶管理</div>
+        <div class="member-info" style="display: flex; align-items: center;">
+          <h6>管理員[admin]</h6>
+          <a href="/" style="margin-right: 10px;">登出</a>
+        </div>
+      </div>
+
+      <button @click="fetchmembers">更新</button>
+      <button @click="showAddMemberModal">新增</button>
+      <input type="text" v-model="searchQuery" placeholder="用户名">
+      <button @click="searchmembers">搜尋</button>
+
+      <table>
+        <thead>
+          <tr>
+            <th>序號</th>
+            <th>帳號</th>
+            <th>名稱</th>
+            <th>更新日期</th>
+            <th>地址</th>
+            <th>手機</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(member, index) in members" :key="member.memberId">
+            <td>{{ index + 1 }}</td>
+            <td>{{ member.email }}</td>
+            <td>{{ member.nickName }}</td>
+            <td>{{ member.createDate }}</td>
+            <td>{{ member.address }}</td>
+            <td>{{ member.phone }}</td>
+            <td>
+              <button @click="editMember(member.memberId)">编辑</button>
+              <button @click="deleteMember(member.memberId)">删除</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <ul class="pagination">
+        <li><a href="13">1</a></li>
+        <li><a href="14">2</a></li>
+        <li><a href="15">3</a></li>
+        <li><a href="16">4</a></li>
+        <li><a href="17">5</a></li>
+      </ul>
+    </div>
+  </div>
+</template>
+
+<script>
+import axiosapi from '@/plugins/axios.js';
+import Swal from 'sweetalert2';
 
 export default {
   name: "memberManagement",
@@ -82,20 +80,96 @@ export default {
   methods: {
     // 獲取所有會員資料
     async fetchmembers() {
+      try {
+        const response = await axiosapi.get('/api/members');
+        console.log("Fetched members:", response.data); // 確認資料結構
+        this.members = response.data; // 設定 Vue 的 members 陣列
+      } catch (error) {
+        console.error("Error fetching members:", error); // 捕獲並顯示錯誤
+      }
+    },
+
+  // 編輯會員
+async editMember(memberId) {
   try {
-    const response = await xxx.get('/api/members');
-    console.log("Fetched members:", response.data); // 確認資料結構
-    this.members = response.data; // 設定 Vue 的 members 陣列
+    // 確保傳入的 memberId 是有效的
+    if (!memberId) {
+      console.error("Invalid member ID:", memberId);
+      Swal.fire('錯誤', '會員 ID 無效', 'error');
+      return;
+    }
+
+    // 獲取會員的詳細資料
+    const response = await axiosapi.get(`/api/members/${memberId}`);
+    const member = response.data;
+
+    // 顯示編輯表單，並回填會員資料
+    const { value: editedMemberData, isConfirmed } = await Swal.fire({
+      title: '編輯會員',
+      html: `
+        <input id="email" class="swal2-input" placeholder="電子郵件" type="email" value="${member.email}">
+        <input id="nickName" class="swal2-input" placeholder="使用者暱稱" type="text" value="${member.nickName}">
+        <input id="phone" class="swal2-input" placeholder="手機號碼" type="text" value="${member.phone}">
+        <input id="birthday" class="swal2-input" placeholder="生日" type="date" value="${member.birthday}">
+        <input id="address" class="swal2-input" placeholder="地址" type="text" value="${member.address}">
+      `,
+      focusConfirm: false,
+      showCancelButton: true,
+      cancelButtonText: '取消',
+      confirmButtonText: '確認修改',
+      preConfirm: () => {
+        return {
+          email: document.getElementById('email').value,
+          nickName: document.getElementById('nickName').value,
+          phone: document.getElementById('phone').value,
+          birthday: document.getElementById('birthday').value,
+          address: document.getElementById('address').value
+        };
+      }
+    });
+
+    // 如果點擊確認按鈕並且填寫了資料，則進行編輯
+    if (isConfirmed && editedMemberData) {
+      this.updateMember(memberId, editedMemberData);
+    }
   } catch (error) {
-    console.error("Error fetching members:", error); // 捕獲並顯示錯誤
+    console.error("Error editing member:", error);
+    Swal.fire('錯誤', '無法獲取會員資料', 'error');
   }
 },
+
+// 更新會員資料
+async updateMember(memberId, updatedData) {
+  try {
+    // 準備傳遞的資料
+    const memberData = {
+      email: updatedData.email,
+      nickName: updatedData.nickName,
+      name: updatedData.fullName, // 使用 fullName 來對應資料
+      phone: updatedData.phone,
+      birthday: updatedData.birthday,
+      address: updatedData.address
+    };
+
+    // 發送更新會員資料請求
+    const response = await axiosapi.put(`/api/members/${memberId}`, memberData);
+
+    // 成功後顯示提示並更新會員列表
+    Swal.fire('修改成功！', '會員資料已成功更新。', 'success');
+    this.fetchmembers(); // 重新載入會員列表
+  } catch (error) {
+    console.error('Error updating member:', error);
+    Swal.fire('修改失敗', '請稍後再試。', 'error');
+  }
+},
+
+
     // 根據搜尋關鍵字過濾會員資料
     async searchmembers() {
       if (this.searchQuery) {
         try {
           // 發送帶有搜尋參數的請求
-          const response = await xxx.get('/api/members', {
+          const response = await axiosapi.get('/api/members', {
             params: { search: this.searchQuery }
           });
           this.members = response.data;
@@ -107,14 +181,54 @@ export default {
       }
     },
 
-    // 新增會員
-    async addMember(newMemberData) {
+   // 顯示新增會員的 SweetAlert2 表單
+async showAddMemberModal() {
+  const { value: newMemberData, isConfirmed } = await Swal.fire({
+    title: '新增會員',
+    html: `
+      <input id="email" class="swal2-input" placeholder="電子郵件" type="email">
+      <input id="nickName" class="swal2-input" placeholder="使用者暱稱" type="text">
+      <input id="password" class="swal2-input" placeholder="密碼" type="password">
+      <input id="fullName" class="swal2-input" placeholder="姓名" type="text">
+      <input id="phone" class="swal2-input" placeholder="手機號碼" type="text">
+      <input id="birthday" class="swal2-input" placeholder="生日" type="date">
+      <input id="address" class="swal2-input" placeholder="地址" type="text">
+    `,
+    focusConfirm: false,
+    showCancelButton: true,
+    cancelButtonText: '取消',
+    confirmButtonText: '確認新增',
+    preConfirm: () => {
+      return {
+        email: document.getElementById('email').value,
+        nickName: document.getElementById('nickName').value,
+        password: document.getElementById('password').value,
+        fullName: document.getElementById('fullName').value,
+        phone: document.getElementById('phone').value,
+        birthday: document.getElementById('birthday').value,
+        address: document.getElementById('address').value
+      };
+    }
+  });
+
+  // 如果點擊確認按鈕並且填寫了資料，則進行新增
+  if (isConfirmed && newMemberData) {
+    this.addMember(newMemberData);
+  }
+},
+
+   // 新增會員
+async addMember(newMemberData) {
   console.log('Adding new member with data:', newMemberData);
-  if (!newMemberData || !newMemberData.name || !newMemberData.email) {
+
+  // 檢查是否所有必要的欄位都已經填寫
+  if (!newMemberData || !newMemberData.nickName || !newMemberData.email || !newMemberData.password) {
     Swal.fire('錯誤', '請填寫完整的會員資料', 'error');
     return;
   }
+
   try {
+    // 顯示確認新增會員的提示框
     const result = await Swal.fire({
       title: '確認新增會員？',
       text: '請確認新增此會員資料。',
@@ -125,62 +239,63 @@ export default {
       confirmButtonText: '是的，新增！',
       cancelButtonText: '取消'
     });
+
     if (result.isConfirmed) {
-      await xxx.post('/api/members', newMemberData); // 發送到後端的 API
+      // 準備傳遞的資料
+      const memberData = {
+        nickName: newMemberData.nickName,
+        password: newMemberData.password,
+        name: newMemberData.fullName, // 修改為fullName對應到name
+        email: newMemberData.email,
+        phone: newMemberData.phone,
+        address: newMemberData.address,
+        birthday: newMemberData.birthday
+      };
+
+      // 發送新增會員資料請求
+      const response = await axiosapi.post('http://localhost:8080/api/members', memberData);
+
+      // 成功後顯示提示並更新會員列表
       Swal.fire('新增成功！', '會員已成功新增。', 'success');
-      this.fetchmembers(); // 重新載入列表
+      this.fetchmembers(); // 重新載入會員列表
     }
   } catch (error) {
+    // 出現錯誤時顯示錯誤提示
     console.error('Error adding member:', error);
     Swal.fire('新增失敗', '請稍後再試。', 'error');
   }
-}
-,
-  // 刪除會員
-  async deleteMember(memberId) {
-  console.log('Deleting member with ID:', memberId); // 確認 memberId 是否正確
-  if (!memberId) {
-    Swal.fire('錯誤', '會員 ID 無效', 'error');
-    return;
-  }
-  try {
-    const result = await Swal.fire({
-      title: '您確定要刪除此會員嗎？',
-      text: '此操作將永久刪除此會員！',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: '是的，刪除！',
-      cancelButtonText: '取消'
-    });
-    if (result.isConfirmed) {
-      await xxx.delete(`/api/members/${memberId}`);
-      Swal.fire('刪除成功！', '會員已被刪除。', 'success');
-      this.fetchmembers(); // 重新獲取會員列表
-    }
-  } catch (error) {
-    console.error('Error deleting member:', error);
-    Swal.fire('刪除失敗', '請稍後再試。', 'error');
-  }
-}
-,
-        // 編輯會員
-        async editMember(memberId) {
-    try {
-    // 確保傳入的 memberId 是有效的
-    if (!memberId) {
-      console.error("Invalid member ID:", memberId);
-      Swal.fire('錯誤', '會員 ID 無效', 'error');
-      return;
-    }
-    // 使用 Vue Router 導航到編輯頁面，並將 memberId 傳遞到路由
-    this.$router.push({ path: `/edit-member/${memberId}` });
-  } catch (error) {
-    console.error("Error editing member:", error);
-  }
-}
-,
+},
+
+    // 刪除會員
+    async deleteMember(memberId) {
+      console.log('Deleting member with ID:', memberId); // 確認 memberId 是否正確
+      if (!memberId) {
+        Swal.fire('錯誤', '會員 ID 無效', 'error');
+        return;
+      }
+      try {
+        const result = await Swal.fire({
+          title: '您確定要刪除此會員嗎？',
+          text: '此操作將永久刪除此會員！',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: '是的，刪除！',
+          cancelButtonText: '取消'
+        });
+        if (result.isConfirmed) {
+          await axiosapi.delete(`/api/members/${memberId}`);
+          Swal.fire('刪除成功！', '會員已被刪除。', 'success');
+          this.fetchmembers(); // 重新獲取會員列表
+        }
+      } catch (error) {
+        console.error('Error deleting member:', error);
+        Swal.fire('刪除失敗', '請稍後再試。', 'error');
+      }
+    },
+
+  
   },
   mounted() {
     // 頁面加載時自動獲取會員資料
@@ -188,6 +303,7 @@ export default {
   }
 };
 </script>
+
   
   <style scoped>
   body {

@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const xxx = axios.create({
+const axiosapi = axios.create({
     baseURL: import.meta.env.VITE_API_URL, // 後端 API URL
     withCredentials: true, // 允許攜帶 cookies 或 Authorization header
     headers: {
@@ -10,4 +10,4 @@ const xxx = axios.create({
 
 console.log('Base URL:', import.meta.env.VITE_API_URL);
 
-export default xxx;
+export default axiosapi;
