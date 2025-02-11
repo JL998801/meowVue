@@ -1,5 +1,5 @@
 <template lang="">
-  <div v-if="rescueCase">
+   <div v-if="rescueCase">
     <div class="rescue-page">
     <h1>{{rescueCase.caseTitle}}</h1>
       <div class="second-container">
@@ -12,7 +12,7 @@
             
             <div v-if="canEdit && rescueCase" class="member-buttons">
               <router-link :to="`/pet/rescueCase/edit/${rescueCase.rescueCaseId}`"  class="router-link">
-                  <button @click="editCase">編輯案件</button>
+                 <button @click="editCase">編輯案件</button>
               </router-link>
               <router-link :to="`/pet/rescueCase/update/${rescueCase.rescueCaseId}`"  class="router-link">
               <button @click="updateProgress">進度更新</button>
@@ -22,9 +22,8 @@
                 <button>要求共同編輯權限</button>
               </div>
           </div>
-          <div class="share-buttons">
-            <a href="#">分享至 Facebook</a>
-            <a href="#">分享至 Line</a>
+          <div class="share-buttons" >
+            分享： <button @click="shareOnLine"  class="line-share-button"><img src="https://upload.wikimedia.org/wikipedia/commons/4/41/LINE_logo.svg" alt="LINE" class="line-icon"></button>
           </div>
           <div class="rescue-details">
             <div class="rescue-reason">
@@ -78,6 +77,7 @@ import useUserStore from '@/stores/user.js'; // 載入 Pinia 的 user store
 
 
 const baseUrl = import.meta.env.VITE_API_BASE_URL;
+const frontUrl = import.meta.env.VITE_FRONT_BASE_URL;
 
 const route = useRoute();
 const rescueCase = ref({});
@@ -128,6 +128,17 @@ const updateProgress = () => {
   console.log("進入進度更新模式");
 };
 
+//分享至line按鈕
+const shareOnLine = () => {
+  const caseUrl = encodeURIComponent(`${frontUrl}/pet /rescueCase/${rescueCase.value.rescueCaseId}`); // 案件網址
+  const shareText = encodeURIComponent("這是案件資訊，請查看！"); // 你可以加上案件標題
+  const lineShareUrl = `https://social-plugins.line.me/lineit/share?url=${caseUrl}&text=${shareText}`;
+
+  // 開啟新視窗分享
+  window.open(lineShareUrl, "_blank");
+};
+
+
 
 onMounted(async () => {
   fetchRescueProgress();  //向後端拿救援案件進度
@@ -169,7 +180,7 @@ h1 {
 .rescue-page {
   margin: 35px auto;
   max-width: 1200px;
-
+ 
 }
 .sidebar {
   flex: 1 1 20%;
@@ -191,7 +202,7 @@ h1 {
   display: inline-block;
   font-weight: 500;
   letter-spacing: 2px; /* 增加字元之間的距離 */
-  background-color: #c6bc77;
+  background-color: #dbb44f;
   color: white;
   padding: 10px 20px;
   font-size: 20px;
@@ -262,7 +273,7 @@ h1 {
 }
 
 .rescue-details {
-  margin-top: 70px;
+  margin-top: 50px;
   border-radius: 8px;
   padding: 20px;
 }
@@ -313,4 +324,22 @@ h1 {
 .comments-section button:hover {
   background-color: #0056b3;
 }
+
+.share-buttons {
+  text-align: center;
+  margin-top: 15px;
+} 
+
+.line-icon {
+  width: 40px; /* 調整大小 */
+  height: 40px;
+
+}
+
+.line-share-button {
+  background-color: none;
+  border: none;
+  cursor: pointer;
+}
+
 </style>

@@ -13,7 +13,7 @@
                             浪浪案件</span>
                         <ul class="dropdown-menu">
                             <li>
-                                <RouterLink class="dropdown-item" to="/pets/products">流浪救援</RouterLink>
+                                <RouterLink class="dropdown-item" to="/pet/rescue/search">流浪救援</RouterLink>
                             </li>
                             <li>
                                 <RouterLink class="dropdown-item" to="/adopt">動物認養</RouterLink>
@@ -30,7 +30,7 @@
                         <RouterLink class="nav-link active" aria-current="page" to="/pets/products">救援活動</RouterLink>
                     </li>
                     <li class="nav-item" title="地圖">
-                        <RouterLink class="nav-link active" aria-current="page" to="/pets/products">
+                        <RouterLink class="nav-link active" aria-current="page" to="/pet/map">
                             <font-awesome-icon :icon="['fas', 'map-location-dot']" size="xl" style="color: #c4bc7f;" /></RouterLink>
                     </li>
                     <li class="nav-item">
