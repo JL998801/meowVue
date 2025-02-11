@@ -37,6 +37,7 @@ const pageSize = computed(() => productStore.size); // ✅ 每頁顯示數量
 // 加入購物車:  調用 `cartStore.js` 更新購物車
 const addToCart = (product) => {
   cartStore.addToCart(product.productId);
+  console.log("product.productId"+ product.productId)
   alert("商品已加入購物車"); //跳出彈窗
 };
 
