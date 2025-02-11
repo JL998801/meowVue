@@ -1,27 +1,4 @@
-<template>
-    <h3>Login</h3>
-	<table>
-        <tbody>
-            <tr>
-                <td>ID : </td>
-                <td><input type="text" v-model="username" @keyup.enter="login"></td>
-                <td><span class="error">{{ message }}</span></td>
-            </tr>
-            <tr>
-                <td>PWD : </td>
-                <td><input type="text" v-model="password" @keyup.enter="login"></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td> </td>
-                <td align="right"><button type="button" @click="login">login</button></td>
-            </tr>
-			<tr>
-				<RouterLink class="nav-link" to="/secure/login">(切換會員)</RouterLink>
-			</tr>
-        </tbody>
-	</table>
-    
+<template>    
 	<form class="aa" @submit.prevent="submitForm">
         
 		<div class="container">
@@ -39,7 +16,7 @@
 			</div>
 	
 			<div class="gg">
-			 
+
 				<button type="button" class="register-btn" @click="login">
           登入
         </button>
