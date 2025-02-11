@@ -315,9 +315,7 @@ const previewImages = ref([]);
 
 // 監聽圖片上傳事件
 const ImageUploaded = (backTmpUrl) => {
-  console.log("父組件拿到囉!", backTmpUrl);
   form.value.images.push(backTmpUrl);
-  console.log("新增圖片進表單", form);
 };
 
 // **提交表單**

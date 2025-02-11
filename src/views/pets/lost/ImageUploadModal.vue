@@ -96,7 +96,6 @@ const initializeCropper = () => {
   if (cropper.value) {
     cropper.value.destroy();
   }
-  console.log("圖片綁訂了", imageRef.value);
   const image = imageRef.value;
   if (image) {
     cropper.value = new Cropper(image, {
@@ -145,8 +144,6 @@ const confirmUpload = async () => {
         const parsedUser = JSON.parse(user);
         const token = parsedUser?.token || "";
 
-        console.log("前端發送的 Token:", token);
-
         const response = await axios.post(
           `${baseUrl}/Case/uploadImage`,
           formData,
@@ -158,13 +155,11 @@ const confirmUpload = async () => {
           }
         );
         if (response.data) {
-          console.log("返回結果", response.data);
           emit("imageUploaded", {
             frontTmpUrl: response.data.frontTmpUrl,
             backTmpUrl: response.data.backTmpUrl,
           });
           emit("close");
-          console.log("上傳圖片成功");
         }
       } catch (error) {
         console.error("上傳圖片失敗:", error.response?.data || error);
