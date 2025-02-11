@@ -15,9 +15,11 @@
       <div class="main-content">
         <div class="header">
           <div class="title">用戶管理</div>
-          <div class="member-info">
-            <a href="/ajax/secure/login">登出</a>
-          </div>
+          <div class="member-info" style="display: flex; align-items: center;">
+            <h6>管理員[admin]</h6>
+            <a href="/" style="margin-right: 10px;">登出</a>
+            
+        </div>
         </div>
   
         <button @click="fetchmembers">更新</button>
@@ -42,7 +44,7 @@
     <td>{{ index + 1 }}</td>
     <td>{{ member.email }}</td>
     <td>{{ member.nickName }}</td>
-    <td>{{ member.updateDate }}</td>
+    <td>{{ member.createDate }}</td>
     <td>{{ member.address }}</td>
     <td>{{ member.phone }}</td>
     <td>
@@ -62,12 +64,12 @@
         </ul>
       </div>
     </div>
-  </template>
+</template>
   
   <script>
   import xxx from '@/plugins/axios.js';
   import Swal from 'sweetalert2';
- 
+
 
 export default {
   name: "memberManagement",

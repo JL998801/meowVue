@@ -24,7 +24,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted } from "vue";
+import { computed } from "vue";
 import { useStore } from "vuex";
 import axios from "axios";
 
@@ -36,10 +36,6 @@ const store = useStore();
 
 // Computed property to get selected order from Vuex
 const selectedOrder = computed(() => store.state.selectedOrder);
-
-
-
-
 
 // Prepare payment data based on selected order
 const getPaymentData = () => {
@@ -58,7 +54,7 @@ const sendPayment = () => {
   const paymentData = getPaymentData();
   
   if (!paymentData) {
-    alert("訂單資料缺失，請返回訂單頁面後重新選擇！");
+    alert("訂單資料缺失，請返回訂單頁面重新選擇！");
     return;
   }
 

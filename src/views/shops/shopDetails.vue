@@ -17,13 +17,11 @@
           <p>訂單狀態: <span :class="getStatusClass(order.orderStatus)">{{ order.orderStatus }}</span></p>
           <ul>
             <li v-for="item in order.orderItems" :key="item.orderItemId">
-              {{ item.productName ? item.productName : '未知的商品' }} - 單價: {{ item.purchasedPrice }} 元，數量: {{ item.orderQuantity }}
+              {{ item.productName ? item.productName : '未知商品' }} - 單價: {{ item.purchasedPrice }} 元，數量: {{ item.orderQuantity }}
             </li>
           </ul>
           <button @click="cancelOrder(order.orderId)" :disabled="order.orderStatus !== '備貨中'">取消訂單</button>
-          <button 
-            @click="goToPayment(order)" 
-            :disabled="order.orderStatus !== '待支付'">前往支付</button>
+          <button @click="goToPayment(order)">前往支付</button>
         </li>
       </ul>
     </div>
@@ -47,18 +45,8 @@ const error = ref(null);
 // 讀取訂單資料
 const fetchOrderData = async () => {
   loading.value = true;
-  error.value = null;
-
-  // 確保 `memberId` 有值，從 Vuex 或 localStorage 取得
-  const memberId = store.state.memberId || localStorage.getItem("memberId");
-
-  if (!memberId) {
-    error.value = "無法獲取會員 ID，請重新登入";
-    loading.value = false;
-    return;
-  }
   try {
-    const response = await axios.get(`${apiUrl}/orders/member/${memberId}`); // 使用反引號進行字串插值
+    const response = await axios.get(`${apiUrl}/orders`);
     orderList.value = response.data.map(order => ({
       ...order,
       orderItems: order.orderItems.map(item => ({

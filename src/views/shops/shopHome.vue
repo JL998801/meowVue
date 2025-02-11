@@ -1,137 +1,155 @@
-<template>
-  <div>
-    <h2>商品列表</h2>
-    <div v-if="isLoading">正在加載商品資料...</div>
-    <div v-if="errorMessage" class="error">{{ errorMessage }}</div>
-    <div v-else>
-      <ul>
-        <li v-for="(product, index) in products" :key="product.productId">
-          <h3>{{ product.productName }}</h3>
-          <p>{{ product.description }}</p>
-          <p>價格: {{ product.salePrice }} 元</p>
-          <p>庫存: {{ product.stockQuantity }}</p>
-
-          <div>
-            <label>數量:</label>
-            <input 
-              type="number" 
-              v-model="selectedQuantities[index]" 
-              :min="1" 
-              :max="product.stockQuantity" 
-              :placeholder="1" 
-            />
-            <button @click="addToCart(index)">加入購物車</button>
-          </div>
-        </li>
-      </ul>
-    </div>
-  </div>
-</template>
-
 <script setup>
-import { ref, onMounted } from 'vue';
-import axios from 'axios';
-import { useStore } from 'vuex';
+import { computed, defineProps, onMounted} from "vue";
+import Carousel from "@/components/shop/home/Carousel.vue";
+import ProductCard from "@/components/shop/home/ProductCard.vue";
+import Pagination from "@/components/shop/home/Pagination.vue";
+import useProductStore from "../../stores/productStore"
+import useCartStore from "../../stores/cartStore"
 
-// 從環境變數中讀取 API 和 ECPay URL
-const apiUrl = import.meta.env.VITE_API_URL;
-const ecpayUrl = import.meta.env.VITE_ECPAY_URL;
+// 接收 shopSidebar.vue 搜尋資料
+const props = defineProps({
+  products: { type: Array, default: () => [] },
+  categories: { type: Array, default: () => [] },
+  filter: Object, // ✅ 接收來自父組件的搜尋條件
+  isSearching: Boolean,
+});
 
-const store = useStore();
-const products = ref([]);
-const isLoading = ref(true);
-const errorMessage = ref(null);
-const selectedQuantities = ref({});
+const productStore = useProductStore();
+const cartStore = useCartStore();
 
-// 獲取商品數據
-const fetchProducts = async () => {
-  try {
-    const response = await axios.get(`${apiUrl}/products`);
-    if (response.data && Array.isArray(response.data.products)) {
-      products.value = response.data.products;
-    } else {
-      errorMessage.value = '獲取商品資料失敗，返回的資料格式錯誤';
-    }
-  } catch (error) {
-    console.error('獲取商品資料失敗:', error);
-    errorMessage.value = '無法獲取商品資料，請稍後再試';
-  } finally {
-    isLoading.value = false;
-  }
+// 動態計算符合篩選條件的商品
+const filteredProducts = computed(() => {
+  return productStore.products.filter(product => {
+    const matchesCategory = !props.filter.categoryId || product.categoryId === props.filter.categoryId;
+    const matchesMinPrice = !props.filter.minPrice || product.salePrice >= props.filter.minPrice;
+    const matchesMaxPrice = !props.filter.maxPrice || product.salePrice <= props.filter.maxPrice;
+    
+    return matchesCategory && matchesMinPrice && matchesMaxPrice;
+  });
+});
+
+// 監聽當前頁面和總頁數
+const currentPage = computed(() => productStore.page);
+console.log("currentPage", currentPage);
+const totalPages = computed(() => productStore.totalPages);
+const pageSize = computed(() => productStore.size); // ✅ 每頁顯示數量
+
+// 加入購物車:  調用 `cartStore.js` 更新購物車
+const addToCart = (product) => {
+  cartStore.addToCart(product.productId);
+  console.log("product.productId"+ product.productId)
+  alert("商品已加入購物車"); //跳出彈窗
 };
 
-// 獲取會員ID
-const getMemberId = () => {
-  return 1; // 假設會員ID為1
+// 加入願望清單
+const addToWishlist = (product) => {
+  wishlistStore.addToWishList(product.productId);
+  alert("商品已加入願望清單！"); //跳出彈窗
 };
 
-// 加入購物車
-const addToCart = async (index) => {
-  const product = products.value[index];
-  let quantity = selectedQuantities.value[index] || 1;
-
-  if (quantity <= 0 || quantity > product.stockQuantity) {
-    alert('選擇的數量無效');
-    return;
-  }
-
-  try {
-    const memberId = getMemberId();
-    const productId = product.productId; // 使用API提供的ID
-    console.log('Sending:', { memberId, productId, quantity });
-
-    await axios.post(`${apiUrl}/pages/cart/add`, {
-      memberId: memberId,
-      productId: productId,
-      quantity: quantity,
-    });
-
-    store.dispatch('addToCart', { ...product, quantity });
-    alert('商品已成功加入購物車');
-  } catch (error) {
-    console.error('加入購物車失敗:', error);
-    alert('加入購物車失敗，請稍後重試');
-  }
+// ✅ 更新每頁顯示的商品數量
+const updatePageSize = (event) => {
+  productStore.size = Number(event.target.value);
+  productStore.page = 1; // ✅ 切回第一頁，避免超出範圍
+  productStore.fetchProducts();
 };
 
-// 組件掛載時加載商品
+// ✅ 切換分頁
+const updatePage = (newPage) => {
+  productStore.page = newPage;
+  productStore.fetchProducts();
+};
+
+// 輪播器設定
+const targetCategories = ["貓用品", "狗用品", "保健品"]; // 只篩選這三個類別
+
+const filteredProductsByCategory = (category) => {
+  return category.products; // 直接回傳該類別的產品
+};
+
+const displayedCategories = computed(() => 
+  props.categories.filter(category => targetCategories.includes(category.categoryName))
+);
+
 onMounted(() => {
-  fetchProducts();
+  productStore.fetchPagedProducts(); // ✅ 預設取得第一頁數據
 });
 </script>
 
+<template>
+    <!-- 🔹 如果有搜尋結果，顯示商品卡片 -->
+    <div class="shop-home">
+    <!-- <div class="shop-home" v-if="isSearching"> -->
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>搜尋結果</h2>
+          <!-- 🔹 分頁控制 -->
+          <div class="spinner-grow text-warning" role="status" v-if="productStore.loading">
+            <span class="sr-only">Loading...</span>
+          </div>
+          <div class="pagination">
+            <Pagination 
+              v-if="filteredProducts.length > 10"
+              :currentPage="currentPage" 
+              :totalPages="totalPages" 
+              @update-page="updatePage"
+            />
+            <label for="pageSizeSelect" class="me-2">每頁顯示：</label>
+            <select id="pageSizeSelect" class="form-select w-auto"  :value="pageSize" @change="updatePageSize">
+              <option :value="10">10</option>
+              <option :value="20">20</option>
+              <option :value="50">50</option>
+            </select>
+          </div>
+      </div>
+      <!-- 🔹 商品卡片 -->
+      <div class="product-grid" v-if="filteredProducts.length > 0">
+        <ProductCard
+          v-for="product in filteredProducts"
+          :key="product.productId"
+          :product="product"
+          @add-to-cart="addToCart"
+          @add-to-wishlist="addToWishlist"
+        />
+      </div>
+      <div v-else>
+        <p>沒有符合條件的商品</p>
+      </div>
+    </div>
+</template>
+
 <style scoped>
-h2 {
-  color: #343a40;
+.shop-home {
+  padding: 20px;
+  overflow: hidden; /* 防止內容區域擴展超出範圍 */
 }
 
-.error {
-  color: red;
-  font-size: 18px;
+/* 讓下拉選單更緊湊 */
+select.form-select {
+  max-width: 80px;
+}
+
+/* 商品卡片排版 */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+/* 分頁控制 */
+.pagination {
+  display: flex;
+  justify-content: center;
   margin-top: 20px;
+}
+
+.carousel-container {
+  display: flex;
+  flex-direction: column; /* 讓每個 Carousel 區塊獨立一行 */
+  gap: 20px; /* 設定間距 */
+}
+
+.carousel-item {
+  width: 100%; /* 讓每個類別區塊佔滿 */
   text-align: center;
-}
-
-button {
-  margin: 0 5px;
-  padding: 5px 10px;
-  font-size: 16px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-button:hover {
-  background-color: #0056b3;
-}
-
-input[type="number"] {
-  width: 60px;
-  padding: 5px;
-  font-size: 16px;
-  margin: 0 5px;
-  border-radius: 5px;
 }
 </style>
