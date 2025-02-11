@@ -17,6 +17,7 @@
                             </li>
                             <li>
                                 <RouterLink class="dropdown-item" to="/adopt">動物認養</RouterLink>
+                                <RouterLink class="dropdown-item" to="/adopt">動物認養</RouterLink>
                             </li>
                             <li>
                                 <RouterLink class="dropdown-item" to="/pets/products">遺失協尋</RouterLink>
@@ -35,7 +36,7 @@
                     </li>
                     <li class="nav-item">
                         <!--- 根據是否已登入顯示不同的 RouterLink -->
-                        <RouterLink v-if="isLoggedIn" class="nav-link" to="/member-center">會員中心</RouterLink>
+                        <RouterLink v-if="isLoggedIn" class="nav-link" to="/pages/MemberCenter">會員中心</RouterLink>
                         <RouterLink v-else class="nav-link" to="/secure/login">會員登入</RouterLink>
                     </li>
                 </ul>
