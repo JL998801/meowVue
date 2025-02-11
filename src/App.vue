@@ -27,7 +27,7 @@ onMounted(() => {
 });
 
 // 定義需要全螢幕顯示的路徑
-const fullWidthRoutes = ["/","/pets/MemberCenter","/pet/map", "/advanced-settings", "/admin"];
+const fullWidthRoutes = ["/","/pages/MemberCenter","/pet/map", "/advanced-settings", "/admin"];
 
 // 定義需要套用 `.admin` 樣式的頁面
 const adminRoutes = [
@@ -35,7 +35,8 @@ const adminRoutes = [
   "/admin/adopt-case",
   "/admin/lostCase",
   "/admin/rescueAnalysis",
-  "/admin"
+  "/admin",
+  "/adopt"
 ];
 
 // 判斷是否應用 `admin` 樣式
@@ -64,7 +65,7 @@ const isFullWidth = computed(() => fullWidthRoutes.includes(route.path));
   background-color: #ffffff;
   padding: 0 70px;
   margin: 0 auto;
-  background-image: url('@/assets/背景圖2.png');
+ 
 }
 
 /* 當 `isFullWidth` 為 true，讓 `.container` 變成全寬而且不要有卷軸 */

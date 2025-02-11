@@ -18,7 +18,7 @@
 
 body {
     font-family: var(--font-stack);
-    /* background-image: url('@/assets/背景圖2.png'); */
+    background-image: url('@/assets/背景圖2.png');
     background-size: auto;
     background-position: center;
     background-attachment: fixed;
