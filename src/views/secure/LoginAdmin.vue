@@ -57,7 +57,6 @@ async function login() {
   };
 
   xxx.defaults.headers.authorization = "";
-  userStore.setEmail("");
 
   try {
     const response = await xxx.post("/secure/loginadmin", body);
@@ -66,14 +65,15 @@ async function login() {
     if (response.data.success) {
       // 存儲 token 到 localStorage
       saveUserInfoToLocalStorage(response.data.token);
+      userStore.setToken(response.data.token);
 
       await Swal.fire({
         title: response.data.message,
         icon: "success"
       });
       xxx.defaults.headers.authorization = "Bearer " + response.data.token;
-      userStore.setEmail(response.data.user);
-      router.push({ path: "/admin/management" });
+
+      router.push({ path: "/admin" });
     } else {
       document.querySelector(".error").innerHTML = response.data.message;
       Swal.fire({

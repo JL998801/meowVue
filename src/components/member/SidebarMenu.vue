@@ -36,7 +36,6 @@ const logout = () => {
   localStorage.clear();
   sessionStorage.clear();
   userStore.setToken("");
-  userStore.setEmail("");
   
   // 跳轉到首頁
   router.push('/');

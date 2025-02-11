@@ -32,8 +32,10 @@
             <font-awesome-icon icon="fa-solid fa-circle-user"  class="user-icon" />發文者：<span class="author">{{ caseData.memberNickName }}</span>
         </p>
         <div class="views-and-follows">
-            <font-awesome-icon icon="fa-solid fa-eye" class="view-icon"/><span>{{ caseData.viewCount || 0 }}</span>
-            <font-awesome-icon icon="fa-solid fa-heart" class="heart-icon" /><span>追蹤 ({{ caseData.follow || 0 }})</span>
+          <div class="viewCount">
+            <font-awesome-icon icon="fa-solid fa-eye" class="view-icon"/><span>{{ caseData.viewCount || 0 }}</span> 
+          </div>
+            <followButton :follow="caseData.follow" :caseId="caseData.rescueCaseId" caseType="rescue"/>
         </div>
       </div>
     </div>
@@ -42,6 +44,9 @@
 
 <script setup>
 import { defineProps, ref, computed } from "vue";
+import followButton from "@/components/pet/rescue/follow/followButton.vue";
+
+
 
 //從RescueCase父組件傳遞的caseData
 defineProps({
@@ -83,16 +88,13 @@ const statusClass = (caseState) => {
 }
 
 .view-icon{
-    margin-right: 3px;
+    margin-right:5px;
     color:#dbdddc;
     font-size: 20px;
 }
 
-.heart-icon{
-
-    margin-right: 3px;
-    color:#ed6c6c;
-    font-size: 20px;
+.viewCount{
+  margin-right: 10px ;
 }
 
 a {
@@ -133,16 +135,24 @@ a {
 }
 
 .case-footer {
-  margin-top: 45px;
-  margin-left: 10px;
+  margin-top: 8px;
+  margin-left: 5px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   font-size: 15px;
 }
 
-.views-and-follows span {
-  margin-right: 16px;
+.case-footer p{
+  width: 100%;
+}
+
+.views-and-follows {
+  display: flex;
+  align-items: center; /* 讓所有子元素垂直居中對齊 */
+  justify-content: flex-end; /* 讓內容靠右對齊 */
+  gap: 5px; /* 控制圖示與按鈕之間的間距 */
+  width: 100%; /* 讓 flex 容器填滿可用空間 */
 }
 
 .author {
