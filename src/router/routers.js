@@ -10,7 +10,6 @@ import LoginAdmin from '@/views/secure/LoginAdmin.vue';
 import LostForm from '@/views/pets/lost/LostForm.vue';
 import ReportForm from '@/views/pets/report/ReportForm.vue';
 import Products1 from '@/views/shops/products1.vue';
-import AdminManagement from '@/views/AdminManagement.vue';
 import Adopt from '@/views/pets/Adopt.vue';
 import Register from '@/views/pets/Register.vue';
 import MemberCenter from '@/views/pets/MemberCenter.vue';
@@ -23,6 +22,17 @@ import MemberCard from '@/views/pets/MemberCard.vue';
 // import NewRescueCase from '../views/pets/pet/rescue/NewRescueCase.vue';
 // import GoogleMap from '@/views/pets/pet/map/GoogleMap.vue';
 
+//會員中心功能
+import LineMessage from '@/views/secure/LineMessage.vue'; 
+import FollowCase from '@/views/secure/FollowCase.vue';
+import MemberRescueCase from '../views/secure/MemberRescueCase.vue';
+
+
+//後臺頁面
+import AdminManagement from '../views/AdminManagement.vue';
+import RescueManagement from '@/views/admin/kuan/RescueManagement.vue';
+import RescueAnalysis from '@/views/admin/kuan/RescueAnalysis.vue';
+
 
 const routes = [
   { path: "/", component: Home, name: "home-link" },
@@ -34,7 +44,7 @@ const routes = [
   { path: "/pets/lostform", component: LostForm, name: "pets-LostForm-link" },
   { path: "/pets/reportform", component: ReportForm, name: "pets-ReportForm-link" },
   { path: "/shops/products1", component: Products1, name: "shops-products1-link" },
-  { path: "/admin/management", component: AdminManagement, name: "admin-management-link" },
+  { path: "/admin", component: AdminManagement, name: "admin-management-link" },
   { path: "/adopt", component: Adopt, name: "adopt-link" },
   { path: "/pets/Register", component: Register, name: "register-link" },
   { path: "/pets/MemberCenter", component: MemberCenter, name: "MemberCenter-link" },
@@ -46,7 +56,20 @@ const routes = [
   // { path: "/pet/rescue/add", component: NewRescueCase, name: "newRescueCase-link" },
   // { path: "/pet/map", component: GoogleMap, name: "googleMap-link" },
   // { path: "/pet/rescueCase/update/:id", component: NewRescueProgress, name: "newRescueProgress-link" }, // 使用 props 傳遞參數產生動態路由(編輯案件)
+  
+   //會員中心功能
+   { path: "/pages/Register", component: Register, name: "register-link" },
+   { path: "/member-center/followCase", component: FollowCase, name: "followCase-link" },
+   { path: "/member-center/rescueCase", component: MemberRescueCase, name: "memberRescueCase-link" },
 
+  //管理員後台頁面
+  //加上 meta 標記，表示這頁面不顯示導航列。
+  //這樣 /admin/* 下面的所有路由都會套用 AdminManagement.vue，讓 Sidebar 固定存在！
+  { path: "/admin", component: AdminManagement, name: "adminManagement-link", meta: { hideNavbar: true },children: [
+    { path: "rescueCase", component: RescueManagement },
+    { path: "rescueAnalysis", component: RescueAnalysis },
+   
+  ],},
 ];
 
 const route = createRouter({
@@ -66,9 +89,7 @@ route.beforeEach(async (to, from, next) => {
     "/pets/MemberCenter",
     "/pets/MemberCard",
     "/adopt",
-    "/admin/management",
     "/secure/loginadmin",
-    '/secure/loginadmin',
     '/callback',
 
   ];  // 不需要驗證的路由
@@ -99,6 +120,13 @@ route.beforeEach(async (to, from, next) => {
       return next("/secure/login"); // 跳轉到登入頁面
     }
   }
+
+
+  // 限制 /admin 頁面，只有管理員可以進入
+  if (to.path.startsWith("/admin") && !userStore.isAdmin) {
+    return next("/403");  // 轉到「無權限」頁面
+  }
+
 
   next(); // 驗證成功則繼續跳轉
 });
