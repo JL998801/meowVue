@@ -176,7 +176,7 @@ async function submitForm() {
       xxx.defaults.headers.authorization = `Bearer ${response.data.token}`;
 
       // 跳轉到會員中心
-      router.push({ path: "/pages/MemberCenter" });
+      router.push({ path: "/pets/MemberCenter" });
     } else {
       message.value = response.data.message;
       Swal.fire({

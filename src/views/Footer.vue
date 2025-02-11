@@ -39,7 +39,7 @@ html, body {
 .main-content {
     display: flex;
     flex-direction: column;
-    min-height: 60vh; /* 🔥 減去 header + footer 的高度 *
+    min-height: calc(60vh-100px); /* 🔥 減去 header + footer 的高度 */
     flex: 1; /* 讓內容填滿 */
 }
 
@@ -50,6 +50,7 @@ html, body {
     text-align: center;
     font-size: 14px;
     position: relative; /* 確保 footer 依附內容 */
+    bottom: 0;
     width: 100%;
     padding: 10px 10px;
 }
