@@ -5,7 +5,9 @@
         <a href="2" class="active">用戶管理</a>
         <a href="3">分類管理</a>
         <a href="4">訂單管理</a>
-        <a href="5">商品管理</a>
+        <router-link to="/admin/management/shop">商品類別管理</router-link>
+        <router-link to="/admin/management/product">商品管理</router-link>
+        <router-link to="/admin/management/notification">通知管理</router-link>
         <a href="6">評論管理</a>
         <a href="7">運營管理</a>
         <a href="8">日誌管理</a>
@@ -66,10 +68,10 @@
     </div>
 </template>
   
-  <script>
-  import xxx from '@/plugins/axios.js';
-  import Swal from 'sweetalert2';
-
+<script>
+import axiosapi from '@/plugins/axios.js';
+import Swal from 'sweetalert2';
+import { RouterLink } from "vue-router";
 
 export default {
   name: "memberManagement",
@@ -83,7 +85,7 @@ export default {
     // 獲取所有會員資料
     async fetchmembers() {
   try {
-    const response = await xxx.get('/api/members');
+    const response = await axiosapi.get('/api/members');
     console.log("Fetched members:", response.data); // 確認資料結構
     this.members = response.data; // 設定 Vue 的 members 陣列
   } catch (error) {
@@ -95,7 +97,7 @@ export default {
       if (this.searchQuery) {
         try {
           // 發送帶有搜尋參數的請求
-          const response = await xxx.get('/api/members', {
+          const response = await axiosapi.get('/api/members', {
             params: { search: this.searchQuery }
           });
           this.members = response.data;
@@ -126,7 +128,7 @@ export default {
       cancelButtonText: '取消'
     });
     if (result.isConfirmed) {
-      await xxx.post('/api/members', newMemberData); // 發送到後端的 API
+      await axiosapi.post('/api/members', newMemberData); // 發送到後端的 API
       Swal.fire('新增成功！', '會員已成功新增。', 'success');
       this.fetchmembers(); // 重新載入列表
     }
@@ -155,7 +157,7 @@ export default {
       cancelButtonText: '取消'
     });
     if (result.isConfirmed) {
-      await xxx.delete(`/api/members/${memberId}`);
+      await axiosapi.delete(`/api/members/${memberId}`);
       Swal.fire('刪除成功！', '會員已被刪除。', 'success');
       this.fetchmembers(); // 重新獲取會員列表
     }

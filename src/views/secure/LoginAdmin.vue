@@ -29,7 +29,7 @@
 </template>
 
 <script setup>
-import xxx from '@/plugins/axios.js';
+import axiosapi from '@/plugins/axios.js';
 import Swal from 'sweetalert2';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
@@ -56,11 +56,11 @@ async function login() {
     "password": password.value,
   };
 
-  xxx.defaults.headers.authorization = "";
+  axiosapi.defaults.headers.authorization = "";
   userStore.setEmail("");
 
   try {
-    const response = await xxx.post("/secure/loginadmin", body);
+    const response = await axiosapi.post("/secure/loginadmin", body);
     console.log("response", response);
 
     if (response.data.success) {
@@ -71,9 +71,9 @@ async function login() {
         title: response.data.message,
         icon: "success"
       });
-      xxx.defaults.headers.authorization = "Bearer " + response.data.token;
+      axiosapi.defaults.headers.authorization = "Bearer " + response.data.token;
       userStore.setEmail(response.data.user);
-      router.push({ path: "/admin/management" });
+      router.push({ path: "/admin" });
     } else {
       document.querySelector(".error").innerHTML = response.data.message;
       Swal.fire({

@@ -129,7 +129,6 @@ onMounted(async() => {
   width: 100%; /* ✅ 讓內容自適應 */
   margin: auto; /* ✅ 讓內容置中 */
   height: calc(100vh - 80px); /* ✅ 讓 shop-container 滿版（減去 Navbar 高度） */
-  overflow-y: auto; /* ✅ 允許內部滾動 */
 }
 
 /* 🔹 固定側邊欄的大小 */
