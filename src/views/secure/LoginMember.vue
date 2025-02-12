@@ -5,14 +5,14 @@
         <h3>會員登入</h3>
 
         <div class="input-group">
-          <label class="jj" for="nickName">使用者暱稱</label>
-          <input type="text" v-model="username" @keyup.enter="login">
+          <label class="jj" for="nickName">帳號</label>
+          <input type="text" v-model="username" @keyup.enter="login" placeholder="e-mail">
         </div>
         <span class="error">{{ message }}</span>
 
         <div class="input-group">
           <label for="password">密碼</label>
-          <input type="password" v-model="password" @keyup.enter="login">
+          <input type="password" v-model="password" @keyup.enter="login"placeholder="Password">
         </div>
 
         <div class="gg">
@@ -102,73 +102,33 @@ onMounted(async () => {
 function googleLoginSuccess(response) {
   console.log("googleLoginSuccess", response);
 
-  const idToken = response.credential;  // 這是 Google 返回的 ID Token
+  // 從 response 中提取 clientId 和 credential
+  const clientId = response?.clientId || response?.client_id;  // 確保提取 clientId
+  const credential = response?.credential;  // Google 返回的 ID Token
 
-  // 檢查 idToken 是否有效
-  if (!idToken) {
-    console.error("Google ID Token 無效，無法發送請求");
-    Swal.fire({
-      title: 'Google 登入失敗',
-      text: 'ID Token 無效，請重試。',
-      icon: 'error',
-    });
+  // 檢查資料是否有效
+  if (!clientId || !credential) {
+    console.error("Google 登入資料無效，無法獲取 clientId 或 credential");
     return;
   }
 
-  // 發送 ID Token 給後端進行驗證
-  sendIdTokenToBackend(idToken);
+  // 顯示用戶資訊，或者用於後續操作
+  console.log("Client ID:", clientId);
+  console.log("Credential:", credential);
+
+  // 儲存資料到 localStorage
+  localStorage.setItem('googleClientId', clientId);
+  localStorage.setItem('googleCredential', credential);
+
+  // 跳轉到會員中心頁面
+  router.push({ path: '/pages/MemberCenter' });
 }
 
-// 發送 ID Token 給後端進行驗證
-function sendIdTokenToBackend(idToken) {
-  if (!idToken) {
-    Swal.fire({
-      title: '無效的 ID Token',
-      text: '請重試或重新登入。',
-      icon: 'error',
-    });
-    return;
-  }
-  console.log('發送 ID Token 給後端:', idToken);  // 確認 ID Token 的值
-
-
-  const ooo = {
-    idtoken: idToken
-  };
-  console.log('發送 ID Token 給後端...', ooo);
-
-
-  axiosapi.post('/ajax/secure/google-login', ooo)
-    .then(response => {
-      console.log("後端回應:", response);
-
-      if (response.data.success) {
-        // 儲存用戶資訊，並處理登入邏輯
-        saveUserInfoToLocalStorage(response.data.user, response.data.token);
-        axiosapi.defaults.headers.authorization = `Bearer ${response.data.token}`;
-        router.push({ path: '/pages/MemberCenter' });
-      } else {
-        console.warn('後端返回錯誤:', response.data.message);
-        Swal.fire({
-          title: response.data.message,
-          icon: 'warning',
-        });
-      }
-    })
-    .catch(error => {
-      console.error('發送 ID Token 失敗', error);
-      Swal.fire({
-        title: '登入失敗',
-        text: `錯誤訊息: ${error.response ? error.response.data.message : error.message}`,
-        icon: 'error',
-      });
-    });
-}
 
 
 // 儲存用戶資訊到 localStorage 和 Vuex
 function saveUserInfoToLocalStorage(user, token) {
-  localStorage.setItem("memberId", user.userId);
+  localStorage.setItem("memberId", user.memberId);
   localStorage.setItem("email", user.email);
   localStorage.setItem("token", token);
   localStorage.setItem("nickname", user.nickname);

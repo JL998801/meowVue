@@ -62,20 +62,26 @@
   const router = useRouter();
   
   onMounted(() => {
-    // 當組件掛載後，從 localStorage 取出 nickname 和 memberId
-    const storedNickname = localStorage.getItem('nickname');
-    const storedMemberId = localStorage.getItem('memberId');
-    
-    // 如果存在，將其設置到 ref 中
-    if (storedNickname) {
-      nickname.value = storedNickname;
-    }
-    
-    if (storedMemberId) {
-      memberId.value = storedMemberId;
-    }
-  });
-  
+  // 當組件掛載後，從 localStorage 取出 nickname 和 memberId
+  const storedNickname = localStorage.getItem('nickname');
+  const storedMemberId = localStorage.getItem('memberId');
+  const storedClientId = localStorage.getItem('googleClientId');  // 取出 clientId
+
+  // 如果 localStorage 中有 googleClientId，將 googleClientId，設為memberId
+  if (!storedNickname && storedClientId) {
+    nickname.value = "Jude Chu";
+    localStorage.setItem('nickname', "Jude Chu");  
+  } else if (storedNickname) {
+    nickname.value = storedNickname;
+  }
+
+  // 優先顯示 memberId，若不存在則顯示 googleClientId 的前 12 個字符
+  if (storedMemberId) {
+    memberId.value = storedMemberId;
+  } else if (storedClientId) {
+    memberId.value = storedClientId.slice(0, 12);  // 取前 12 個字符
+  }
+});
 
   </script>
   

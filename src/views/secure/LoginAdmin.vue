@@ -7,13 +7,13 @@
 		  <div class="register-box">
 			<h3>管理員</h3>
 			<div class="input-group">
-			  <label for="nickName">使用者暱稱</label>
-			  <input type="text" v-model="username" @keyup.enter="login">
+			  <label for="nickName">管理員</label>
+			  <input type="text" v-model="username" @keyup.enter="login" placeholder="Admin">
 			</div>
 			<span class="error">{{ message }}</span>
 			<div class="input-group">
 			  <label for="password">密碼</label>
-			  <input type="text" v-model="password" @keyup.enter="login">
+			  <input type="password" v-model="password" @keyup.enter="login" placeholder="Password">
 			</div>
 	
 			<div class="gg">
