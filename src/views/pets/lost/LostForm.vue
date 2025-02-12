@@ -156,26 +156,10 @@
       <!-- 圖片上傳（最多 3 張） -->
       <div class="form-group">
         <label>案件圖片（第一張為封面，最多 3 張）：</label>
-        <input
-          type="file"
-          @change="handleFileUpload"
-          multiple
-          accept="image/*"
-        />
         <div class="upload-image">
           <ImageUpload @image-uploaded="ImageUploaded"></ImageUpload>
           <ImageUpload @image-uploaded="ImageUploaded"></ImageUpload>
           <ImageUpload @image-uploaded="ImageUploaded"></ImageUpload>
-        </div>
-        <div class="image-preview">
-          <div
-            v-for="(image, index) in previewImages"
-            :key="index"
-            class="image-container"
-          >
-            <img :src="image" alt="案件圖片" />
-            <span v-if="index === 0" class="cover-label">封面</span>
-          </div>
         </div>
       </div>
 
