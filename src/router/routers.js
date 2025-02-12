@@ -104,6 +104,7 @@ route.beforeEach(async (to, from, next) => {
     '/pets/reportform',
     '/lost',
     '/pet/lost/member',
+    "/admin",
 
   ];  // 不需要驗證的路由
 
