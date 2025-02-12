@@ -1,14 +1,13 @@
 <template>
-  <!-- <div class="shop-layout"> -->
+  <div class="shop-layout">
     <!-- 🔹 商城導覽列 -->
-    <nav :class="['navbar', { shrink: isScrolled }]">
       <ShopNavBar
+      :class="['navbar', { shrink: isScrolled }]"
         :isUserLoggedIn="isUserLoggedIn"
         :cartCount="cartCount"
         :wishListCount="wishListCount"
         :notificationCount="notificationCount"
       />
-    </nav>
     
     <!-- 🔹 商城主要內容區域 -->
     <main class="shop-container">
@@ -30,7 +29,7 @@
         />
       </section>
     </main>
-  <!-- </div> -->
+  </div>
 </template>
 
 <script setup>

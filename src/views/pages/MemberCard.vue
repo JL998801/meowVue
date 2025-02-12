@@ -27,25 +27,26 @@
         </select>
     
         <label>LINE NOTIFY 活動資訊通知</label>
-        <select v-model="notifyEvent">
+        <select v-model="notifyEvent" class="aa">
           <option>啟用</option>
           <option>停用</option>
         </select>
     
-        <button type="submit" class="submit-btn">確認送出</button>
+        <button type="submit" class="submit-btn">修改資料</button>
       </form>
       <aside>
         <SidebarMenu class="fixed-sidebar" />
       </aside>
     </div>
-  </template>
+</template>
   
-<script setup>
+  <script setup>
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import SidebarMenu from "@/components/SidebarMenu.vue";
+import SidebarMenu from "@/components/member/SidebarMenu.vue";
 import Swal from 'sweetalert2'; // 引入 SweetAlert2
 
+const router = useRouter();
 // State for storing member data
 const profileImage = ref(''); 
 const nickName = ref('');
@@ -147,7 +148,13 @@ const submitForm = async () => {
         icon: 'success',
         title: '資料更新成功',
         text: '您的資料已成功更新。',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          // 點擊確認後跳轉到會員中心頁面
+          router.push('/pages/MemberCenter');
+        }
       });
+      
     } else {
       const errorData = await response.text();
       Swal.fire({
@@ -172,13 +179,16 @@ const submitForm = async () => {
   .fixed-sidebar {
   position: fixed;
   top: 200px;
-  right: 20px;
+  right: 200px;
   width: 250px;
   background-color: #f4f4f4;
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   z-index: 1000;
+}
+.aa{
+  margin-bottom: 25px;
 }
   body {
             font-family: Arial, sans-serif;
@@ -191,6 +201,8 @@ const submitForm = async () => {
             height: 100vh;
         }
         .container {
+          font-family: 'Noto Sans KR', sans-serif;
+          margin-top: 50px;
             background: white;
             padding: 20px;
             border-radius: 10px;
@@ -222,6 +234,7 @@ const submitForm = async () => {
             background-color: #f5f5f5;
         }
         .submit-btn {
+        
             width: 100%;
             padding: 10px;
             border: none;

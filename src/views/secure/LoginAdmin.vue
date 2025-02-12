@@ -1,27 +1,4 @@
-<template>
-    <h3>Login</h3>
-	<table>
-        <tbody>
-            <tr>
-                <td>ID : </td>
-                <td><input type="text" v-model="username" @keyup.enter="login"></td>
-                <td><span class="error">{{ message }}</span></td>
-            </tr>
-            <tr>
-                <td>PWD : </td>
-                <td><input type="text" v-model="password" @keyup.enter="login"></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td> </td>
-                <td align="right"><button type="button" @click="login">login</button></td>
-            </tr>
-			<tr>
-				<RouterLink class="nav-link" to="/secure/login">(切換會員)</RouterLink>
-			</tr>
-        </tbody>
-	</table>
-    
+<template>    
 	<form class="aa" @submit.prevent="submitForm">
         
 		<div class="container">
@@ -39,7 +16,7 @@
 			</div>
 	
 			<div class="gg">
-			 
+
 				<button type="button" class="register-btn" @click="login">
           登入
         </button>
@@ -52,7 +29,7 @@
 </template>
 
 <script setup>
-import xxx from '@/plugins/axios.js';
+import axiosapi from '@/plugins/axios.js';
 import Swal from 'sweetalert2';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
@@ -79,24 +56,25 @@ async function login() {
     "password": password.value,
   };
 
-  xxx.defaults.headers.authorization = "";
-  userStore.setEmail("");
+  axiosapi.defaults.headers.authorization = "";
+  // userStore.setEmail("");
 
   try {
-    const response = await xxx.post("/secure/loginadmin", body);
+    const response = await axiosapi.post("/secure/loginadmin", body);
     console.log("response", response);
 
     if (response.data.success) {
       // 存儲 token 到 localStorage
       saveUserInfoToLocalStorage(response.data.token);
+      userStore.setToken(response.data.token);
 
       await Swal.fire({
         title: response.data.message,
         icon: "success"
       });
-      xxx.defaults.headers.authorization = "Bearer " + response.data.token;
-      userStore.setEmail(response.data.user);
-      router.push({ path: "/admin/management" });
+      axiosapi.defaults.headers.authorization = "Bearer " + response.data.token;
+      // userStore.setEmail(response.data.user);
+      router.push({ path: "/admin" });
     } else {
       document.querySelector(".error").innerHTML = response.data.message;
       Swal.fire({

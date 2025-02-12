@@ -42,7 +42,7 @@ import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import useUserStore from '@/stores/user.js';
 import Swal from 'sweetalert2';
-import xxx from '@/plugins/axios.js';
+import axiosapi from '@/plugins/axios.js';
 import { loadGoogleAuth } from '@/plugins/googleAuth.js';
 
 const username = ref('');
@@ -104,7 +104,7 @@ function googleLoginSuccess(response) {
   // 這是你的 API 請求，將 idToken 發送給後端進行認證
   console.log("發送 Google 登入請求...");
 
-  xxx.post('/ajax/secure/google-login', { id_token: idToken })
+  axiosapi.post('/ajax/secure/google-login', { id_token: idToken })
     .then(response => {
       console.log("後端回應:", response);  // 確認後端回應
 
@@ -113,7 +113,7 @@ function googleLoginSuccess(response) {
         saveUserInfoToLocalStorage(response.data.user, response.data.token);
 
         // 設定 authorization header，這樣之後的所有請求會帶上 token
-        xxx.defaults.headers.authorization = `Bearer ${response.data.token}`;
+        axiosapi.defaults.headers.authorization = `Bearer ${response.data.token}`;
 
         // 跳轉到會員中心
         router.push({ path: '/pages/MemberCenter' });
@@ -140,7 +140,7 @@ function saveUserInfoToLocalStorage(user, token) {
   localStorage.setItem("email", user.email);
   localStorage.setItem("token", token);
   localStorage.setItem("nickname", user.nickname);
-  userStore.setEmail(user.email);
+  // userStore.setToken(token);
 }
 
 // 普通登入邏輯
@@ -160,7 +160,7 @@ async function submitForm() {
   };
 
   try {
-    const response = await xxx.post("/ajax/secure/login", body);
+    const response = await axiosapi.post("/ajax/secure/login", body);
     if (response.data.success) {
       await Swal.fire({
         title: response.data.message,
@@ -169,11 +169,11 @@ async function submitForm() {
 
       // 儲存登入資訊到 localStorage，同時儲存到pinia中(原檔案邏輯)
       saveUserInfoToLocalStorage(response.data.user, response.data.token);
-      userStore.setEmail(response.data.user.email);
+
       userStore.setToken(response.data.token);
 
       // 設定 authorization header
-      xxx.defaults.headers.authorization = `Bearer ${response.data.token}`;
+      axiosapi.defaults.headers.authorization = `Bearer ${response.data.token}`;
 
       // 跳轉到會員中心
       router.push({ path: "/pages/MemberCenter" });
