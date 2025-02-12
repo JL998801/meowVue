@@ -101,10 +101,10 @@ route.beforeEach(async (to, from, next) => {
     "/adopt",
     "/secure/loginadmin",
     '/callback',
-    '/pets/lostform',
-    '/pets/reportform',
+    '/pet/lostform',
+    '/pet/reportform',
     '/lost',
-    '/lost/member',
+    '/pet/lost/member',
 
   ];  // 不需要驗證的路由
 

@@ -18,17 +18,33 @@ export default function useLostCases(memberId) {
             const response = await LostCaseAPI.getLostCases(memberId);
             allLostCases = response.data;
 
-            // 按照 `publicationTime` 降冪排序，確保最新的案件排在最前面
             allLostCases.sort((a, b) => new Date(b.publicationTime) - new Date(a.publicationTime));
 
-            // 計算總頁數
             totalPages.value = Math.ceil(allLostCases.length / pageSize);
-
-            // 設定當前頁面顯示的案件
             updatePage(1);
         } catch (err) {
             error.value = "❌ 獲取遺失案件失敗，請重試";
             console.error("❌ 獲取遺失案件失敗:", err);
+        } finally {
+            loading.value = false;
+        }
+    };
+
+    // **新增查詢所有遺失案件的方法**
+    const fetchAllLostCases = async () => {
+        loading.value = true;
+        error.value = null;
+        try {
+            const response = await LostCaseAPI.getAllLostCases();
+            allLostCases = response.data;
+
+            allLostCases.sort((a, b) => new Date(b.publicationTime) - new Date(a.publicationTime));
+
+            totalPages.value = Math.ceil(allLostCases.length / pageSize);
+            updatePage(1);
+        } catch (err) {
+            error.value = "❌ 獲取所有遺失案件失敗，請重試";
+            console.error("❌ 獲取所有遺失案件失敗:", err);
         } finally {
             loading.value = false;
         }
@@ -109,6 +125,7 @@ export default function useLostCases(memberId) {
         fetchLostCaseById,
         createLostCase,
         updateLostCase,
-        deleteLostCase
+        deleteLostCase,
+        fetchAllLostCases, // 新增的函數
     };
 }

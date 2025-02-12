@@ -10,7 +10,7 @@
             <div class="lost-header">
                 <font-awesome-icon icon="paw" />
                 <span>我的協尋記錄</span>
-                <button class="add-button">+ 新增</button>
+                <button @click="goToForm">+ 新增</button>
             </div>
 
             <div class="lost-list">
@@ -24,10 +24,9 @@
                     </p>
 
                     <!-- 案件狀態 -->
-                    <div class="lost-stated">
-                        案件狀態：
-                        <span class="status" :class="lost.statusClass">{{ lost.caseStateId }}</span>
-                    </div>
+                    <p v-if="lostCase.caseState">
+                        案件狀態: {{ lostCase.caseState.caseStatement }}
+                    </p>
 
                     <!-- 最後更新日期 -->
                     <p>最後更新日期：{{ lost.lastUpdateTime }}</p>
@@ -61,6 +60,13 @@ import { onMounted } from "vue";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import SidebarMenu from "@/components/member/SidebarMenu.vue";
 import useLostCases from "@/components/pet/lost/useLostCase.js"; // ✅ 引入 useLostCases.js
+import { useRouter } from "vue-router";
+
+const router = useRouter();
+
+const goToForm = () => {
+    router.push("/pet/lostform");
+};
 
 // 會員 ID (假設是從登入狀態取得)
 const memberId = 1; // 這裡應該從 Vuex / Pinia / localStorage 取得會員 ID
