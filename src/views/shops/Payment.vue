@@ -25,17 +25,17 @@
 
 <script setup>
 import { computed } from "vue";
-import { useStore } from "vuex";
+import { useOrderStore } from "@/stores/order"; // Import Pinia store
 import axios from "axios";
 
 // Get API URL from environment variables
 const apiUrl = import.meta.env.VITE_API_URL;
 
-// Vuex store to manage selected order
-const store = useStore();
+// Pinia store to manage selected order
+const orderStore = useOrderStore();
 
-// Computed property to get selected order from Vuex
-const selectedOrder = computed(() => store.state.selectedOrder);
+// Computed property to get selected order from Pinia
+const selectedOrder = computed(() => orderStore.selectedOrder);
 
 // Prepare payment data based on selected order
 const getPaymentData = () => {
@@ -77,10 +77,14 @@ const sendPayment = () => {
       const container = document.createElement("div");
       container.innerHTML = response.data;
 
-      // Append the form and script to the body
+      // Append the form to the body
       document.body.appendChild(container);
-      const script = container.querySelector("script");
-      if (script) eval(script.textContent);  // Execute the script to submit the form
+
+      // Find the form inside the container and submit it manually
+      const paymentForm = container.querySelector("form");
+      if (paymentForm) {
+        paymentForm.submit(); // Submit the form to initiate the payment process
+      }
     })
     .catch((error) => {
       console.error("支付失敗：", error);

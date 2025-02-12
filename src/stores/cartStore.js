@@ -179,4 +179,20 @@ export const useCartStore = defineStore("cart", {
   },
 });
 
+export const useOrderStore = defineStore("order", {
+  state: () => ({
+    selectedOrder: null, // 儲存選中的訂單
+  }),
+  actions: {
+    updateSelectedOrder(order) {
+      this.selectedOrder = order; // 更新選中的訂單
+    },
+  },
+  getters: {
+    getSelectedOrder(state) {
+      return state.selectedOrder; // 取得選中的訂單
+    },
+  },
+});
+
 export default useCartStore;
