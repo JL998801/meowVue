@@ -24,7 +24,7 @@ const goToReportPage = () => {
     }
 
     router.push({
-        path: "/pets/reportform",
+        path: "/pet/reportform",
         query: {
             caseId: caseData.id,
             memberId: caseData.memberId
