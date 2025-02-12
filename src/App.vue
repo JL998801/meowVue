@@ -1,104 +1,72 @@
 <script setup>
-import "bootstrap/dist/css/bootstrap.min.css";
-import "bootstrap/dist/js/bootstrap.bundle.min.js";
-import { RouterLink, RouterView } from 'vue-router';
-import { useRoute, useRouter } from "vue-router";
-import useUserStore from "@/stores/user";
+import { ref,computed, onMounted, onUnmounted} from "vue";
+import { useRoute } from "vue-router";
+import { RouterView } from "vue-router";
 import Navigationbar from "./views/Navigationbar.vue";
-import { computed, onMounted, watchEffect  } from "vue";
+import ShopNavBar from "./components/shop/home/ShopNavBar.vue";
 import TopButton from "./views/TopButton.vue";
 import Footer from "./views/Footer.vue";
 
-const route = useRoute();
-const router = useRouter();
-const userStore = useUserStore();
-const isShopRoute = computed(() => route.path.startsWith("/shop"));
+const isScrolled = ref(false); // ✅ 記錄頁面滾動狀態
 
-//下列程式用來監聽網址列token變化，用於line登入後擷取token並存入Pinia再存入localStorage
+const handleScroll = () => {
+  isScrolled.value = window.scrollY > 50; // ✅ 當滾動超過 50px，就縮小
+};
+
 onMounted(() => {
-   // 使用 watchEffect() 監聽 token 變化，確保提取後再清除 URL
-  watchEffect(() => {
-    const token = route.query.token;
-    if (token) {
-      console.log("Token 為:", token);
-      userStore.setToken(token); // 儲存 Token
-      router.replace({ path: "/", query: {} }); // 移除 Query 參數
-    }
-  });
+  window.addEventListener("scroll", handleScroll); // 🔥 監聽滾動事件
 });
 
-//設置管理員後台不要有背景圖
-watchEffect(() => {
-  if (route.path.startsWith("/admin")) {
-    document.body.classList.add("admin-page");  // 在 /admin 頁面加上 class
-  } else {
-    document.body.classList.remove("admin-page");  // 其他頁面移除 class
-  }
+onUnmounted(() => {
+  window.removeEventListener("scroll", handleScroll); // ✅ 清除事件監聽
 });
 
-// 定義需要全螢幕顯示的路徑
-const fullWidthRoutes = ["/","/pages/MemberCenter","/pet/map", "/advanced-settings", "/admin"];
-
-// 定義需要套用 `.admin` 樣式的頁面
-const adminRoutes = [
-  "/admin/rescueCase",
-  "/admin/adopt-case",
-  "/admin/lostCase",
-  "/admin/rescueAnalysis",
-  "/admin",
-  "/adopt"
-];
-
-// 判斷是否應用 `admin` 樣式
-const isAdminPage = computed(() => adminRoutes.includes(route.path));
-
-// 判斷是否應用 `full-width` 樣式
-const isFullWidth = computed(() => fullWidthRoutes.includes(route.path));
-
-
+const route = useRoute();
+const isShopRoute = computed(() => route.path.startsWith("/shop"));
 </script>
 
 <template>
-    <Navigationbar v-if="!$route.meta.hideNavbar || !isShopRoute"></Navigationbar>
-    <div
-      :class="isAdminPage ? 'admin' : isFullWidth ? 'full-width' : 'container'"
-    >
-      <RouterView />
-    </div>
+    <nav :class="['navbar', { shrink: isScrolled }]">
+
+      <!--v-show 只是控制 display: none，所以兩個 <Navigationbar> 可能都會被渲染，只是 display: none 影響可見性。
+      v-if 會根據條件來創建或銷毀 DOM 元素，避免兩個 <nav> 同時存在。 -->
+        <Navigationbar v-if="!isShopRoute"></Navigationbar>
+        <!-- <ShopNavBar v-else></ShopNavBar> -->
+    </nav>
+    <main style="margin-top: 100px; margin-bottom: 100px;">
+        <RouterView />
+    </main>
     <TopButton />
-    <Footer />
+    <Footer :class="['footer', { shrink: isScrolled }]" />
 </template>
 
 <style scoped>
-/* 全域樣式 */
-.container {
-  background-color: #ffffff;
-  padding: 0 70px;
-  margin: 0 auto;
- 
+/* 🔹 預設 Navbar & Footer 大小 */
+.navbar, .footer {
+  width: 100%;  /* ✅ 保持全寬 */
+  height: 80px; /* ✅ 預設高度 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  left: 0;
+  transition: height 0.3s ease-in-out; /* ✅ 只改變高度，動畫順暢 */
+  z-index: 1000;
 }
 
-/* 當 `isFullWidth` 為 true，讓 `.container` 變成全寬而且不要有卷軸 */
-.full-width {
-  padding: 0;
-  margin: 0;
-  width: 100vw;
-  height: 100vh; /* ✅ 讓 `/pet/map` 和 `/advanced-settings` 頁面占滿全畫面 */
-  max-width: 100%;
-  max-height: 100%;
-  overflow: hidden; /* ✅ 隱藏滾動條 */
-  background-image: none !important;
+/* 🔹 讓 Navbar 固定在頂部 */
+.navbar {
+  top: 0;
 }
 
-/*管理員頁面使用樣式*/
-.admin {
-  padding: 0;
-  margin: 0;
-  width: 100vw;
-  height: 100vh;
-  max-width: 100%;
-  max-height: 100%;
-  overflow: auto; /* ✅ 允許滾動 */
-  background-image: none !important;
+/* 🔹 讓 Footer 固定在底部 */
+.footer {
+  bottom: 0;
 }
+
+/* 🔹 滾動時縮小高度（但保持全寬） */
+.shrink {
+  height: 50px;  /* ✅ 縮小高度 */
+}
+
 </style>

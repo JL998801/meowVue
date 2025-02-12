@@ -11,8 +11,8 @@ export const CartService = {
     return jsonRequest("get", `${API_URL}/list/${memberId}`);
   },
 
-  async addToCart(requestData) {
-    return jsonRequest("post", `${API_URL}/add`, requestData);
+  async addToCart(cartItem) {
+    return jsonRequest("post", `${API_URL}/add`, cartItem);
   },
 
   async removeFromCart(cartItemId) {

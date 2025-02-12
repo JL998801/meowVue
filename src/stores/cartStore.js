@@ -1,171 +1,132 @@
 import { defineStore } from "pinia";
-import useUserStore from "@/stores/user";
-import { CartService } from "@/services/CartService";
-import Swal from "sweetalert2";
-import axios from 'axios';
+import axios from "axios";
 
-const useCartStore = defineStore("cart", {
-  state: () => ({
-    cartItems: [], // 存放購物車內容
-    memberId: 1, // 假設這是會員ID
-    creditCard: "4311-9511-1111-1111", // 測試用信用卡
-    shippingAddress: "123 Main St", // 測試用地址
-    selectedOrder: null, // 訂單資訊
-  }),
-
-  getters: {
-    cartCount: (state) => state.cartItems.length, // 取得購物車商品數量
-    cartTotalPrice: (state) =>
-      state.cartItems.reduce((total, item) => total + item.price * item.quantity, 0), // 計算購物車總金額
-    selectedCartItems(state) {
-      return state.cartItems.filter(item => item.selected).map(item => ({
-        ...item,
-        productName: item.productName || '未知商品'
-      }));
-    },
-    totalCartPrice(state) {
-      return state.cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
-    },
-    selectedOrder(state) {
-      return state.selectedOrder;
-    },
+export const useCartStore = defineStore("cart", {
+  state: () => {
+    // Retrieve cart data from localStorage (if available)
+    const cartData = localStorage.getItem("cart");
+    return {
+      cart: cartData && cartData !== "undefined" ? JSON.parse(cartData) : [],
+      memberId: 1, // Default member ID, can be changed later based on user login
+      creditCard: "4311-9511-1111-1111", // Example credit card (use real data handling in production)
+      shippingAddress: "123 Main St", // Example shipping address (use real address handling in production)
+      selectedOrder: null,
+    };
   },
-
   actions: {
-    // 取得會員購物車內容
-    async fetchCart() {
-      const userStore = useUserStore();
-      if (!userStore.isLogin) return;
-      try {
-        const cartData = await CartService.getCart(userStore.memberId);
-        this.cartItems = cartData || [];
-      } catch (error) {
-        console.error("購物車加載失敗:", error);
-        Swal.fire({
-          icon: "error",
-          title: "載入失敗",
-          text: error.message,
+    // Add a product to the cart
+    addToCart(product) {
+      const found = this.cart.find((item) => item.productId === product.productId);
+      if (found) {
+        found.quantity += product.quantity || 1; // Increase quantity if already exists
+      } else {
+        this.cart.push({
+          ...product,
+          quantity: product.quantity || 1,
+          selected: false,
+          cartId: Date.now(), // Unique cart ID based on timestamp
+          productName: product.productName, // Store product name
         });
+      }
+      localStorage.setItem("cart", JSON.stringify(this.cart)); // Save to localStorage
+      this.syncCartWithServer(); // Sync with server
+    },
+
+    // Remove a product from the cart
+    removeFromCart(cartId) {
+      this.cart = this.cart.filter((item) => item.cartId !== cartId); // Filter out the item by cartId
+      localStorage.setItem("cart", JSON.stringify(this.cart)); // Save to localStorage
+      this.syncCartWithServer(); // Sync with server
+    },
+
+    // Update the quantity of an item in the cart
+    updateQuantity({ cartId, quantity }) {
+      const item = this.cart.find((item) => item.cartId === cartId);
+      if (item) {
+        item.quantity = quantity; // Update the quantity
+        localStorage.setItem("cart", JSON.stringify(this.cart)); // Save to localStorage
+        this.syncCartWithServer(); // Sync with server
       }
     },
 
-    // 加入購物車
-    async addToCart(cartItem) {
-      const requestData = {
-        items: [cartItem],
-        memberId: localStorage.getItem("memberId"),
-      };
+    // Clear all items from the cart
+    clearCart() {
+      this.cart = [];
+      localStorage.setItem("cart", JSON.stringify(this.cart)); // Clear localStorage
+      this.syncCartWithServer(); // Sync with server
+    },
 
-      try {
-        const response = await CartService.addToCart(requestData);
-        if (response.success) {
-          await this.fetchCart(); // Re-fetch the cart to ensure synchronization
-          Swal.fire({
-            icon: "success",
-            title: "成功加入購物車",
-          });
-        } else {
-          Swal.fire({
-            icon: "error",
-            title: "添加失敗",
-            text: response.message, // Provide server response message
-          });
-        }
-      } catch (error) {
-        console.error("添加商品到購物車失敗:", error);
-        Swal.fire({
-          icon: "error",
-          title: "添加失敗",
-          text: error.message, // Display error message
-        });
+    // Set cart data from the server (or localStorage)
+    setCart(cartData) {
+      this.cart = cartData;
+      localStorage.setItem("cart", JSON.stringify(this.cart)); // Save cart data to localStorage
+    },
+
+    // Set the selection status of a cart item
+    setSelected({ cartId, selected }) {
+      const item = this.cart.find((item) => item.cartId === cartId);
+      if (item) {
+        item.selected = selected; // Update selection status
+        localStorage.setItem("cart", JSON.stringify(this.cart)); // Save to localStorage
       }
     },
 
-    // 移除購物車商品
-    async removeItem(cartItemId) {
-      try {
-        await CartService.removeFromCart(cartItemId);
-        this.cartItems = this.cartItems.filter((item) => item.id !== cartItemId);
-      } catch (error) {
-        console.error("刪除商品失敗:", error);
-        Swal.fire({
-          icon: "error",
-          title: "載入失敗",
-          text: error.message,
-        });
-      }
+    // Set the selected order details
+    setSelectedOrder(order) {
+      this.selectedOrder = order; // Set the selected order
     },
 
-    // 清空購物車
-    async clearCart() {
-      const userStore = useUserStore();
-      if (!userStore.isLogin) return;
-
-      try {
-        await CartService.clearCart(userStore.memberId);
-        this.cartItems = [];
-      } catch (error) {
-        console.error("清空購物車失敗:", error);
-        Swal.fire({
-          icon: "error",
-          title: "載入失敗",
-          text: error.message,
-        });
-      }
-    },
-
-    // 同步購物車到伺服器
+    // Sync cart data with the server
     async syncCartWithServer() {
       try {
-        if (this.cartItems.length > 0) {
-          const cartData = this.cartItems.map(item => ({
+        if (this.cart.length > 0) {
+          const cartData = this.cart.map((item) => ({
             cartId: item.cartId,
             quantity: item.quantity,
             selected: item.selected,
             productId: item.productId,
-            productName: item.productName
+            productName: item.productName,
           }));
-          await axios.put('http://localhost:8080/pages/cart/update', cartData);
+          await axios.put("http://localhost:8080/pages/cart/update", cartData); // Update cart on the server
         }
       } catch (error) {
-        console.error('Failed to sync cart with server:', error);
+        console.error("Failed to sync cart with server:", error); // Handle sync error
       }
     },
 
-    // 從伺服器獲取購物車資料
+    // Fetch cart data from the server (use memberId to fetch personalized cart)
     async fetchCartDataFromServer() {
       try {
-        const memberId = this.memberId;
-        const response = await axios.get(`http://localhost:8080/pages/cart/list/${memberId}`);
+        const response = await axios.get(`http://localhost:8080/pages/cart/list/${this.memberId}`);
         if (response.data) {
-          const updatedCart = response.data.map(item => ({
+          const updatedCart = response.data.map((item) => ({
             ...item,
-            cartId: item.cartId || item.id,
-            productName: item.productName || (item.product ? item.product.name : '未知商品')
+            cartId: item.cartId || item.id, // Ensure cartId is set correctly
+            productName: item.productName || (item.product ? item.product.name : "未知商品"),
           }));
-          this.cartItems = updatedCart;
+          this.setCart(updatedCart); // Set cart from server data
         } else {
-          this.cartItems = [];
+          this.clearCart(); // If no cart data, clear the local cart
         }
       } catch (error) {
-        console.error('Failed to fetch cart data from server:', error);
-        this.cartItems = [];
+        console.error("Failed to fetch cart data from server:", error);
+        this.clearCart(); // Clear cart on error
       }
     },
 
-    // 提交訂單
+    // Submit the order to the server (checkout process)
     async submitOrder() {
       try {
-        const selectedItems = this.cartItems.filter(item => item.selected).map(item => ({
-          productId: item.productId,
-          quantity: item.quantity,
-          cartId: item.cartId, // 使用購物車中商品的 cartId
-        }));
+        const selectedItems = this.cart
+          .filter((item) => item.selected) // Filter selected items for checkout
+          .map((item) => ({
+            productId: item.productId,
+            quantity: item.quantity,
+            cartId: item.cartId,
+          }));
+
         if (selectedItems.length === 0) {
-          Swal.fire({
-            icon: "warning",
-            title: "請選擇至少一個商品進行結帳",
-          });
+          alert("請選擇至少一個商品進行結帳"); // Prompt if no items selected
           return;
         }
 
@@ -176,27 +137,41 @@ const useCartStore = defineStore("cart", {
           selectedItems,
         };
 
-        const response = await axios.post('http://localhost:8080/pages/order/create', orderData);
+        const response = await axios.post("http://localhost:8080/pages/order/create", orderData); // Send order to server
 
         if (response.data.success) {
-          Swal.fire({
-            icon: "success",
-            title: "訂單提交成功！",
-          });
-          this.selectedOrder = response.data.order;
+          alert("訂單提交成功！"); // Success alert
+          this.setSelectedOrder(response.data.order); // Set selected order details
         } else {
-          Swal.fire({
-            icon: "error",
-            title: "訂單提交失敗，請稍後再試！",
-          });
+          alert("訂單提交失敗，請稍後再試！"); // Failure alert
         }
       } catch (error) {
-        console.error('Failed to submit order:', error);
-        Swal.fire({
-          icon: "error",
-          title: "提交訂單失敗，請稍後再試！",
-        });
+        console.error("Failed to submit order:", error); // Log error
+        alert("提交訂單失敗，請稍後再試！"); // Alert if error occurs
       }
+    },
+  },
+
+  getters: {
+    // Get selected cart items (those marked for checkout)
+    selectedCartItems(state) {
+      return state.cart.filter((item) => item.selected).map((item) => ({
+        ...item,
+        productName: item.productName || "未知商品", // Default product name if not available
+      }));
+    },
+
+    // Calculate the total price of selected items in the cart
+    totalCartPrice(state) {
+      return state.cart.reduce(
+        (total, item) => total + (item.product.salePrice * item.quantity),
+        0
+      );
+    },
+
+    // Get selected order details
+    selectedOrder(state) {
+      return state.selectedOrder;
     },
   },
 });

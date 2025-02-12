@@ -36,10 +36,10 @@
 import { computed, ref } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
+import { useCartStore } from '@/stores/cartStore';
 
-const store = useStore();
 const router = useRouter();
-const cart = computed(() => store.state.cart || []);
+const cartStore = useCartStore();
 
 // 用來控制購物車顯示與隱藏
 const showCart = ref(false);
@@ -49,8 +49,8 @@ const cartIcon = ref("/src/assets/your-cart-icon.png");
 
 // 計算總金額
 const totalPrice = computed(() => {
-  if (!cart.value.length) return 0;
-  return cart.value.reduce(
+  if (!cartStore.cart.length) return 0;
+  return cartStore.cart.reduce(
       (total, item) => total + (item.product?.salePrice || 0) * item.quantity,
       0
   );
@@ -65,10 +65,9 @@ const toggleCart = () => {
 
 // 顯示購物車數量
 const cartQuantity = computed(() => {
-  return cart.value.reduce((total, item) => total + item.quantity, 0);
+  return cartStore.cart.reduce((total, item) => total + item.quantity, 0);
 });
 
-// 前往購物車頁面
 const goToCart = () => {
   router.push('/shop/cart'); // 確保路由正確
 };
@@ -114,7 +113,7 @@ const goToCart = () => {
   width: 250px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   display: block;
-  color: black;  /* 這行設置字體顏色為黑色 */
+  color: black;
 }
 
 .cart-item {
@@ -150,7 +149,6 @@ const goToCart = () => {
   background-color: #0056b3;
 }
 
-/* Close button for cart */
 .close-btn {
   position: absolute;
   top: 10px;

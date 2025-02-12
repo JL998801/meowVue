@@ -1,10 +1,12 @@
 <script setup>
-import { computed, defineProps, onMounted} from "vue";
+import { computed, defineProps, onMounted, ref } from "vue";
 import Carousel from "@/components/shop/home/Carousel.vue";
 import ProductCard from "@/components/shop/home/ProductCard.vue";
 import Pagination from "@/components/shop/home/Pagination.vue";
 import useProductStore from "../../stores/productStore"
 import useCartStore from "../../stores/cartStore"
+import axios from 'axios';
+import { useStore } from 'vuex'
 
 // 接收 shopSidebar.vue 搜尋資料
 const props = defineProps({
@@ -16,6 +18,10 @@ const props = defineProps({
 
 const productStore = useProductStore();
 const cartStore = useCartStore();
+const store = useStore();
+
+// 用來管理商品數量
+const selectedQuantities = ref({});
 
 // 動態計算符合篩選條件的商品
 const filteredProducts = computed(() => {
@@ -30,22 +36,8 @@ const filteredProducts = computed(() => {
 
 // 監聽當前頁面和總頁數
 const currentPage = computed(() => productStore.page);
-console.log("currentPage", currentPage);
 const totalPages = computed(() => productStore.totalPages);
 const pageSize = computed(() => productStore.size); // ✅ 每頁顯示數量
-
-// 加入購物車:  調用 `cartStore.js` 更新購物車
-const addToCart = (product) => {
-  cartStore.addToCart(product.productId);
-  console.log("product.productId"+ product.productId)
-  alert("商品已加入購物車"); //跳出彈窗
-};
-
-// 加入願望清單
-const addToWishlist = (product) => {
-  wishlistStore.addToWishList(product.productId);
-  alert("商品已加入願望清單！"); //跳出彈窗
-};
 
 // ✅ 更新每頁顯示的商品數量
 const updatePageSize = (event) => {
@@ -74,40 +66,79 @@ const displayedCategories = computed(() =>
 onMounted(() => {
   productStore.fetchPagedProducts(); // ✅ 預設取得第一頁數據
 });
+
+// 獲取會員ID
+const getMemberId = () => {
+  return 1; // 假設會員ID為1
+};
+
+// 加入購物車邏輯
+const addToCart = async (index) => {
+  const product = filteredProducts.value[index];
+  const quantity = selectedQuantities.value[index] || 1;
+
+  if (quantity <= 0 || quantity > product.stockQuantity) {
+    alert('選擇的數量無效');
+    return;
+  }
+
+  try {
+    const memberId = getMemberId();
+    const productId = product.productId;
+
+    await axios.post(`${import.meta.env.VITE_API_URL}/pages/cart/add`, {
+      memberId: memberId,
+      productId: productId,
+      quantity: quantity,
+    });
+
+    store.dispatch('addToCart', { ...product, quantity });
+    alert('商品已成功加入購物車');
+  } catch (error) {
+    console.error('加入購物車失敗:', error);
+    alert('加入購物車失敗，請稍後重試');
+  }
+};
+
+// 加入願望清單
+const addToWishlist = (product) => {
+  wishlistStore.addToWishList(product.productId);
+  alert("商品已加入願望清單！"); //跳出彈窗
+};
 </script>
 
 <template>
     <!-- 🔹 如果有搜尋結果，顯示商品卡片 -->
     <div class="shop-home">
-    <!-- <div class="shop-home" v-if="isSearching"> -->
       <div class="d-flex justify-content-between align-items-center mb-3">
         <h2>搜尋結果</h2>
-          <!-- 🔹 分頁控制 -->
-          <div class="spinner-grow text-warning" role="status" v-if="productStore.loading">
-            <span class="sr-only">Loading...</span>
-          </div>
-          <div class="pagination">
-            <Pagination 
-              v-if="filteredProducts.length > 10"
-              :currentPage="currentPage" 
-              :totalPages="totalPages" 
-              @update-page="updatePage"
-            />
-            <label for="pageSizeSelect" class="me-2">每頁顯示：</label>
-            <select id="pageSizeSelect" class="form-select w-auto"  :value="pageSize" @change="updatePageSize">
-              <option :value="10">10</option>
-              <option :value="20">20</option>
-              <option :value="50">50</option>
-            </select>
-          </div>
+        <!-- 🔹 分頁控制 -->
+        <div class="spinner-grow text-warning" role="status" v-if="productStore.loading">
+          <span class="sr-only">Loading...</span>
+        </div>
+        <div class="pagination">
+          <Pagination 
+            v-if="filteredProducts.length > 10"
+            :currentPage="currentPage" 
+            :totalPages="totalPages" 
+            @update-page="updatePage"
+          />
+          <label for="pageSizeSelect" class="me-2">每頁顯示：</label>
+          <select id="pageSizeSelect" class="form-select w-auto"  :value="pageSize" @change="updatePageSize">
+            <option :value="10">10</option>
+            <option :value="20">20</option>
+            <option :value="50">50</option>
+          </select>
+        </div>
       </div>
+
       <!-- 🔹 商品卡片 -->
       <div class="product-grid" v-if="filteredProducts.length > 0">
         <ProductCard
-          v-for="product in filteredProducts"
+          v-for="(product, index) in filteredProducts"
           :key="product.productId"
           :product="product"
-          @add-to-cart="addToCart"
+          @add-to-cart="addToCart(index)"
           @add-to-wishlist="addToWishlist"
         />
       </div>
@@ -123,19 +154,16 @@ onMounted(() => {
   overflow: hidden; /* 防止內容區域擴展超出範圍 */
 }
 
-/* 讓下拉選單更緊湊 */
 select.form-select {
   max-width: 80px;
 }
 
-/* 商品卡片排版 */
 .product-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 15px;
 }
 
-/* 分頁控制 */
 .pagination {
   display: flex;
   justify-content: center;
@@ -144,12 +172,12 @@ select.form-select {
 
 .carousel-container {
   display: flex;
-  flex-direction: column; /* 讓每個 Carousel 區塊獨立一行 */
-  gap: 20px; /* 設定間距 */
+  flex-direction: column;
+  gap: 20px;
 }
 
 .carousel-item {
-  width: 100%; /* 讓每個類別區塊佔滿 */
+  width: 100%;
   text-align: center;
 }
 </style>

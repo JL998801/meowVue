@@ -150,22 +150,22 @@
 
 <script setup>
 import { ref, onMounted,watch } from "vue";
-import axiosapi from "@/plugins/axios.js";
+import axios from "axios";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
 
 // **檢查是否已登入**
-// const checkLogin = () => {
-//     const storedMemberId = localStorage.getItem("memberId");
-//     if (!storedMemberId) {
-//         alert("請先登入會員！");
-//         router.push("/secure/login"); // 跳轉登入頁面
-//         return false;
-//     }
-//     form.value.memberId = storedMemberId;
-//     return true;
-// };
+const checkLogin = () => {
+    const storedMemberId = localStorage.getItem("memberId");
+    if (!storedMemberId) {
+        alert("請先登入會員！");
+        router.push("/secure/login"); // 跳轉登入頁面
+        return false;
+    }
+    form.value.memberId = storedMemberId;
+    return true;
+};
 
 // **表單數據**
 const form = ref({
@@ -201,11 +201,11 @@ const caseStateList = ref([]);
 const fetchData = async () => {
     try {
         const [speciesRes, breedRes, colorRes, cityRes, caseStateRes] = await Promise.all([
-            axiosapi.get(`/pet/allSpecies`),
-            axiosapi.get(`/pet/allBreed`),
-            axiosapi.get(`/pet/allFurColor`),
-            axiosapi.get(`/pet/allCity`),
-            axiosapi.get(`/pet/allCaseState`),
+            axios.get("http://localhost:8080/pet/allSpecies"),
+            axios.get("http://localhost:8080/pet/allBreed"),
+            axios.get("http://localhost:8080/pet/allFurColor"),
+            axios.get("http://localhost:8080/pet/allCity"),
+            axios.get("http://localhost:8080/pet/allCaseState"),
         ]);
 
         speciesList.value = speciesRes.data;
@@ -229,7 +229,7 @@ const fetchDistrictAreas = async () => {
     if (!form.value.cityId) return; // 確保 `cityId` 有選擇
 
     try {
-        const response = await axiosapi.get(`/pet/districtAreasByCity/${form.value.cityId}`);
+        const response = await axios.get(`http://localhost:8080/pet/districtAreasByCity/${form.value.cityId}`);
         districtAreaList.value = response.data;
         console.log("✅ 獲取區域成功:", districtAreaList.value);
     } catch (error) {
@@ -280,7 +280,7 @@ const submitForm = async () => {
     }
 
     try {
-        const response = await axiosapi.post(`/lostcases/create`, form.value, {
+        const response = await axios.post("http://localhost:8080/lostcases/create", form.value, {
             headers: { "Content-Type": "application/json" },
         });
 
@@ -294,7 +294,7 @@ const submitForm = async () => {
 
 // **頁面載入時執行**
 onMounted(() => {
-    // checkLogin();
+    checkLogin();
     fetchData();
 });
 

@@ -45,12 +45,7 @@
         </div>
 
         <div class="gg">
-          <div class="google-login-container">
-            <button class="google-login-btn">
-              <img src="https://www.gstatic.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png" alt="Google Icon" class="google-icon">
-              登入 
-            </button>
-          </div>
+       
           <div>
             <button type="submit" class="register-btn">註冊</button>
           </div>
@@ -189,34 +184,6 @@ const submitForm = () => {
     justify-content: center;
     align-items: center;
     width: 100%; /* 保證容器寬度為 100% */
-}
- /* 調整 Google 登入按鈕的樣式 */
-.google-login-container {
-    flex: 1; /* 確保按鈕的寬度相等 */
-}
-
-.google-login-btn {
-  font-family: 'Noto Sans KR', sans-serif;
-    background-color: #f0f0f0;
-    color: #4285F4;
-    border: none;
-    padding: 10px 20px;
-    font-size: 16px;
-    border-radius: 5px;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    width: 100%; /* 讓按鈕寬度自適應 */
-}
-
-.google-login-btn:hover {
-    background-color: #dcdcdc;
-}
-
-.google-icon {
-    width: 60px;
-    height: 20px;
-    margin-right: 10px;
 }
 
 /* 註冊按鈕樣式 */

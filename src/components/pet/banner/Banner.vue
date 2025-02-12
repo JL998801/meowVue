@@ -40,8 +40,7 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import axiosapi from "@/plugins/axios.js";
-
+import axios from "axios";
 
 // **案件分類**
 const caseCategories = ref([
@@ -67,7 +66,7 @@ const displayedCases = ref({
 // **獲取 Banner 資料**
 const fetchBannerData = async () => {
     try {
-        const response = await axiosapi.get(`/banners`);
+        const response = await axios.get("http://localhost:8080/banners");
         let banners = response.data;
 
         console.log("✅ 獲取的 banners:", banners);

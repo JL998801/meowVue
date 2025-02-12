@@ -90,7 +90,8 @@ selectedProduct.value = productStore.products.find(product => {
 
 // 加入購物車功能
 const addToCart = (product) => {
-  store.dispatch('addToCart', product);
+  console.log(`加入購物車: ${product.productName}`);
+  alert("商品已加入購物車");
 };
 
 // 獲取商品詳情: 從shopLayout父組件獲取商品詳情
