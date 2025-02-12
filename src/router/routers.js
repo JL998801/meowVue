@@ -101,7 +101,6 @@ route.beforeEach(async (to, from, next) => {
     "/adopt",
     "/secure/loginadmin",
     '/callback',
-    '/pet/lostform',
     '/pet/reportform',
     '/lost',
     '/pet/lost/member',
