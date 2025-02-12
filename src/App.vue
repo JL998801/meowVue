@@ -37,7 +37,7 @@ watchEffect(() => {
 });
 
 // 定義需要全螢幕顯示的路徑
-const fullWidthRoutes = ["/","/pages/MemberCenter","/pet/map", "/advanced-settings", "/admin"];
+const fullWidthRoutes = ["/","/pages/MemberCenter","/pet/map", "/advanced-settings", "/admin","/shop"];
 
 // 定義需要套用 `.admin` 樣式的頁面
 const adminRoutes = [
@@ -53,13 +53,13 @@ const adminRoutes = [
 const isAdminPage = computed(() => adminRoutes.includes(route.path));
 
 // 判斷是否應用 `full-width` 樣式
-const isFullWidth = computed(() => fullWidthRoutes.includes(route.path));
+const isFullWidth = computed(() => fullWidthRoutes.includes(route.path))|| route.path.startsWith("/shop");
 
 
 </script>
 
 <template>
-    <Navigationbar v-if="!$route.meta.hideNavbar || !isShopRoute"></Navigationbar>
+    <Navigationbar v-if="!$route.meta.hideNavbar "></Navigationbar>
     <div
       :class="isAdminPage ? 'admin' : isFullWidth ? 'full-width' : 'container'"
     >

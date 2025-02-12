@@ -88,7 +88,7 @@ const routes = [
   //商城頁面
   {
     path: "/shop",
-    component: ShopLayout,
+    component: ShopLayout,meta: { hideNavbar: true }, // ✅ 隱藏通用導覽列
     children: [...shopRoutes] // ✅ 正確展開商城子路由
   },
 ];
@@ -123,16 +123,19 @@ router.beforeEach(async (to, from, next) => {
     '/lost',
     '/lost/member',
     "/shop",
-    "/shop/product/:id",
+    "/shop/product",  // ✅ 只匹配 `/shop/product`
   ];  // 不需要驗證的路由
 
+  // ✅ 改用 `.some()` 來判斷是否為公開頁面；配合部分頁面:id的設計
+  const isPublicPage = publicPages.some(page => to.path.startsWith(page));
   
   //用來判斷救援案件頁面路徑，需要是公開
   const isRescueCaseDetail = to.path.startsWith("/pet/rescueCase/") && to.path.split("/").length === 4;
 
 
   // 需要驗證的路由，startsWith會包括上述路由所有/**`，some() 會逐個檢查 publicPages 陣列中的每個元素，確保 只要前綴匹配就視為公開頁面
-  const authRequired = !publicPages.includes(to.path) && !isRescueCaseDetail;
+  // const authRequired = !publicPages.includes(to.path) && !isRescueCaseDetail;
+  const authRequired = !isPublicPage && !isRescueCaseDetail; 
 
   if (authRequired) {
     const isValid = await userStore.validateToken();    //自定義方法檢查Token是否有效

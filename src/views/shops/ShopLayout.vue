@@ -1,31 +1,30 @@
 <template>
+  <!-- shopLayout.vue 是最頂層的組件，它負責接收 shopHome 傳遞的事件 -->
   <div class="shop-layout">
+
     <!-- 🔹 商城導覽列 -->
       <ShopNavBar
-      :class="['navbar', { shrink: isScrolled }]"
         :isUserLoggedIn="isUserLoggedIn"
-        :cartCount="cartCount"
-        :wishListCount="wishListCount"
+        :cartCount="cartCount" 
+        :wishlistCount="wishListCount"
         :notificationCount="notificationCount"
       />
     
     <!-- 🔹 商城主要內容區域 -->
     <main class="shop-container">
       <!-- 🔹 商品篩選側邊欄 (左側) -->
-      <aside clasee="shop-sidebar">
-      <!-- 接收來自子組件 shopSideBar 的資料 emit -->
+      <aside clase="shop-sidebar">
+       <!-- 🔹 接收 `update-filter` 事件，更新 `filter` -->
         <ShopSideBar
-          @update-filter="handleFilterUpdate"
+          @update-filter="updateFilter"
         />
       </aside>
 
       <!-- 🔹 商品顯示區域 (右側) -->
       <section class="shop-content">
         <router-view 
-          :products="products"
-          :categories="categories"
-          :tags="tags"
-          :filter="selectedFilter"
+          @add-to-cart="handleAddToCart"
+          @add-to-wishlist="handleAddToWishlist"
         />
       </section>
     </main>
@@ -34,7 +33,7 @@
 
 <script setup>
 // 負責商城的全局狀態管理，類似首頁 App.vue的作用
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted,watch } from "vue";
 import useUserStore from "@/stores/user";
 import useProductStore from "@/stores/productStore";
 import useCategoryStore from "@/stores/categoryStore"
@@ -50,47 +49,90 @@ const userStore = useUserStore();
 const productStore = useProductStore();
 const categoryStore = useCategoryStore();
 const productTagStore = useProductTagStore();
+
 const cartStore = useCartStore();
 const wishListStore = useWishListStore();
 const notificationStore = useNotificationStore();
 
-const selectedFilter = ref({});
-
-// **接收 `ShopSideBar.vue` 傳遞的篩選條件**
-const handleFilterUpdate = (filter) => {
-  selectedFilter.value = filter;
-  console.log("篩選條件更新:", filter);
-};
-
-// 計算: 登入狀態、購物車 & 願望清單 & 通知數量(使用 watchEffect() 已經在 `user.js` 監聽 `token`)
+// 使用 computed() 讓 `store` 的數據保持響應式
 const isUserLoggedIn = computed(() => userStore.isLogin);
+const categories = computed(() => categoryStore.categories);
+const tags = computed(() => productTagStore.tags);
+
+const loading = computed(() => productStore.loading);
+const totalPages = computed(() => productStore.totalPages);
+const currentPage = computed(() => productStore.currentPage);
+
 const cartCount = computed(() => cartStore.cartItems?.length || 0);
 const wishListCount = computed(() => wishListStore.wishListItems?.length || 0);
 const notificationCount = computed(() => notificationStore.notifications?.length || 0);
 
-// async() 確保加載 api 資料後才執行程式碼，避免因為非同步請求，未抓到資料就執行導致 undefined 參數產生
-onMounted(async() => {
-  // 登入後才加載會員資料
+// **接收 `sideBar.vue` 發送的 `update-filter` 事件**
+const filter = ref({}); // 存儲篩選條件
+const updateFilter = (newFilter) => {
+  filter.value = newFilter; // 更新 `filter`
+};
+
+// **檢查是否有搜尋條件**
+const isFiltering = computed(() => {
+  return filter.value && Object.keys(filter.value).length > 0;
+});
+
+
+// **根據 `filter` 來篩選商品**
+const filteredProducts = computed(() => {
+  return isFiltering.value
+    ? productStore.products.filter(p => 
+        (!filter.value.categoryId || p.categoryId === filter.value.categoryId) &&
+        (!filter.value.minPrice || p.price >= filter.value.minPrice) &&
+        (!filter.value.maxPrice || p.price <= filter.value.maxPrice) &&
+        (!filter.value.tagIds || filter.value.tagIds.every(tagId => p.tags.includes(tagId)))
+      )
+    : productStore.products;
+});
+
+watch(() => filteredProducts, (newProducts) => {
+  console.log("ShopLayout 內部的 filteredProducts:", newProducts);
+}, { deep: true });
+
+
+// 加入購物車、加入願望清單，並將這些事件傳遞給各個子組件
+const handleAddToCart = (product) => {
+  cartStore.addToCart(product);
+};
+
+const handleAddToWishlist = (product) => {
+  wishListStore.addToWishlist(product);
+};
+
+// 掛載時載入資料
+onMounted(async () => {
   if (isUserLoggedIn.value) {
     try {
-      await productStore.fetchProducts();
-      await categoryStore.fetchCategories();
-      await productTagStore.fetchTags();
-      await cartStore.fetchCart();
-      await wishListStore.fetchWishList();
-      await notificationStore.fetchNotifications();
-      console.log("after login fetchData");
+      // ✅ 並行加載會員相關資料
+      await Promise.all([
+        productStore.fetchProducts(),
+        categoryStore.fetchCategories(),
+        productTagStore.fetchTags(),
+        cartStore.fetchCart(),
+        wishListStore.fetchWishList(),
+        notificationStore.fetchNotifications()
+      ]);
+      console.log("登入後同步會員資料");
     } catch (error) {
       console.error("資料載入失敗:", error);
-    } 
-  }else{
+    }
+  } else {
     // 未登入可看到的資料
-    try{
-      await productStore.fetchProducts();
-      await categoryStore.fetchCategories();
-      await productTagStore.fetchTags();
-      console.log("before login fetchData");
-    }catch(error){
+    try {
+      // ✅ 並行加載基礎資料
+      await Promise.all([
+        productStore.fetchPagedProducts(),
+        categoryStore.fetchCategories(),
+        productTagStore.fetchTags()
+      ]);
+      console.log("登入前同步類別、標籤、商品資料");
+    } catch (error) {
       console.error("資料載入失敗:", error);
     }
   }
@@ -98,61 +140,46 @@ onMounted(async() => {
 </script>
 
 <style scoped>
-/* 🔹 讓 shop-layout 佔滿整個瀏覽器 */
+/* ✅ 確保 `shop-layout` 正確填滿畫面 */
 .shop-layout {
   display: flex;
   flex-direction: column;
-  height: 100vh; /* ✅ 填滿整個視窗 */
-  width: 100vw; /* ✅ 確保佔滿整個寬度 */
-  position: relative; /* 🔹 讓內部元素能參考這個父層 */
+  height: 100vh;
+  width: 100vw;
+  position: relative;
 }
 
-.navbar {
-  top: 0;
-  width: 100%;  /* ✅ 保持全寬 */
-  height: 80px; /* ✅ 預設高度 */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: absolute; /* ✅ 讓 Navbar 依附 `shop-layout` */
-  left: 0;
-  transition: height 0.3s ease-in-out; /* ✅ 只改變高度，動畫順暢 */
-  z-index: 1000;
-}
-
-/* 🔹 設定 aside + section 水平排列 */
+/* ✅ 讓 `shop-container` 正確排列 */
 .shop-container {
-  display: flex; /* ✅ 讓 .shop-sidebar 和 .shop-content 在同一行 */
-  flex: 1; /* ✅ 讓 .shop-container 填滿 .shop-layout */
-  gap: 20px; /* ✅ 設定間距 */
-  max-width: 1200px; /* ✅ 最大寬度，避免過寬 */
-  width: 100%; /* ✅ 讓內容自適應 */
-  margin: auto; /* ✅ 讓內容置中 */
-  height: calc(100vh - 80px); /* ✅ 讓 shop-container 滿版（減去 Navbar 高度） */
+  padding: 20px;
+  display: flex;
+  flex: 1;
+  gap: 20px;
+  width: 100%;
+  margin: auto;
+  height: calc(100vh - 80px);
 }
 
-/* 🔹 固定側邊欄的大小 */
+/* ✅ 讓 `.shop-sidebar` 與 `.shop-content` 正確對齊 */
 .shop-sidebar {
-  width: 250px; /* ✅ 固定寬度 */
-  flex-shrink: 0; /* ✅ 防止側邊欄縮小 */
+  width: 250px;
+  flex-shrink: 0;
   background-color: #f4f4f4;
-  height: 100%; /* ✅ 讓側邊欄填滿 .shop-container */
-  position: fixed; /* ✅ 固定位置 */
+  height: 100%;
+  position: relative; /* ✅ 避免 `fixed` 影響排版 */
 }
 
-/* 🔹 讓主內容最大化填充剩餘空間 */
+/* ✅ 讓 `.shop-content` 正確滾動 */
 .shop-content {
-  flex: 1; /* ✅ 讓 .shop-content 填滿剩餘空間 */
-  min-width: 0; /* ✅ 防止內容超出父容器 */
-  height: 100%; /* ✅ 讓內容區域填滿 .shop-container */
-  overflow-y: auto; /* ✅ 允許滾動 */
-  scrollbar-width: none; /* ✅ 隱藏滾動條（Firefox） */
-  -ms-overflow-style: none; /* ✅ 隱藏滾動條（IE/Edge） */
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
-
-/* ✅ 讓主內容區滾動時不影響整個頁面 */
 .shop-content::-webkit-scrollbar {
   display: none;
 }
-
 </style>
+

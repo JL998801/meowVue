@@ -1,19 +1,31 @@
 <script setup>
+import { computed } from "vue";
 import { useNotificationStore } from "@/stores/notification";
 
 const notificationStore = useNotificationStore();
 
-// **載入通知**
-notificationStore.fetchNotifications();
+// 使用 computed 來確保內容即時變更
+const notifications = computed(() => notificationStore.notifications);
+
+// 觸發 Vue 更新
+const refreshNotification = () => {
+  notificationStore.$patch({ notifications: [...notificationStore.notifications] }); 
+};
 
 // **標記為已讀**
 const markAsRead = (notificationId) => {
   notificationStore.markAsRead(notificationId);
 };
+
+// **頁面加載時獲取通知數據**
+onMounted(() => {
+  notificationStore.fetchNotifications();
+});
 </script>
 
 <template>
-  <div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true">
+  <div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true"
+  @shown.bs.modal="refreshNotification">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
