@@ -6,15 +6,17 @@ import NotFound from '@/views/NotFound.vue';
 import Forbidden from '@/views/Forbidden.vue';
 import LoginMember from '@/views/secure/LoginMember.vue';
 import LoginAdmin from '@/views/secure/LoginAdmin.vue';
-// import LostCase from '@/views/pets/lost/LostCase.vue';
-import LostForm from '@/views/pets/lost/LostForm.vue';
 import Adopt from '@/views/pages/Adopt.vue';
-import ReportForm from '@/views/pets/report/ReportForm.vue';
+
 
 //會員、管理員相關頁面
 import Register from '@/views/pages/Register.vue';
 import MemberCenter from '@/views/pages/MemberCenter.vue';
 import MemberCard from '@/views/pages/MemberCard.vue';
+
+import LostMember from '@/views/pets/lost/LostMember.vue';
+import LostForm from '@/views/pets/lost/LostForm.vue';
+import ReportForm from '@/views/pets/report/ReportForm.vue';
 
 // import RescueCase from '@/views/pets/pet/rescue/RescueCase.vue';
 // import EditRescueCase from '../views/pets/pet/rescue/EditRescueCase.vue';
@@ -25,7 +27,7 @@ import MemberCard from '@/views/pages/MemberCard.vue';
 // import GoogleMap from '@/views/pets/pet/map/GoogleMap.vue';
 
 //會員中心功能
-import LineMessage from '@/views/secure/LineMessage.vue'; 
+import LineMessage from '@/views/secure/LineMessage.vue';
 import FollowCase from '@/views/secure/FollowCase.vue';
 import MemberRescueCase from '../views/secure/MemberRescueCase.vue';
 
@@ -42,14 +44,16 @@ const routes = [
   { path: "/403", component: Forbidden, name: "forbidden-link" },
   { path: '/secure/login', component: LoginMember, name: 'login-link' },
   { path: '/secure/loginadmin', component: LoginAdmin, name: 'login-admin-link' },
-  // { path: "/lost", component: LostCase, name: "pets-LostCase-link" },
-  { path: "/pets/lostform", component: LostForm, name: "pets-LostForm-link" },
-  { path: "/pets/reportform", component: ReportForm, name: "pets-ReportForm-link" },
   // { path: "/shops/products1", component: Products1, name: "shops-products1-link" },
   { path: "/adopt", component: Adopt, name: "adopt-link" },
   { path: "/pages/Register", component: Register, name: "register-link" },
   { path: "/pages/MemberCenter", component: MemberCenter, name: "MemberCenter-link" },
   { path: "/pages/MemberCard", component: MemberCard, name: "MemberCard-link" },
+
+  //卓穎頁面
+  { path: "/pet/lost/member", component: LostMember, name: "pets-LostMember-link" },
+  { path: "/pets/lostform", component: LostForm, name: "pets-LostForm-link" },
+  { path: "/pets/reportform", component: ReportForm, name: "pets-ReportForm-link" },
 
   //冠儒頁面
   // { path: "/pet/rescue/search", component: RescueSearch, name: "pet-rescueSearch-link" },
@@ -59,20 +63,22 @@ const routes = [
   // { path: "/pet/rescue/add", component: NewRescueCase, name: "newRescueCase-link" },
   // { path: "/pet/map", component: GoogleMap, name: "googleMap-link" },
   // { path: "/pet/rescueCase/update/:id", component: NewRescueProgress, name: "newRescueProgress-link" }, // 使用 props 傳遞參數產生動態路由(編輯案件)
-  
-   //會員中心功能
-   { path: "/pages/Register", component: Register, name: "register-link" },
-   { path: "/member-center/followCase", component: FollowCase, name: "followCase-link" },
-   { path: "/member-center/rescueCase", component: MemberRescueCase, name: "memberRescueCase-link" },
+
+  //會員中心功能
+  { path: "/pages/Register", component: Register, name: "register-link" },
+  { path: "/member-center/followCase", component: FollowCase, name: "followCase-link" },
+  { path: "/member-center/rescueCase", component: MemberRescueCase, name: "memberRescueCase-link" },
 
   //管理員後台頁面
   //加上 meta 標記，表示這頁面不顯示導航列。
   //這樣 /admin/* 下面的所有路由都會套用 AdminManagement.vue，讓 Sidebar 固定存在！
-  { path: "/admin", component: AdminManagement, name: "adminManagement-link", meta: { hideNavbar: true },children: [
-    { path: "rescueCase", component: RescueManagement },
-    { path: "rescueAnalysis", component: RescueAnalysis },
-   
-  ],},
+  {
+    path: "/admin", component: AdminManagement, name: "adminManagement-link", meta: { hideNavbar: true }, children: [
+      { path: "rescueCase", component: RescueManagement },
+      { path: "rescueAnalysis", component: RescueAnalysis },
+
+    ],
+  },
 ];
 
 const route = createRouter({
@@ -97,7 +103,7 @@ route.beforeEach(async (to, from, next) => {
     '/pets/lostform',
     '/pets/reportform',
     '/lost',
-    '/lost/member',
+    '/pet/lost/member',
 
   ];  // 不需要驗證的路由
 
