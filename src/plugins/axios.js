@@ -1,8 +1,8 @@
 import axios from "axios";
 
-// 創建 Axios 實例
+// 所有 API 請求自動帶上 Authorization Token
 const axiosapi = axios.create({
-    baseURL: import.meta.env.VITE_API_URL, // 確保 API Base URL 來自環境變數
+    baseURL: import.meta.env.VITE_API_URL // 確保 API Base URL 來自環境變數
 });
 
 // 請求攔截器 (Request Interceptor)
@@ -31,7 +31,7 @@ axiosapi.interceptors.response.use(
     }
 );
 
-// JSON API 請求
+// 普通 JSON API 請求
 export const jsonRequest = async (method, url, data = {}) => {
     try {
         const response = await axiosapi({
@@ -39,17 +39,16 @@ export const jsonRequest = async (method, url, data = {}) => {
             url,
             data,
             params: method === "get" ? data : undefined,
-            headers: { "Content-Type": "application/json" }
         });
-        console.log("✅ API 回應:", response.data);
+        console.log(response);
         return response.data;
     } catch (error) {
         console.error(`🔴 API 調用失敗 [${method.toUpperCase()} ${url}]`, error);
-        throw error;
+        throw error; // 讓 `store` 或 `component` 處理錯誤
     }
 };
 
-// 上傳圖片 (Form-Data)
+// Form-Data 上傳圖片
 export const uploadFile = (url, formData) => {
     return axiosapi.post(url, formData, {
         headers: { "Content-Type": "multipart/form-data" }, // 確保 Form-Data 格式
@@ -57,3 +56,4 @@ export const uploadFile = (url, formData) => {
 };
 
 export default axiosapi;
+

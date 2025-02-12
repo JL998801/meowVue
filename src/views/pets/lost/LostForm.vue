@@ -89,7 +89,7 @@
         <input
           type="text"
           id="microChipNumber"
-          v-model="form.microChipNumber"
+          v-model="microChipNumber"
           @input="validateMicroChipNumber"
           placeholder="請輸入10位數字"
         />
@@ -156,10 +156,26 @@
       <!-- 圖片上傳（最多 3 張） -->
       <div class="form-group">
         <label>案件圖片（第一張為封面，最多 3 張）：</label>
+        <input
+          type="file"
+          @change="handleFileUpload"
+          multiple
+          accept="image/*"
+        />
         <div class="upload-image">
           <ImageUpload @image-uploaded="ImageUploaded"></ImageUpload>
           <ImageUpload @image-uploaded="ImageUploaded"></ImageUpload>
           <ImageUpload @image-uploaded="ImageUploaded"></ImageUpload>
+        </div>
+        <div class="image-preview">
+          <div
+            v-for="(image, index) in previewImages"
+            :key="index"
+            class="image-container"
+          >
+            <img :src="image" alt="案件圖片" />
+            <span v-if="index === 0" class="cover-label">封面</span>
+          </div>
         </div>
       </div>
 
@@ -177,6 +193,17 @@ import ImageUpload from "./ImageUpload.vue";
 
 const router = useRouter();
 
+// **檢查是否已登入**
+// const checkLogin = () => {
+//     const storedMemberId = localStorage.getItem("memberId");
+//     if (!storedMemberId) {
+//         alert("請先登入會員！");
+//         router.push("/secure/login"); // 跳轉登入頁面
+//         return false;
+//     }
+//     form.value.memberId = storedMemberId;
+//     return true;
+// };
 
 // **表單數據**
 const form = ref({
@@ -196,7 +223,7 @@ const form = ref({
   featureDescription: "",
   contactInformation: "",
   caseStateId: 5, // 固定為 "待協尋"
-  memberId: "", // 會員 ID
+  memberId: 2, // 會員 ID
   images: [],
 });
 
@@ -236,27 +263,6 @@ const fetchData = async () => {
   }
 };
 
-const fetchCaseState = async () => {
-    try {
-        const response = await axiosapi.get("/pet/allCaseState");
-        caseStateList.value = response.data;
-
-        // 預設 `caseStateId` 為 5
-        let defaultCaseState = caseStateList.value.find(state => state.caseStateId === 5);
-        
-        if (defaultCaseState) {
-            form.value.caseStateId = defaultCaseState.caseStateId; // 設定 5
-        } else if (caseStateList.value.length > 0) {
-            form.value.caseStateId = caseStateList.value[0].caseStateId; // 沒有 5 就用第一個
-        }
-
-        console.log("✅ 獲取案件狀態成功：", caseStateList.value);
-        console.log("🔍 預設案件狀態 ID：", form.value.caseStateId);
-    } catch (error) {
-        console.error("❌ 無法獲取案件狀態：", error);
-    }
-};
-
 // **根據城市獲取區域**
 const fetchDistrictAreas = async () => {
   if (!form.value.cityId) return; // 確保 `cityId` 有選擇
@@ -289,7 +295,7 @@ const microChipNumber = ref("");
 
 // 限制輸入只能是 10 位數字
 const validateMicroChipNumber = () => {
-  form.value.microChipNumber = form.value.microChipNumber.replace(/\D/g, "").slice(0, 10);
+  microChipNumber.value = microChipNumber.value.replace(/\D/g, "").slice(0, 10);
 };
 
 // **圖片預覽**
@@ -314,56 +320,39 @@ const ImageUploaded = (backTmpUrl) => {
 
 // **提交表單**
 const submitForm = async () => {
-  console.log("🔍 準備提交資料：", JSON.stringify(form.value, null, 2));
+  // if (!checkLogin()) return; // **確保使用者登入**
 
-  if (!form.value.caseTitle || !form.value.speciesId || !form.value.cityId || !form.value.districtAreaId) {
+  // **確保所有必要欄位填寫**
+  if (
+    !form.value.caseTitle ||
+    !form.value.speciesId ||
+    !form.value.cityId ||
+    !form.value.districtAreaId
+  ) {
     alert("請確保所有必填項目都有填寫！");
-    return;
-  }
-
-  // 從 localStorage 取得 token
-  const storedUser = localStorage.getItem("user");
-  let token = localStorage.getItem("token");
-
-  if (storedUser) {
-    try {
-      const userData = JSON.parse(storedUser);
-      if (userData.token) {
-        token = userData.token; // 優先使用 `user` 內的 token
-      }
-    } catch (error) {
-      console.error("❌ 解析 user 失敗", error);
-    }
-  }
-
-  if (!token) {
-    alert("登入憑證失效，請重新登入！");
-    router.push("/secure/login");
     return;
   }
 
   try {
     const response = await axiosapi.post(`/lostcases/create`, form.value, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
-      }
+      headers: { "Content-Type": "application/json" },
     });
 
     alert("案件已成功提交！");
-    console.log("✅ 伺服器回應：", response.data);
-    router.push("/pet/lost"); // 提交成功後跳轉
+    console.log("✅ 回應資料：", response.data);
   } catch (error) {
-    console.error("❌ 提交表單失敗：", error.response ? error.response.data : error.message);
+    console.error(
+      "❌ 提交表單失敗：",
+      error.response ? error.response.data : error.message
+    );
     alert("提交失敗，請檢查資料是否完整！");
   }
 };
 
 // **頁面載入時執行**
 onMounted(() => {
-  checkLogin();
+  // checkLogin();
   fetchData();
-  fetchCaseState();
 });
 </script>
 <style scoped>
