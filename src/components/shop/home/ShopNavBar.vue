@@ -35,29 +35,29 @@
     </div>
   </nav>
 
-  <!-- 小購物車內容 -->
+  <!-- 當顯示購物車內容時顯示 -->
   <div v-if="showCart" class="cart-content">
-    <button class="close-btn" @click="toggleCart">X</button> <!-- Close button -->
-    <div v-if="cart.length === 0">
-      <p>購物車是空的！</p>
-    </div>
-    <div v-else>
-      <div v-for="item in cart" :key="item.cartItemId" class="cart-item">
-        <!-- 顯示商品縮圖 -->
-        <img v-if="item.product?.imageUrl" :src="item.product.imageUrl" alt="Product Image" class="product-image" />
-        <p>
-          {{ item.product?.productName || '商品名稱加載中...' }} - 單價:
-          {{ item.product?.salePrice || 0 }}元 ×
-          <span>{{ item.quantity }}</span>
-        </p>
+      <button class="close-btn" @click="toggleCart">X</button> <!-- Close button -->
+      <div v-if="cartStore.cart.length === 0">
+        <p>購物車是空的！</p>
       </div>
-      <div class="total">
-        <span>總金額: {{ totalPrice }}元</span>
+      <div v-else>
+        <div v-for="item in cartStore.cart" :key="item.cartItemId" class="cart-item">
+          <!-- 顯示商品縮圖 -->
+          <img v-if="item.product?.imageUrl" :src="item.product.imageUrl" alt="Product Image"
+            class="product-image" />
+          <p>
+            {{ item.product?.productName || '商品名稱加載中...' }} - 單價:
+            {{ item.product?.salePrice || 0 }}元 ×
+            <span>{{ item.quantity }}</span>
+          </p>
+        </div>
+        <div class="total">
+          <span>總金額: {{ totalPrice }}元</span>
+        </div>
+        <button class="go-to-cart-btn" @click="goToCart">前往購物車</button>
       </div>
-      <button class="go-to-cart-btn" @click="goToCart">前往購物車</button>
     </div>
-  </div>
-
   <!-- 🔹 Modal - 願望清單 -->
   <div class="modal fade" id="wishlistModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">

@@ -1,65 +1,60 @@
 <template>
   <div class="small-cart-container">
-      <!-- 小購物車圖示，顯示數量 -->
-      <div class="cart-icon" @click="toggleCart">
-          <img :src="cartIcon" alt="Shopping Cart" />
-          <span v-if="cartQuantity > 0" class="cart-quantity">{{ cartQuantity }}</span> <!-- 顯示數量 -->
-      </div>
+    <!-- 小購物車圖示，顯示數量 -->
+    <div class="cart-icon" @click="toggleCart">
+      <img :src="cartIcon" alt="Shopping Cart" />
+      <span v-if="cartQuantity > 0" class="cart-quantity">{{ cartQuantity }}</span> <!-- 顯示數量 -->
+    </div>
 
-      <!-- 當顯示購物車內容時顯示 -->
-      <div v-if="showCart" class="cart-content">
-          <button class="close-btn" @click="toggleCart">X</button> <!-- Close button -->
-          <div v-if="cart.length === 0">
-              <p>購物車是空的！</p>
-          </div>
-          <div v-else>
-              <div v-for="item in cart" :key="item.cartItemId" class="cart-item">
-                  <!-- 顯示商品縮圖 -->
-                  <img v-if="item.product?.imageUrl" :src="item.product.imageUrl" alt="Product Image"
-                      class="product-image" />
-                  <p>
-                      {{ item.product?.productName || '商品名稱加載中...' }} - 單價:
-                      {{ item.product?.salePrice || 0 }}元 ×
-                      <span>{{ item.quantity }}</span>
-                  </p>
-              </div>
-              <div class="total">
-                  <span>總金額: {{ totalPrice }}元</span>
-              </div>
-              <button class="go-to-cart-btn" @click="goToCart">前往購物車</button>
-          </div>
+    <!-- 當顯示購物車內容時顯示 -->
+    <div v-if="showCart" class="cart-content">
+      <button class="close-btn" @click="toggleCart">X</button> <!-- Close button -->
+      <div v-if="cartStore.cart.length === 0">
+        <p>購物車是空的！</p>
       </div>
+      <div v-else>
+        <div v-for="item in cartStore.cart" :key="item.cartItemId" class="cart-item">
+          <!-- 顯示商品縮圖 -->
+          <img v-if="item.product?.imageUrl" :src="item.product.imageUrl" alt="Product Image"
+            class="product-image" />
+          <p>
+            {{ item.product?.productName || '商品名稱加載中...' }} - 單價:
+            {{ item.product?.salePrice || 0 }}元 ×
+            <span>{{ item.quantity }}</span>
+          </p>
+        </div>
+        <div class="total">
+          <span>總金額: {{ totalPrice }}元</span>
+        </div>
+        <button class="go-to-cart-btn" @click="goToCart">前往購物車</button>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { computed, ref } from 'vue';
-import { useStore } from 'vuex';
-import { useRouter } from 'vue-router';
 import { useCartStore } from '@/stores/cartStore';
+import { useRouter } from 'vue-router';
 
 const router = useRouter();
 const cartStore = useCartStore();
 
-// 用來控制購物車顯示與隱藏
 const showCart = ref(false);
-
-// 控制小購物車圖示
 const cartIcon = ref("/src/assets/your-cart-icon.png");
 
 // 計算總金額
 const totalPrice = computed(() => {
   if (!cartStore.cart.length) return 0;
   return cartStore.cart.reduce(
-      (total, item) => total + (item.product?.salePrice || 0) * item.quantity,
-      0
+    (total, item) => total + (item.product?.salePrice || 0) * item.quantity,
+    0
   );
 });
 
 // 顯示購物車內容
 const toggleCart = () => {
   showCart.value = !showCart.value;
-  // 點擊後改變圖示
   cartIcon.value = showCart.value ? "/src/assets/your-cart-icon-open.png" : "/src/assets/your-cart-icon.png";
 };
 
@@ -112,8 +107,6 @@ const goToCart = () => {
   padding: 10px;
   width: 250px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  display: block;
-  color: black;
 }
 
 .cart-item {
@@ -136,12 +129,11 @@ const goToCart = () => {
   display: block;
   width: 100%;
   padding: 10px;
-  margin-top: 10px;
   background-color: #007bff;
   color: white;
+  text-align: center;
   border: none;
   border-radius: 5px;
-  text-align: center;
   cursor: pointer;
 }
 
@@ -150,16 +142,13 @@ const goToCart = () => {
 }
 
 .close-btn {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background-color: #ff4d4d;
-  color: white;
+  background: none;
   border: none;
-  border-radius: 50%;
-  width: 30px;
-  height: 30px;
+  color: #888;
+  font-size: 20px;
+  position: absolute;
+  top: 5px;
+  right: 10px;
   cursor: pointer;
-  font-size: 18px;
 }
 </style>
