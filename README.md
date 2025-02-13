@@ -1,4 +1,4 @@
-# vue-project
+# projfinal-front
 
 This template should help get you started developing with Vue 3 in Vite.
 
@@ -19,7 +19,7 @@ https://zh.pngtree.com/freepng/dog-cat-pet-shovel-officer_3934436.html
 
 ## Customize configuration
 
-See [Vite Configuration Reference](https://vitejs.dev/config/).
+See [Vite Configuration Reference](https://vite.dev/config/).
 
 #前端架構範例
 
