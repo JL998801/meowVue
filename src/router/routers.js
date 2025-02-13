@@ -17,6 +17,7 @@ import MemberCard from '@/views/pages/MemberCard.vue';
 import LostMember from '@/views/pets/lost/LostMember.vue';
 import LostForm from '@/views/pets/lost/LostForm.vue';
 import ReportForm from '@/views/pets/report/ReportForm.vue';
+import LostCase from '@/views/pets/lost/LostCase.vue';
 
 // import RescueCase from '@/views/pets/pet/rescue/RescueCase.vue';
 // import EditRescueCase from '../views/pets/pet/rescue/EditRescueCase.vue';
@@ -51,9 +52,9 @@ const routes = [
   { path: "/pages/MemberCard", component: MemberCard, name: "MemberCard-link" },
 
   //卓穎頁面
-  { path: "/pet/lost/member", component: LostMember, name: "pets-LostMember-link" },
   { path: "/pets/lostform", component: LostForm, name: "pets-LostForm-link" },
   { path: "/pets/reportform", component: ReportForm, name: "pets-ReportForm-link" },
+  { path: "/pet/lostCase", component: LostCase, name: "pet-lostCase-link", props: true },
 
   //冠儒頁面
   // { path: "/pet/rescue/search", component: RescueSearch, name: "pet-rescueSearch-link" },
@@ -68,6 +69,7 @@ const routes = [
   { path: "/pages/Register", component: Register, name: "register-link" },
   { path: "/member-center/followCase", component: FollowCase, name: "followCase-link" },
   { path: "/member-center/rescueCase", component: MemberRescueCase, name: "memberRescueCase-link" },
+  { path: "/pet/lost/member", component: LostMember, name: "pets-LostMember-link" },
 
   //管理員後台頁面
   //加上 meta 標記，表示這頁面不顯示導航列。
