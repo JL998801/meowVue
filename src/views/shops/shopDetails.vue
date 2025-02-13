@@ -8,8 +8,8 @@
       <p class="error">{{ error }}</p>
     </div>
     <div v-else>
-      <ul>
-        <li v-for="order in orderList" :key="order.orderId">
+      <div class="order-container">
+        <div v-for="order in orderList" :key="order.orderId" class="order-item">
           <p>訂單編號: {{ order.orderId }}</p>
           <p>收貨地址: {{ order.shippingAddress }}</p>
           <p>訂單建立日期: {{ order.orderDate }}</p>
@@ -22,8 +22,8 @@
           </ul>
           <button @click="cancelOrder(order.orderId)" :disabled="order.orderStatus !== '備貨中'">取消訂單</button>
           <button @click="goToPayment(order)">前往支付</button>
-        </li>
-      </ul>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -135,21 +135,45 @@ onMounted(() => {
 .error {
   color: red;
 }
+
 .status-paid {
   color: green;
   font-weight: bold;
 }
+
 .status-processing {
   color: orange;
   font-weight: bold;
 }
+
 .status-out-of-stock {
   color: gray;
 }
+
 .status-shipped {
   color: blue;
 }
+
 .status-delivered {
   color: purple;
+}
+
+/* 新增樣式：訂單列表顯示兩列，並加入白色背景 */
+.order-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* 每行顯示兩個訂單，並根據大小調整 */
+  gap: 20px; /* 訂單間距 */
+}
+
+.order-item {
+  background-color: white;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.order-item button {
+  margin-top: 10px;
 }
 </style>
