@@ -72,9 +72,7 @@ const isFullWidth = computed(() => fullWidthRoutes.includes(route.path));
 /* 全域樣式 */
 .container {
   background-color: #ffffff;
-  padding: 0 70px;
-  margin: 0 auto;
- 
+  margin: 10px auto;
 }
 
 /* 當 `isFullWidth` 為 true，讓 `.container` 變成全寬而且不要有卷軸 */

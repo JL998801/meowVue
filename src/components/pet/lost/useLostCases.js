@@ -10,26 +10,55 @@ export default function useLostCases(memberId) {
     const isLoading = ref(true); // 初始值設為 true，表示正在加載數據
     const error = ref(null);
 
-    // 🚀 取得會員的遺失案件
+    // **🚀 Debug: 監聽 memberId 變化**
+    // watch(memberId, (newId) => {
+    //     console.log("🐛 Debug - `memberId` 變更:", newId);
+    //     if (newId) fetchLostCases();
+    // }, { immediate: true });
+
+    // **🚀 Debug: 監聽 losts**
+    watch(losts, (newLosts) => {
+        console.log("🐛 Debug - `losts` 更新:", newLosts);
+    });
+
+    // **🚀 Debug: 監聽 isLoading**
+    watch(isLoading, (newStatus) => {
+        console.log("🐛 Debug - `isLoading`:", newStatus);
+    });
+
+    // **🔄 取得會員的遺失案件**
     const fetchLostCases = async () => {
-        console.log("✅ 解析出的 memberId:", memberId.value); // 🐛 Debug
+        console.log("✅ Debug - 解析出的 memberId:", memberId.value); // 🐛 Debug
         if (!memberId.value || isNaN(memberId.value)) {
-            console.error("❌ memberId 解析錯誤:", memberId.value);
+            console.error("❌ Debug - `memberId` 解析錯誤:", memberId.value);
             return;
         }
 
         isLoading.value = true;
         try {
+            console.log("📌 Debug - 發送 API 請求，memberId:", memberId.value);
             const response = await LostCaseAPI.getLostCases(memberId.value);
-            console.log("📌 API 回應:", response.data); // 確認 API 回應的資料
-        } catch (error) {
-            console.error("❌ 獲取遺失案件失敗:", error);
+            console.log("📌 Debug - API 回應:", response.data); // 確認 API 回應的資料
+            losts.value = response.data;
+            if (!response || !Array.isArray(response.data)) {
+                throw new Error("API 回應無效，請稍後重試！");
+            }
+
+            allLostCases.value = response.data.sort((a, b) => new Date(b.publicationTime) - new Date(a.publicationTime));
+            totalPages.value = Math.max(1, Math.ceil(allLostCases.value.length / pageSize));
+
+            console.log("✅ Debug - `allLostCases` 取得成功，共:", allLostCases.value.length, "筆");
+
+            updatePage(1); // 設定第一頁
+        } catch (err) {
+            error.value = "❌ 獲取遺失案件失敗，請重試";
+            console.error("❌ Debug - 獲取遺失案件失敗:", err);
         } finally {
             isLoading.value = false;
         }
     };
 
-    // 🔄 更新當前頁面的案件
+    // **🔄 更新當前頁面的案件**
     const updatePage = (page) => {
         if (page < 1 || page > totalPages.value) return;
         currentPage.value = page;
@@ -38,42 +67,48 @@ export default function useLostCases(memberId) {
         const start = (page - 1) * pageSize;
         const end = start + pageSize;
         losts.value = allLostCases.value.slice(start, end);
+        console.log("📌 Debug - 當前 `losts` 資料:", losts.value);
     };
 
-    // 📌 切換頁面
+    // **📌 切換頁面**
     const goToPage = (page) => {
+        console.log("📌 Debug - 切換頁面:", page);
         updatePage(page);
     };
 
-    // 🔍 取得單筆案件
+    // **🔍 取得單筆案件**
     const fetchLostCaseById = async (lostCaseId) => {
         try {
             const response = await LostCaseAPI.getLostCaseById(lostCaseId);
+            console.log("📌 Debug - 單筆案件回應:", response.data);
             return response.data;
         } catch (err) {
-            console.error("❌ 查詢案件失敗:", err);
+            console.error("❌ Debug - 查詢案件失敗:", err);
             throw new Error("查詢案件失敗");
         }
     };
 
-    // 📝 更新案件
+    // **📝 更新案件**
     const updateLostCase = async (lostCaseId, updateData) => {
+        console.log("🔍 發送 API 更新請求:", updateData);
+
+        // 過濾掉 `null` 的 `latitude` 和 `longitude`
+        const sanitizedData = { ...updateData };
+        if (sanitizedData.latitude === null) delete sanitizedData.latitude;
+        if (sanitizedData.longitude === null) delete sanitizedData.longitude;
+
         try {
-            await LostCaseAPI.updateLostCase(lostCaseId, updateData);
-            await fetchLostCases(); // 重新載入列表
-        } catch (err) {
-            console.error("❌ 更新案件失敗:", err);
-            throw new Error("更新案件失敗");
+            const response = await LostCaseAPI.updateLostCase(lostCaseId, sanitizedData);
+            console.log("✅ 更新 API 回應:", response.data);
+            fetchLostCases();
+        } catch (error) {
+            console.error("❌ 更新案件失敗:", error.response?.data || error);
         }
     };
 
-    // 監聽 memberId 變化，自動重新獲取案件
-    watch(memberId, (newId) => {
-        if (newId) fetchLostCases();
-    }, { immediate: true });
-
-    // ✅ 頁面載入時執行
+    // **✅ 頁面載入時執行**
     onMounted(() => {
+        console.log("📌 Debug - onMounted 執行，當前 memberId:", memberId.value);
         if (memberId.value) fetchLostCases();
     });
 
