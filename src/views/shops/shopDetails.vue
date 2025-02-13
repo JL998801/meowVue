@@ -20,8 +20,8 @@
               {{ item.productName ? item.productName : '未知商品' }} - 單價: {{ item.purchasedPrice }} 元，數量: {{ item.orderQuantity }}
             </li>
           </ul>
-          <button @click="cancelOrder(order.orderId)" :disabled="order.orderStatus !== '備貨中'">取消訂單</button>
-          <button @click="goToPayment(order)">前往支付</button>
+          <button @click="cancelOrder(order.orderId)" :disabled="order.orderStatus !== '待支付'">取消訂單</button>
+          <button @click="goToPayment(order)" :disabled="order.orderStatus !== '待支付'">前往支付</button>
         </div>
       </div>
     </div>
@@ -70,20 +70,22 @@ const getStatusClass = (status) => {
   switch (status) {
     case "已結帳":
       return "status-paid";
+    case "待支付":
+      return "status-pending";
     case "備貨中":
       return "status-processing";
-    case "庫存不足，請跟客服聯繫":
-      return "status-out-of-stock";
-    case "已發貨":
+    case "待出貨":
+      return "status-awaiting-shipping";
+    case "已出貨":
       return "status-shipped";
-    case "已到貨":
-      return "status-delivered";
+    case "已取消":
+      return "status-canceled";
     default:
       return "";
   }
 };
 
-// 取消訂單（僅允許在備貨中取消）
+// 取消訂單（僅允許在待支付狀態下取消）
 const cancelOrder = async (orderId) => {
   if (confirm("確定要取消該訂單嗎？")) {
     try {
@@ -141,21 +143,29 @@ onMounted(() => {
   font-weight: bold;
 }
 
-.status-processing {
+.status-pending {
   color: orange;
   font-weight: bold;
 }
 
-.status-out-of-stock {
-  color: gray;
+.status-processing {
+  color: yellow;
+  font-weight: bold;
+}
+
+.status-awaiting-shipping {
+  color: blue;
+  font-weight: bold;
 }
 
 .status-shipped {
-  color: blue;
+  color: purple;
+  font-weight: bold;
 }
 
-.status-delivered {
-  color: purple;
+.status-canceled {
+  color: gray;
+  font-weight: bold;
 }
 
 /* 新增樣式：訂單列表顯示兩列，並加入白色背景 */

@@ -47,6 +47,7 @@ const adminRoutes = [
   "/admin/rescueAnalysis",
   "/admin/categories",
   "/admin/products",
+  "/admin/orders",
   "/admin/notifications",
   "/admin",
   "/adopt"
