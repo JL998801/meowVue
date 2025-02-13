@@ -21,25 +21,10 @@
 }
 
 body {
-    font-family: var(--font-stack);
     background-image: url('@/assets/背景圖2.png');
     background-size: auto;
     background-position: center;
     background-attachment: fixed;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
 }
-
-/* 單獨設置管理員後台的頁面 */
-body.admin-page {
-    background-image: none !important;
-    background-color: #ffffff !important; /* 你可以改成其他顏色 */
-}
-
-
-
-/* 只對繁體中文設定 Noto Sans TC  (冠)*/ 
-:lang(zh-TW) {
-    font-family: "Noto Sans TC", sans-serif;
-  }

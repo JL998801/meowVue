@@ -31,22 +31,25 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
-import { useStore } from "vuex";
+import { useOrderStore } from "@/stores/order"; // 引入 Pinia store
 import axios from "axios";
 
 const router = useRouter();
-const store = useStore();
+const orderStore = useOrderStore(); // 使用 Pinia store
 const apiUrl = import.meta.env.VITE_API_URL;
 
 const orderList = ref([]);
 const loading = ref(false);
 const error = ref(null);
 
+// 假設 memberId 已經在 Pinia store 或其他地方獲得，這裡為範例設置 memberId
+const memberId = 1;  // 這可以從 Pinia 或當前用戶上下文中獲取
+
 // 讀取訂單資料
 const fetchOrderData = async () => {
   loading.value = true;
   try {
-    const response = await axios.get(`${apiUrl}/orders`);
+    const response = await axios.get(`${apiUrl}/orders/member/${memberId}`);
     orderList.value = response.data.map(order => ({
       ...order,
       orderItems: order.orderItems.map(item => ({
@@ -98,10 +101,10 @@ const cancelOrder = async (orderId) => {
   }
 };
 
-// 前往支付頁面並存入 Vuex
+// 前往支付頁面並存入 Pinia
 const goToPayment = async (order) => {
   try {
-    store.dispatch("updateSelectedOrder", order);
+    orderStore.updateSelectedOrder(order); // 更新 Pinia store
     const paymentData = {
       orderId: order.orderId,
       finalPrice: order.finalPrice,

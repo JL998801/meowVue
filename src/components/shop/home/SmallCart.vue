@@ -1,47 +1,154 @@
-<script setup>
-import { defineProps } from "vue";
-import { useRouter } from "vue-router";
-
-const router = useRouter();
-const props = defineProps({
-  cartItems: Array, // ✅ 接收購物車商品列表
-  cartCount: Number, // ✅ 接收購物車商品數量
-});
-
-// ✅ 導引至購物車頁面，參照shopRoute路徑
-const goToCart = () => {
-  router.push("/shop/cart");
-};
-
-onMounted(() => {
-  fetchCart();
-});
-</script>
-
 <template>
-  <!-- 🔹 Popover 內顯示購物車內容 -->
-  <button
-    type="button"
-    class="btn btn-primary"
-    data-bs-toggle="popover"
-    data-bs-html="true"
-    title="您的購物車"
-    data-bs-content="Popover body content is set in this attribute."
-  >
-    🛒 購物車 ({{ cartCount }})
-  </button>
-
-  <div id="cart-popover-content" class="d-none">
-    <div v-if="cartCount > 0">
-      <ul class="list-group">
-        <li class="list-group-item d-flex justify-content-between align-items-center" v-for="item in cartItems" :key="item.id">
-          <span>{{ item.name }} x {{ item.quantity }}</span>
-          <span class="badge bg-primary rounded-pill">${{ item.price * item.quantity }}</span>
-        </li>
-      </ul>
-      <hr />
-      <button class="btn btn-success w-100 mt-2" @click="goToCart">🛍️ 查看購物車</button>
+  <div class="small-cart-container">
+    <!-- 小購物車圖示，顯示數量 -->
+    <div class="cart-icon" @click="toggleCart">
+      <img :src="cartIcon" alt="Shopping Cart" />
+      <span v-if="cartQuantity > 0" class="cart-quantity">{{ cartQuantity }}</span> <!-- 顯示數量 -->
     </div>
-    <p v-else class="text-center text-muted">購物車是空的 🛒</p>
+
+    <!-- 當顯示購物車內容時顯示 -->
+    <div v-if="showCart" class="cart-content">
+      <button class="close-btn" @click="toggleCart">X</button> <!-- Close button -->
+      <div v-if="cartStore.cart.length === 0">
+        <p>購物車是空的！</p>
+      </div>
+      <div v-else>
+        <div v-for="item in cartStore.cart" :key="item.cartItemId" class="cart-item">
+          <!-- 顯示商品縮圖 -->
+          <img v-if="item.product?.imageUrl" :src="item.product.imageUrl" alt="Product Image"
+            class="product-image" />
+          <p>
+            {{ item.product?.productName || '商品名稱加載中...' }} - 單價:
+            {{ item.product?.salePrice || 0 }}元 ×
+            <span>{{ item.quantity }}</span>
+          </p>
+        </div>
+        <div class="total">
+          <span>總金額: {{ totalPrice }}元</span>
+        </div>
+        <button class="go-to-cart-btn" @click="goToCart">前往購物車</button>
+      </div>
+    </div>
   </div>
 </template>
+
+<script setup>
+import { computed, ref } from 'vue';
+import { useCartStore } from '@/stores/cartStore';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+const cartStore = useCartStore();
+
+const showCart = ref(false);
+const cartIcon = ref("/src/assets/your-cart-icon.png");
+
+// 計算總金額
+const totalPrice = computed(() => {
+  if (!cartStore.cart.length) return 0;
+  return cartStore.cart.reduce(
+    (total, item) => total + (item.product?.salePrice || 0) * item.quantity,
+    0
+  );
+});
+
+// 顯示購物車內容
+const toggleCart = () => {
+  showCart.value = !showCart.value;
+  cartIcon.value = showCart.value ? "/src/assets/your-cart-icon-open.png" : "/src/assets/your-cart-icon.png";
+};
+
+// 顯示購物車數量
+const cartQuantity = computed(() => {
+  return cartStore.cart.reduce((total, item) => total + item.quantity, 0);
+});
+
+const goToCart = () => {
+  router.push('/shop/cart'); // 確保路由正確
+};
+</script>
+
+<style scoped>
+.small-cart-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+}
+
+.cart-icon {
+  cursor: pointer;
+  position: relative;
+}
+
+.cart-icon img {
+  width: 60px;
+  height: auto;
+}
+
+.cart-quantity {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: red;
+  color: white;
+  border-radius: 50%;
+  padding: 5px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.cart-content {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background-color: #ffffff;
+  border: 1px solid #ccc;
+  padding: 10px;
+  width: 250px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.cart-item {
+  display: flex;
+  justify-content: space-between;
+}
+
+.product-image {
+  width: 40px;
+  height: 40px;
+  margin-right: 10px;
+}
+
+.total {
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+.go-to-cart-btn {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  text-align: center;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.go-to-cart-btn:hover {
+  background-color: #0056b3;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: #888;
+  font-size: 20px;
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  cursor: pointer;
+}
+</style>

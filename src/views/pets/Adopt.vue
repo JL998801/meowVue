@@ -1,6 +1,31 @@
 
 <template>
   <div>
+    <!-- Header Section -->
+    <header class="header">
+      <nav class="menu">
+        <a href="#">首頁</a>
+        <select>
+          <option>通報案件</option>
+          <option>選項 1</option>
+          <option>選項 2</option>
+        </select>
+        <select>
+          <option>最新消息</option>
+          <option>選項 1</option>
+          <option>選項 2</option>
+        </select>
+        <select>
+          <option>近期活動</option>
+          <option>選項 1</option>
+          <option>選項 2</option>
+        </select>
+        <a href="#">違規查詢</a>
+        <a href="#">精選商店</a>
+        <a href="#">會員中心</a>
+      </nav>
+    </header>
+
     <!-- Title Section -->
     <div class="title">
       <h2>動物認養</h2>
