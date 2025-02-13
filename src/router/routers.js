@@ -12,11 +12,14 @@ import ReportForm from '@/views/pets/report/ReportForm.vue';
 import Register from '@/views/pets/Register.vue';
 import MemberCenter from '@/views/pets/MemberCenter.vue';
 import MemberCard from '@/views/pets/MemberCard.vue';
+
+//商城相關頁面
 import ShopLayout from '@/views/shops/ShopLayout.vue';
 import { shopRoutes } from './shopRouter'; // 引入商城路由
 import ShopManagement from '@/views/shops/ShopManagement.vue';
 import ProductManagement from '@/views/shops/ProductManagement.vue';
 import Notifications from '@/views/shops/Notifications.vue';
+import ProductForm from "@/components/shop/manage/ProductForm.vue"
 // import RescueCase from '@/views/pets/pet/rescue/RescueCase.vue';
 // import EditRescueCase from '../views/pets/pet/rescue/EditRescueCase.vue';
 // import NewRescueProgress from '../views/pets/pet/rescue/NewRescueProgress.vue';
@@ -90,6 +93,8 @@ const routes = [
     component: ShopLayout,meta: { hideNavbar: true }, // ✅ 隱藏通用導覽列
     children: [...shopRoutes] // ✅ 正確展開商城子路由
   },
+  {path:"/productForm", component:ProductForm}
+
 ];
 
 const router = createRouter({
