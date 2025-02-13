@@ -43,7 +43,7 @@ const logout = () => {
   // 等待頁面跳轉後刷新頁面
   setTimeout(() => {
     window.location.reload(); // 刷新頁面
-  }, 300); // 設置稍微的延遲確保頁面跳轉完成
+  }, 100); // 設置稍微的延遲確保頁面跳轉完成
 };
 </script>
 

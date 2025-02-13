@@ -101,10 +101,10 @@ onMounted(() => {
     if (memberId.value) fetchLostCases();
 });
 
-// **案件狀態對應文字**
-const getStatusText = (caseStateId) => {
-    return caseStateId === 5 ? "待協尋" : caseStateId === 6 ? "已尋獲" : "未知狀態";
-};
+// // **案件狀態對應文字**
+// const getStatusText = (caseStateId) => {
+//     return caseStateId === 5 ? "待協尋" : caseStateId === 6 ? "已尋獲" : "未知狀態";
+// };
 
 // **狀態樣式**
 const getStatusClass = (caseStateId) => {

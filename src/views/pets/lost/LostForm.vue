@@ -56,7 +56,7 @@
       <!-- 寵物姓名 -->
       <div class="form-group">
         <label>寵物姓名：</label>
-        <input v-model="form.name" type="text" />
+        <input v-model="form.petName" type="text" />
       </div>
 
       <!-- 寵物性別 -->
@@ -195,7 +195,7 @@ const form = ref({
   speciesId: "",
   breedId: "",
   furColorId: "",
-  name: "",
+  petName: "",
   gender: "",
   sterilization: "",
   age: null,
@@ -283,7 +283,7 @@ const validateMicroChipNumber = () => {
 };
 
 // **圖片預覽**
-const previewImages = ref([]);
+// const previewImages = ref([]);
 
 // // **處理圖片上傳**
 // const handleFileUpload = (event) => {
