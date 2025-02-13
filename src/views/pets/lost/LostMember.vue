@@ -29,8 +29,8 @@
                     <p class="lost-id">案件編號：<span class="highlight">{{ lost.lostCaseId }}</span></p>
                     <div class="lost-status">
                         案件狀態：
-                        <span class="status" :class="getStatusClass(lost.caseStateId)">
-                            {{ getStatusText(lost.caseStateId) }}
+                        <span class="status" :class="getStatusClass(lost.caseState?.caseStateId)">
+                            {{ lost.caseState?.caseStatement || "未知狀態" }}
                         </span>
                     </div>
                     <p>最後更新日期：{{ formatDate(lost.lastUpdateTime) }}</p>
@@ -57,19 +57,21 @@
 </template>
 
 <script setup>
-import { onMounted, computed } from "vue";
+import { onMounted, computed, watch } from "vue";
 import Swal from "sweetalert2";
 import useLostCases from "@/components/pet/lost/useLostCases.js";
 import SidebarMenu from "@/components/member/SidebarMenu.vue";
 import useUserStore from "@/stores/user.js"; // 獲取會員資訊
 
 const userStore = useUserStore();
-// 取得會員 ID
+
+// **🛠 Debug: 取得會員 ID**
 const memberId = computed(() => {
-    console.log("取得的 memberId:", userStore.memberId); // 🐛 Debug: 檢查 memberId
+    console.log("🐛 Debug - 取得的 memberId:", userStore.memberId);
     return userStore.memberId ? Number(userStore.memberId) : null;
 });
 
+// 🔥 確保 useLostCases 在 memberId 獲取後再初始化
 const {
     losts,
     currentPage,
@@ -80,31 +82,43 @@ const {
     isLoading
 } = useLostCases(memberId);
 
-// 頁面加載時獲取案件
-onMounted(() => {
-    if (memberId.value) {
+// **🛠 Debug: 監聽 losts 是否有變化**
+watch(losts, (newLosts) => {
+    console.log("🐛 Debug - losts 資料變更:", newLosts);
+});
+
+// **🛠 Debug: 監聽 memberId**
+watch(memberId, (newId) => {
+    console.log("🐛 Debug - memberId 變更:", newId);
+    if (newId) {
         fetchLostCases();
     }
 });
 
-// 案件狀態對應文字
+// 🚀 Vue onMounted 生命週期內部再調用 fetchLostCases()
+onMounted(() => {
+    console.log("📌 Debug - onMounted 執行，當前 memberId:", memberId.value);
+    if (memberId.value) fetchLostCases();
+});
+
+// **案件狀態對應文字**
 const getStatusText = (caseStateId) => {
     return caseStateId === 5 ? "待協尋" : caseStateId === 6 ? "已尋獲" : "未知狀態";
 };
 
-// 狀態樣式
+// **狀態樣式**
 const getStatusClass = (caseStateId) => {
     return caseStateId === 5 ? "status-pending" : caseStateId === 6 ? "status-found" : "";
 };
 
-// 日期格式化
+// **日期格式化**
 const formatDate = (dateString) => {
     if (!dateString) return "無";
     const date = new Date(dateString);
     return date.toLocaleDateString();
 };
 
-// 點擊案件後 SweetAlert 更新案件狀態
+// **點擊案件後 SweetAlert 更新案件狀態**
 const confirmPetFound = async (lost) => {
     const result = await Swal.fire({
         title: "你家的寵物找到了嗎？",
@@ -117,10 +131,12 @@ const confirmPetFound = async (lost) => {
 
     if (result.isConfirmed) {
         try {
+            console.log("🐛 Debug - 正在更新案件狀態:", lost.lostCaseId);
             await updateLostCase(lost.lostCaseId, { caseStateId: 6 });
             Swal.fire("更新成功", "案件狀態已更改為『已尋獲』", "success");
             fetchLostCases();
         } catch (error) {
+            console.error("❌ 更新案件狀態失敗:", error);
             Swal.fire("錯誤", "更新案件狀態失敗，請稍後重試", "error");
         }
     }
@@ -132,6 +148,7 @@ const confirmPetFound = async (lost) => {
     display: flex;
     flex-direction: column;
     gap: 15px;
+    /* border: 2px solid red; ✅ Debug */
 }
 
 .lost-card {
