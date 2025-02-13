@@ -39,7 +39,7 @@ html, body {
 .main-content {
     display: flex;
     flex-direction: column;
-    min-height: calc(60vh-100px); /* 🔥 減去 header + footer 的高度 */
+    min-height: 50vh; /* 🔥 減去 header + footer 的高度 */
     flex: 1; /* 讓內容填滿 */
 }
 
