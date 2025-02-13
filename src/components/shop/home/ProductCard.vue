@@ -2,10 +2,12 @@
 import { defineProps } from "vue";
 import { useRouter } from "vue-router";
 import useCartStore from "../../../stores/cartStore"
+import useWishListStore from "../../../stores/wishListStore"
 
 // 獲取 Router
 const router = useRouter();
 const cartStore = useCartStore();
+const wishListStore = useWishListStore();
 
 // 定義 Props
 const props = defineProps({
@@ -27,12 +29,12 @@ const goToProductDetails = () => {
 // 加入購物車: shopHome右上角亮燈，跳出未讀訊息
 // ✅ 加入購物車
 const addToCart = async (product) => {
-  await cartStore.addToCart(product.productId); // ✅ 觸發 `addToCart`
+  cartStore.addToCart(product.productId); // ✅ 觸發 `addToCart`
 };
 
 // **加入願望清單**
-const handleAddToWishlist = () => {
-  emit("add-to-wishlist", props.product);
+const handleAddToWishlist = async(product) => {
+  wishListStore(product.productId);
 };
 
 </script>
@@ -67,7 +69,7 @@ const handleAddToWishlist = () => {
       <button class="btn btn-primary" @click="addToCart(product)">加入購物車</button>
 
       <!-- 加入願望清單按鈕 -->
-      <button class="btn btn-outline-danger" @click.stop="handleAddToWishlist">加入願望清單</button>
+      <button class="btn btn-outline-danger" @click.stop="handleAddToWishlist(product)">加入願望清單</button>
     </div>
   </div>
 </template>

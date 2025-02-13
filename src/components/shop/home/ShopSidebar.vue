@@ -52,7 +52,7 @@
 </template>
 
 <script setup>
-import { ref, defineProps, defineEmits, computed } from "vue";
+import { ref, defineProps, computed } from "vue";
 import useProductStore from "@/stores/productStore";
 import useCategoryStore from "@/stores/categoryStore";
 import useProductTagStore from "@/stores/productTagStore";
@@ -66,7 +66,7 @@ const minPrice = ref(null);
 const maxPrice = ref(null);
 
 // 傳遞給父組件 shopLayout.vue
-const emit = defineEmits(["update-filter"]);
+// const emit = defineEmits(["update-filter"]);
 const productStore = useProductStore();
 
 // products 預設為 []，防止 v-for 無法綁定
