@@ -16,13 +16,25 @@
           <BadgeCounter icon="🛒" :count="cartQuantity" @click="toggleCart" />
         </li>
 
-        <li class="nav-item">
-          <BadgeCounter icon="❤️" :count="props.wishlistCount" modalTarget="#wishlistModal" />
-        </li>
+          <li class="nav-item">
+            <BadgeCounter
+              icon="❤️"
+              :count="wishlistCount"
+              modalTarget="#wishListModal"
+              :updateOnClick="true"
+              @open-modal="openModal"
+            />
+          </li>
 
-        <li class="nav-item">
-          <BadgeCounter icon="🔔" :count="props.notificationCount" modalTarget="#notificationModal" />
-        </li>
+          <li class="nav-item">
+            <BadgeCounter
+              icon="🔔"
+              :count="notificationCount"
+              modalTarget="#notificationModal"
+              :updateOnClick="true"
+              @open-modal="openModal"
+            />
+          </li>
 
         <!-- 🔹 登出 -->
         <li class="nav-item">
@@ -92,21 +104,33 @@
 <script setup>
 import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { useCartStore } from '@/stores/cartStore';
 import Swal from 'sweetalert2';
-import BadgeCounter from '../home/BadgeCounter.vue';
 import petLogo from '@/assets/petLogo.png'; // Logo 圖示
 
+import useUserStore from "@/stores/user";
+import {storeToRefs} from "pinia";
+import useCartStore from "@/stores/cartStore";
+import useWishListStore from "@/stores/wishlistStore";
+import useNotificationStore from "@/stores/wishlistStore";
+
 // ✅ 接收來自 `ShopLayout.vue` 的 `props`
-const props = defineProps({
-  isUserLoggedIn: Boolean,
-  cartCount: Number,       // 購物車數量
-  wishlistCount: Number,   // 願望清單數量
-  notificationCount: Number, // 通知數量
-});
+// const props = defineProps({
+//   isUserLoggedIn: Boolean,
+//   cartCount: Number,       // 購物車數量
+//   wishlistCount: Number,   // 願望清單數量
+//   notificationCount: Number, // 通知數量
+// });
 
 const router = useRouter();
 const cartStore = useCartStore();
+
+// 初始化: Store、空陣列
+const userStore = useUserStore();
+const wishListStore = useWishListStore();
+const notificationStore = useNotificationStore();
+
+// ✅ 確保 cartCount 是響應式的，當購物車內容變更時，Vue 會自動更新 BadgeCounter 的 count
+const { cartCount, wishlistCount, notificationCount} = storeToRefs(cartStore,wishListStore,notificationStore);
 
 // 用來控制購物車顯示與隱藏
 const showCart = ref(false);
@@ -153,6 +177,12 @@ const handleLogout = async () => {
     userStore.logout();
     router.push("/shop"); // ✅ 登出後回到商城首頁
   }
+};
+
+// ✅ 手動開啟 Modal
+const openModal = (modalId) => {
+  const modal = new bootstrap.Modal(document.querySelector(modalId));
+  modal.show();
 };
 </script>
 
