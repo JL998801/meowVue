@@ -1,43 +1,76 @@
 <script setup>
-import { ref,computed, onMounted, onUnmounted} from "vue";
-import { useRoute } from "vue-router";
-import { RouterView } from "vue-router";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap/dist/js/bootstrap.bundle.min.js";
+import { RouterLink, RouterView } from 'vue-router';
+import { useRoute, useRouter } from "vue-router";
+import useUserStore from "@/stores/user";
 import Navigationbar from "./views/Navigationbar.vue";
-import ShopNavBar from "./components/shop/home/ShopNavBar.vue";
+import { computed, onMounted, watchEffect  } from "vue";
 import TopButton from "./views/TopButton.vue";
 import Footer from "./views/Footer.vue";
 
-const isScrolled = ref(false); // ✅ 記錄頁面滾動狀態
-
-const handleScroll = () => {
-  isScrolled.value = window.scrollY > 50; // ✅ 當滾動超過 50px，就縮小
-};
-
-onMounted(() => {
-  window.addEventListener("scroll", handleScroll); // 🔥 監聽滾動事件
-});
-
-onUnmounted(() => {
-  window.removeEventListener("scroll", handleScroll); // ✅ 清除事件監聽
-});
-
 const route = useRoute();
+const router = useRouter();
+const userStore = useUserStore();
 const isShopRoute = computed(() => route.path.startsWith("/shop"));
+
+//下列程式用來監聽網址列token變化，用於line登入後擷取token並存入Pinia再存入localStorage
+onMounted(() => {
+   // 使用 watchEffect() 監聽 token 變化，確保提取後再清除 URL
+  watchEffect(() => {
+    const token = route.query.token;
+    if (token) {
+      console.log("Token 為:", token);
+      userStore.setToken(token); // 儲存 Token
+      router.replace({ path: "/", query: {} }); // 移除 Query 參數
+    }
+  });
+});
+
+//設置管理員後台不要有背景圖
+watchEffect(() => {
+  if (route.path.startsWith("/admin")) {
+    document.body.classList.add("admin-page");  // 在 /admin 頁面加上 class
+  } else {
+    document.body.classList.remove("admin-page");  // 其他頁面移除 class
+  }
+});
+
+// 定義需要全螢幕顯示的路徑
+const fullWidthRoutes = ["/","/pages/MemberCenter","/pet/map", "/advanced-settings", "/admin","/shop"];
+
+// 定義需要套用 `.admin` 樣式的頁面
+const adminRoutes = [
+  "/admin/rescueCase",
+  "/admin/adopt-case",
+  "/admin/lostCase",
+  "/admin/rescueAnalysis",
+  "/admin/categories",
+  "/admin/products",
+  "/admin/orders",
+  "/admin/notifications",
+  "/admin",
+  "/adopt"
+];
+
+// 判斷是否應用 `admin` 樣式
+const isAdminPage = computed(() => adminRoutes.includes(route.path));
+
+// 判斷是否應用 `full-width` 樣式
+const isFullWidth = computed(() => fullWidthRoutes.includes(route.path))|| route.path.startsWith("/shop");
+
+
 </script>
 
 <template>
-    <nav :class="['navbar', { shrink: isScrolled }]">
-
-      <!--v-show 只是控制 display: none，所以兩個 <Navigationbar> 可能都會被渲染，只是 display: none 影響可見性。
-      v-if 會根據條件來創建或銷毀 DOM 元素，避免兩個 <nav> 同時存在。 -->
-        <Navigationbar v-if="!isShopRoute"></Navigationbar>
-        <!-- <ShopNavBar v-else></ShopNavBar> -->
-    </nav>
-    <main style="margin-top: 100px; margin-bottom: 100px;">
-        <RouterView />
-    </main>
+    <Navigationbar v-if="!$route.meta.hideNavbar "></Navigationbar>
+    <div
+      :class="isAdminPage ? 'admin' : isFullWidth ? 'full-width' : 'container'"
+    >
+      <RouterView />
+    </div>
     <TopButton />
-    <Footer :class="['footer', { shrink: isScrolled }]" />
+    <Footer />
 </template>
 
 <style scoped>
@@ -59,19 +92,15 @@ const isShopRoute = computed(() => route.path.startsWith("/shop"));
   background-image: none !important;
 }
 
-/* 🔹 讓 Navbar 固定在頂部 */
-.navbar {
-  top: 0;
+/*管理員頁面使用樣式*/
+.admin {
+  padding: 0;
+  margin: 0;
+  width: 100vw;
+  height: 100vh;
+  max-width: 100%;
+  max-height: 100%;
+  overflow: auto; /* ✅ 允許滾動 */
+  background-image: none !important;
 }
-
-/* 🔹 讓 Footer 固定在底部 */
-.footer {
-  bottom: 0;
-}
-
-/* 🔹 滾動時縮小高度（但保持全寬） */
-.shrink {
-  height: 50px;  /* ✅ 縮小高度 */
-}
-
 </style>

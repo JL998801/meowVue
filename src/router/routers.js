@@ -6,18 +6,27 @@ import NotFound from '@/views/NotFound.vue';
 import Forbidden from '@/views/Forbidden.vue';
 import LoginMember from '@/views/secure/LoginMember.vue';
 import LoginAdmin from '@/views/secure/LoginAdmin.vue';
+import Adopt from '@/views/pages/Adopt.vue';
 
-import AdminManagement from '@/views/AdminManagement.vue';
-import Register from '@/views/pets/Register.vue';
-import MemberCenter from '@/views/pets/MemberCenter.vue';
-import MemberCard from '@/views/pets/MemberCard.vue';
+
+//會員、管理員相關頁面
+import Register from '@/views/pages/Register.vue';
+import MemberCenter from '@/views/pages/MemberCenter.vue';
+import MemberCard from '@/views/pages/MemberCard.vue';
 
 import LostMember from '@/views/pets/lost/LostMember.vue';
 import LostForm from '@/views/pets/lost/LostForm.vue';
 import ReportForm from '@/views/pets/report/ReportForm.vue';
 import LostCase from '@/views/pets/lost/LostCase.vue';
+
+//商城相關頁面
 import ShopLayout from '@/views/shops/ShopLayout.vue';
 import { shopRoutes } from './shopRouter'; // 引入商城路由
+import ShopManagement from '@/views/shops/ShopManagement.vue';
+import ProductManagement from '@/views/shops/ProductManagement.vue';
+import Ordersrders from '@/views/shops/Orders.vue';
+import Notifications from '@/views/shops/Notifications.vue';
+import ProductForm from "@/components/shop/manage/ProductForm.vue"
 // import RescueCase from '@/views/pets/pet/rescue/RescueCase.vue';
 // import EditRescueCase from '../views/pets/pet/rescue/EditRescueCase.vue';
 // import NewRescueProgress from '../views/pets/pet/rescue/NewRescueProgress.vue';
@@ -25,7 +34,6 @@ import { shopRoutes } from './shopRouter'; // 引入商城路由
 // import LineMessage from '@/views/secure/LineMessage.vue';
 // import NewRescueCase from '../views/pets/pet/rescue/NewRescueCase.vue';
 // import GoogleMap from '@/views/pets/pet/map/GoogleMap.vue';
-
 //會員中心功能
 import LineMessage from '@/views/secure/LineMessage.vue';
 import FollowCase from '@/views/secure/FollowCase.vue';
@@ -39,22 +47,13 @@ import RescueManagement from '@/views/admin/kuan/RescueManagement.vue';
 import RescueAnalysis from '@/views/admin/kuan/RescueAnalysis.vue';
 
 
+
 const routes = [
   { path: "/", component: Home, name: "home-link" },
   { path: "/:pathMatch(.*)*", component: NotFound, name: "notfound-link" },
   { path: "/403", component: Forbidden, name: "forbidden-link" },
   { path: '/secure/login', component: LoginMember, name: 'login-link' },
   { path: '/secure/loginadmin', component: LoginAdmin, name: 'login-admin-link' },
-  { path: '/pages/Register', component: Register, name: 'login-admin-link' },
-  // { path: "/pets/lostcase", component: LostCase, name: "pets-LostCase-link" },
-  { path: "/pets/lostform", component: LostForm, name: "pets-LostForm-link" },
-  { path: "/pets/reportform", component: ReportForm, name: "pets-ReportForm-link" },
-  { path: "/admin/management", component: AdminManagement, name: "admin-management-link" },
-  {
-    path: "/shop",
-    component: ShopLayout,
-    children: [...shopRoutes] // ✅ 正確展開商城子路由
-  },
   // { path: "/shops/products1", component: Products1, name: "shops-products1-link" },
   { path: "/adopt", component: Adopt, name: "adopt-link" },
   { path: "/pages/Register", component: Register, name: "register-link" },
@@ -88,12 +87,24 @@ const routes = [
     path: "/admin", component: AdminManagement, name: "adminManagement-link", meta: { hideNavbar: true }, children: [
       { path: "rescueCase", component: RescueManagement },
       { path: "rescueAnalysis", component: RescueAnalysis },
-
+      { path: "categories", component: ShopManagement },
+      { path: "products", component: ProductManagement },
+      { path: "notifications", component: Notifications },
+      { path: "orders", component: Ordersrders },
     ],
   },
+
+  //商城頁面
+  {
+    path: "/shop",
+    component: ShopLayout, meta: { hideNavbar: true }, // ✅ 隱藏通用導覽列
+    children: [...shopRoutes] // ✅ 正確展開商城子路由
+  },
+  { path: "/productForm", component: ProductForm }
+
 ];
 
-const route = createRouter({
+const router = createRouter({
   routes: routes,
   history: createWebHistory(),
 });
@@ -111,27 +122,28 @@ router.beforeEach(async (to, from, next) => {
     "/pets/MemberCenter",
     "/pets/MemberCard",
     "/adopt",
-    "/admin/management",
     "/secure/loginadmin",
-    '/secure/loginadmin',
     '/callback',
-    "/shop",
     '/pets/lostform',
     '/pets/reportform',
     '/lost',
     '/pet/lost/member',
     "/admin",
+    "/shop",
+    "/shop/product",
 
   ];  // 不需要驗證的路由
 
   console.log("userStore", userStore);
   console.log("to.path", to.path);
   // 🔥 `/shop` 及其所有子路由都不需要驗證 (開發用byNaomi)
-  const isPublicPage = publicPages.includes(to.path) || to.path.startsWith("/shop");
-  console.log("isPublicPage", isPublicPage);
-  if (!isPublicPage && !userStore.isAuthenticated) {
-    return next("/secure/login"); // 🔐 重新導向到登入頁
-  }
+  // const isPublicPage = publicPages.includes(to.path) || to.path.startsWith("/shop");
+  // console.log("isPublicPage", isPublicPage);
+  // if (!isPublicPage && !userStore.isAuthenticated) {
+  //   return next("/secure/login"); // 🔐 重新導向到登入頁
+  // }
+  // ✅ 改用 `.some()` 來判斷是否為公開頁面；配合部分頁面:id的設計
+  const isPublicPage = publicPages.some(page => to.path.startsWith(page));
 
   //用來判斷救援案件頁面路徑，需要是公開
   const isRescueCaseDetail = to.path.startsWith("/pet/rescueCase/") && to.path.split("/").length === 4;

@@ -28,6 +28,7 @@
     "sweetalert2": "^11.15.10",
     "swiper": "^11.2.2",
     "vue": "^3.3.4",
+    "vue-flatpickr-component": "^11.0.5",
     "vue-router": "^4.2.4",
     "vuex": "^4.1.0"
   },

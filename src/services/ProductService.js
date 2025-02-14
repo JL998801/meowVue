@@ -12,9 +12,10 @@ export const ProductService = {
    * @param {string} order 排序方式 ("asc" 或 "desc")
    */
   async getPagedProducts(page = 0, size = 10, sortBy = "productName", order = "asc") {
-    return axiosapi.get(`${API_URL}/paged`, {
-      params: { page, size, sortBy, order } // ✅ 傳遞 API 參數
-    });
+    // return axiosapi.get(`${API_URL}/paged`, {
+    //   params: { page, size, sortBy, order } // ✅ 傳遞 API 參數
+    // });
+    return jsonRequest("get", `${API_URL}/paged?page=${page}&size=${size}&sortBy=${sortBy}&order=${order}`);
   },
 
   async getAllProducts() {
@@ -26,6 +27,20 @@ export const ProductService = {
   },
 
   async searchProducts(searchParams) {
-    return jsonRequest("get", `${API_URL}/search`, { params: searchParams });
+    return jsonRequest("post", `${API_URL}/search`, searchParams);
   },
+
+  // 商品增刪改
+  async deleteProducts(id) {
+    return jsonRequest("delete", `${API_URL}/${id}`);
+  },
+
+  async addProducts() {
+    return jsonRequest("post", `${API_URL}`);
+  },
+
+  async modifyProducts(id) {
+    return jsonRequest("put", `${API_URL}/${id}`);
+  },
+
 };
