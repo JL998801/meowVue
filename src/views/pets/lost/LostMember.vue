@@ -1,6 +1,5 @@
 <template>
     <div class="rescue-management-container">
-        <!-- 主要內容 -->
         <main class="content">
             <h2>遺失協尋管理</h2>
             <div class="section-indicator">
@@ -10,30 +9,32 @@
             <div class="lost-header">
                 <font-awesome-icon icon="paw" />
                 <span>我的協尋記錄</span>
-                <button class="add-button">+ 新增</button>
+                <Router-link to="/pets/lostform">
+                    <button class="add-button">+ 新增</button>
+                </Router-link>
             </div>
 
-            <div class="lost-list">
-                <div v-for="lost in losts" :key="lost.lostCaseId" class="lost-card">
-                    <!-- 案件標題 -->
+            <!-- 載入中 -->
+            <div v-if="isLoading" class="loading">載入中...</div>
+
+            <!-- 若沒有案件 -->
+            <div v-else-if="losts.length === 0" class="no-records">
+                查無紀錄。
+            </div>
+
+            <!-- 遺失案件列表 -->
+            <div v-else class="lost-list">
+                <div v-for="lost in losts" :key="lost.lostCaseId" class="lost-card" @click="confirmPetFound(lost)">
                     <h3>{{ lost.caseTitle }}</h3>
-
-                    <!-- 遺失案件編號 -->
-                    <p class="lost-id">
-                        遺失案件編號：<span class="highlight">{{ lost.lostCaseId }}</span>
-                    </p>
-
-                    <!-- 案件狀態 -->
-                    <div class="lost-stated">
+                    <p class="lost-id">案件編號：<span class="highlight">{{ lost.lostCaseId }}</span></p>
+                    <div class="lost-status">
                         案件狀態：
-                        <span class="status" :class="lost.statusClass">{{ lost.caseStateId }}</span>
+                        <span class="status" :class="getStatusClass(lost.caseState?.caseStateId)">
+                            {{ lost.caseState?.caseStatement || "未知狀態" }}
+                        </span>
                     </div>
-
-                    <!-- 最後更新日期 -->
-                    <p>最後更新日期：{{ lost.lastUpdateTime }}</p>
-
-                    <!-- 建立日期 -->
-                    <p>建立日期：{{ lost.publicationTime }}</p>
+                    <p>最後更新日期：{{ formatDate(lost.lastUpdateTime) }}</p>
+                    <p>建立日期：{{ formatDate(lost.publicationTime) }}</p>
                 </div>
             </div>
 
@@ -49,7 +50,6 @@
             </div>
         </main>
 
-        <!-- 右側功能選單 -->
         <aside>
             <SidebarMenu />
         </aside>
@@ -57,21 +57,182 @@
 </template>
 
 <script setup>
-import { onMounted } from "vue";
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import { onMounted, computed, watch } from "vue";
+import Swal from "sweetalert2";
+import useLostCases from "@/components/pet/lost/useLostCases.js";
 import SidebarMenu from "@/components/member/SidebarMenu.vue";
-import useLostCases from "@/components/pet/lost/useLostCase.js"; // ✅ 引入 useLostCases.js
+import useUserStore from "@/stores/user.js"; // 獲取會員資訊
 
-// 會員 ID (假設是從登入狀態取得)
-const memberId = 1; // 這裡應該從 Vuex / Pinia / localStorage 取得會員 ID
+const userStore = useUserStore();
 
-// 使用 useLostCases composable
-const { losts, currentPage, totalPages, fetchLostCases, goToPage } = useLostCases(memberId);
+// **🛠 Debug: 取得會員 ID**
+const memberId = computed(() => {
+    console.log("🐛 Debug - 取得的 memberId:", userStore.memberId);
+    return userStore.memberId ? Number(userStore.memberId) : null;
+});
 
-// 畫面載入時取得案件資料
-onMounted(fetchLostCases);
+// 🔥 確保 useLostCases 在 memberId 獲取後再初始化
+const {
+    losts,
+    currentPage,
+    totalPages,
+    fetchLostCases,
+    goToPage,
+    updateLostCase,
+    isLoading
+} = useLostCases(memberId);
+
+// **🛠 Debug: 監聽 losts 是否有變化**
+watch(losts, (newLosts) => {
+    console.log("🐛 Debug - losts 資料變更:", newLosts);
+});
+
+// **🛠 Debug: 監聽 memberId**
+watch(memberId, (newId) => {
+    console.log("🐛 Debug - memberId 變更:", newId);
+    if (newId) {
+        fetchLostCases();
+    }
+});
+
+// 🚀 Vue onMounted 生命週期內部再調用 fetchLostCases()
+onMounted(() => {
+    console.log("📌 Debug - onMounted 執行，當前 memberId:", memberId.value);
+    if (memberId.value) fetchLostCases();
+});
+
+// // **案件狀態對應文字**
+// const getStatusText = (caseStateId) => {
+//     return caseStateId === 5 ? "待協尋" : caseStateId === 6 ? "已尋獲" : "未知狀態";
+// };
+
+// **狀態樣式**
+const getStatusClass = (caseStateId) => {
+    return caseStateId === 5 ? "status-pending" : caseStateId === 6 ? "status-found" : "";
+};
+
+// **日期格式化**
+const formatDate = (dateString) => {
+    if (!dateString) return "無";
+    const date = new Date(dateString);
+    return date.toLocaleDateString();
+};
+
+// **點擊案件後 SweetAlert 更新案件狀態**
+const confirmPetFound = async (lost) => {
+    const result = await Swal.fire({
+        title: "你家的寵物找到了嗎？",
+        text: "如果已找到，請更新案件狀態",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "是，我找到了！",
+        cancelButtonText: "取消",
+    });
+
+    if (result.isConfirmed) {
+        try {
+            console.log("🐛 Debug - 正在更新案件狀態:", lost.lostCaseId);
+            await updateLostCase(lost.lostCaseId, { caseStateId: 6 });
+            Swal.fire("更新成功", "案件狀態已更改為『已尋獲』", "success");
+            fetchLostCases();
+        } catch (error) {
+            console.error("❌ 更新案件狀態失敗:", error);
+            Swal.fire("錯誤", "更新案件狀態失敗，請稍後重試", "error");
+        }
+    }
+};
 </script>
 
 <style scoped>
+.lost-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    /* border: 2px solid red; ✅ Debug */
+}
 
+.lost-card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.lost-card:hover {
+    transform: scale(1.02);
+}
+
+.lost-id,
+.lost-status {
+    font-size: 14px;
+    color: #555;
+}
+
+.highlight {
+    color: #28a745;
+    font-weight: bold;
+}
+
+/* 狀態樣式 */
+.status {
+    padding: 5px 10px;
+    border-radius: 5px;
+    color: white;
+    font-size: 14px;
+}
+
+.status-pending {
+    background: #dc3545;
+} /* 待協尋 */
+
+.status-found {
+    background: #28a745;
+} /* 已尋獲 */
+
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 15px;
+}
+
+.page-btn {
+    background-color: #C6BC77;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.page-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.current-page {
+    font-size: 16px;
+    font-weight: bold;
+    padding: 6px 10px;
+    background: #28a745;
+    color: white;
+    border-radius: 5px;
+}
+
+.no-records {
+    text-align: center;
+    font-size: 16px;
+    color: #666;
+    margin-top: 20px;
+}
+
+.loading {
+    text-align: center;
+    font-size: 16px;
+    color: #888;
+    margin-top: 20px;
+}
 </style>
