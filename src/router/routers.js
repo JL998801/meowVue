@@ -81,10 +81,13 @@ const routes = [
   { path: "/admin", component: AdminManagement, name: "adminManagement-link", meta: { hideNavbar: true },children: [
     { path: "rescueCase", component: RescueManagement },
     { path: "rescueAnalysis", component: RescueAnalysis },
-    { path: "categories", component: ShopManagement },
-    { path: "products", component: ProductManagement },
+    { path: "shopManage", component: ShopManagement },
     { path: "notifications", component: Notifications },
-   
+    { path: "products", component: ProductManagement, 
+      children: [
+        { path: "form", component: ProductForm }
+      ]
+    },
   ],},
 
   //商城頁面
@@ -93,7 +96,6 @@ const routes = [
     component: ShopLayout,meta: { hideNavbar: true }, // ✅ 隱藏通用導覽列
     children: [...shopRoutes] // ✅ 正確展開商城子路由
   },
-  {path:"/productForm", component:ProductForm}
 
 ];
 
