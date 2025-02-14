@@ -29,6 +29,7 @@ import { shopRoutes } from './shopRouter'; // 引入商城路由
 //會員中心功能
 import LineMessage from '@/views/secure/LineMessage.vue';
 import FollowCase from '@/views/secure/FollowCase.vue';
+
 import MemberRescueCase from '../views/secure/MemberRescueCase.vue';
 
 
