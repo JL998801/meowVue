@@ -1,6 +1,5 @@
 <script setup>
 import { computed, defineProps, onMounted, ref } from "vue";
-import Carousel from "@/components/shop/home/Carousel.vue";
 import ProductCard from "@/components/shop/home/ProductCard.vue";
 import Pagination from "@/components/shop/home/Pagination.vue";
 import useProductStore from "../../stores/productStore"
@@ -72,31 +71,27 @@ const getMemberId = () => {
   return 1; // 假設會員ID為1
 };
 
-// 加入購物車邏輯
+// 加入購物車
 const addToCart = async (index) => {
   const product = filteredProducts.value[index];
-  const quantity = selectedQuantities.value[index] || 1;
-
-  if (quantity <= 0 || quantity > product.stockQuantity) {
-    alert('選擇的數量無效');
-    return;
-  }
+  if (!product) return;
 
   try {
     const memberId = getMemberId();
     const productId = product.productId;
+    const quantity = 1;
 
     await axios.post(`${import.meta.env.VITE_API_URL}/pages/cart/add`, {
-      memberId: memberId,
-      productId: productId,
-      quantity: quantity,
+      memberId,
+      productId,
+      quantity,
     });
-
-    store.dispatch('addToCart', { ...product, quantity });
-    alert('商品已成功加入購物車');
+    
+    cartStore.addToCart({ ...product, quantity });
+    alert("商品已成功加入購物車");
   } catch (error) {
-    console.error('加入購物車失敗:', error);
-    alert('加入購物車失敗，請稍後重試');
+    console.error("加入購物車失敗:", error);
+    alert("加入購物車失敗，請稍後重試");
   }
 };
 
@@ -109,14 +104,14 @@ const addToWishlist = (product) => {
 
 <template>
     <!-- 🔹 如果有搜尋結果，顯示商品卡片 -->
-    <div class="shop-home">
-      <div class="d-flex justify-content-between align-items-center mb-3">
+  <div class="shop-home">
+    <div class="d-flex justify-content-between align-items-center mb-3">
         <h2>搜尋結果</h2>
         <!-- 🔹 分頁控制 -->
-        <div class="spinner-grow text-warning" role="status" v-if="productStore.loading">
-          <span class="sr-only">Loading...</span>
-        </div>
-        <div class="pagination">
+      <div class="spinner-grow text-warning" role="status" v-if="productStore.loading">
+        <span class="sr-only">Loading...</span>
+      </div>
+      <div class="pagination">
           <Pagination 
             v-if="filteredProducts.length > 10"
             :currentPage="currentPage" 
@@ -129,23 +124,23 @@ const addToWishlist = (product) => {
             <option :value="20">20</option>
             <option :value="50">50</option>
           </select>
-        </div>
-      </div>
-
-      <!-- 🔹 商品卡片 -->
-      <div class="product-grid" v-if="filteredProducts.length > 0">
-        <ProductCard
-          v-for="(product, index) in filteredProducts"
-          :key="product.productId"
-          :product="product"
-          @add-to-cart="addToCart(index)"
-          @add-to-wishlist="addToWishlist"
-        />
-      </div>
-      <div v-else>
-        <p>沒有符合條件的商品</p>
       </div>
     </div>
+    
+      <!-- 🔹 商品卡片 -->
+      <div class="product-grid" v-if="filteredProducts.length > 0">
+      <ProductCard
+          v-for="(product, index) in filteredProducts"
+        :key="product.productId"
+        :product="product"
+        @add-to-cart="addToCart(index)"
+          @add-to-wishlist="addToWishlist"
+      />
+    </div>
+      <div v-else>
+      <p>沒有符合條件的商品</p>
+    </div>
+  </div>
 </template>
 
 <style scoped>

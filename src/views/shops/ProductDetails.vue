@@ -1,14 +1,18 @@
 <template>
-    <div v-if="selectedProduct">
+  <div v-if="selectedProduct">
     <h1>{{ selectedProduct.productName }}</h1>
-    <img v-if="selectedProduct.images?.length > 0" :src="selectedProduct.images[0]" alt="商品圖片" />
+    <img 
+      v-if="selectedProduct && selectedProduct.images && selectedProduct.images.length > 0" 
+      :src="selectedProduct.images[0]" 
+      alt="商品圖片" 
+    />
   </div>
   <div v-else>
     <p>正在載入商品資料...</p>
   </div>
+
   <div class="product-detail-container">
-    <div class="product-images">
-      <!-- 左側縮圖列表 -->
+    <div class="product-images" v-if="selectedProduct && selectedProduct.images && selectedProduct.images.length > 0">
       <div class="thumbnail-list">
         <img 
           v-for="(image, index) in selectedProduct.images" 
@@ -19,8 +23,6 @@
           @click="selectedImage = image"
         />
       </div>
-
-      <!-- 主要商品圖片 -->
       <div class="main-image">
         <img :src="selectedImage" alt="商品主圖片" />
       </div>
@@ -36,18 +38,19 @@
           <span class="original-price">NT${{ selectedProduct.originalPrice }}</span>
         </div>
         <div class="stock-status">
-          <span v-if="selectedProduct.stockQuantity > 0">庫存充足</span>
+          <span v-if="selectedProduct && selectedProduct.stockQuantity > 0">
+            庫存數量: {{ selectedProduct.stockQuantity }}{{ selectedProduct.unit }}
+          </span>
           <span v-else class="sold-out">售完</span>
         </div>
       </div>
 
-      <button @click="addToCart(selectedProduct)" class="add-to-cart">加入購物車</button>
+      <button @click="addToCart" class="add-to-cart">加入購物車</button>
+      <button @click="goToShopDetail" class="add-to-cart">前往交易清單</button>
     </div>
 
-    <!-- 商品卡片 -->
     <ProductCard :product="selectedProduct" displayMode="all" />
 
-    <!-- 商品詳情區塊 -->
     <div class="product-details">
       <nav class="tabs">
         <span @click="activeTab = 'description'" :class="{ active: activeTab === 'description' }">商品描述</span>
@@ -69,36 +72,68 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
-import { useRoute } from "vue-router";
+import { ref, computed, onMounted, watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import axios from "axios";
 import useProductStore from "@/stores/productStore";
+import useCartStore from "@/stores/cartStore"; // 使用 Pinia 管理購物車
 
 const route = useRoute();
-const selectedProduct = ref(null);
-const selectedImage = ref("");
-const activeTab = ref("description");
+const router = useRouter();
 const productStore = useProductStore();
-const productId = route.params.id; 
-selectedProduct.value = productStore.products.find(product => {
-  // console.log("商品 ID:", product.productId);
-  // console.log("商品:", product.productId === Number(productId));
-  return product.productId === Number(productId);
-});
-// console.log("商品 ID:", route.params.id);
-// console.log("商品:", selectedProduct.value);
-// console.log("商品:", productStore.products);
+const cartStore = useCartStore();
 
-// 加入購物車功能
-const addToCart = (product) => {
-  console.log(`加入購物車: ${product.productName}`);
-  alert("商品已加入購物車");
+const activeTab = ref("description");
+const productId = computed(() => Number(route.params.id));
+
+const selectedProduct = computed(() => 
+  productStore.products.find((product) => product.productId === productId.value) || null
+);
+
+watch(() => productStore.products, (newProducts) => {
+  selectedProduct.value = newProducts.find(
+    (product) => product.productId === Number(route.params.id)
+  ) || null;
+}, { immediate: true });
+
+// 預設圖片
+const selectedImage = computed(() => 
+  selectedProduct.value && selectedProduct.value.images && selectedProduct.value.images.length > 0
+    ? selectedProduct.value.images[0]
+    : new URL("@/assets/petLogo.png", import.meta.url).href
+);
+
+// **加入購物車**
+const addToCart = async () => {
+  if (!selectedProduct.value) return;
+
+  try {
+    const memberId = localStorage.getItem("memberId") || 1; // 測試時使用固定 ID
+    const productId = selectedProduct.value.productId;
+    const quantity = 1;
+
+    await axios.post(`${import.meta.env.VITE_API_URL}/pages/cart/add`, {
+      memberId,
+      productId,
+      quantity,
+    });
+
+    cartStore.addToCart({ ...selectedProduct.value, quantity });
+    alert("商品已成功加入購物車");
+  } catch (error) {
+    console.error("加入購物車失敗:", error);
+    alert("加入購物車失敗，請稍後重試");
+  }
 };
 
-// 獲取商品詳情: 從shopLayout父組件獲取商品詳情
+// **跳轉到交易清單**
+const goToShopDetail = () => {
+  router.push(`/shop/details?cart`);
+};
 
 // 組件掛載時加載數據
-onMounted(()=>{
-  console.log("商品 ID:", productId);
+onMounted(() => {
+  productStore.fetchProducts();
 });
 </script>
 
