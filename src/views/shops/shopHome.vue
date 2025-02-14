@@ -77,7 +77,7 @@ const filteredProducts = computed(() => {
 // );
 
 onMounted(() => {
-  productStore.fetchProducts();
+  productStore.fetchProducts();  //取得商品資訊
   productStore.fetchPagedProducts(); // ✅ 預設取得第一頁數據
 });
 
