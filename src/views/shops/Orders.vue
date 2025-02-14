@@ -6,19 +6,30 @@
         <tr>
           <th>訂單 ID</th>
           <th>會員 ID</th>
+          <th>查看明細</th>
           <th>訂單狀態</th>
           <th>變更狀態</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="order in orders" :key="order.orderId" class="order-row">
+        <tr v-for="order in orders" :key="order.orderId" class="order-row" style="position: relative;">
           <td>{{ order.orderId }}</td>
           <td v-if="order.memberId">{{ order.memberId }}</td>
           <td v-else>無會員ID</td>
+          <td>
+            <button @click="viewDetails(order)">查看明細</button>
+            <!-- Details display on the left of the button -->
+            <div v-if="selectedOrder === order" class="order-details">
+              <p>訂單編號: {{ order.orderId }}</p>
+              <p>收貨地址: {{ order.shippingAddress }}</p>
+              <p>訂單建立日期: {{ order.orderDate }}</p>
+              <p>總金額: {{ order.finalPrice }} 元</p>
+              <p>訂單狀態: <span :class="getStatusClass(order.orderStatus)">{{ order.orderStatus }}</span></p>
+            </div>
+          </td>
           <td>{{ order.orderStatus }}</td>
           <td>
             <select v-model="order.newStatus">
-              <!-- 根據當前訂單狀態來顯示下拉選項 -->
               <option v-if="order.orderStatus === '已付款'" value="備貨中">備貨中</option>
               <option v-if="order.orderStatus === '備貨中'" value="出貨中">出貨中</option>
               <option v-if="order.orderStatus === '出貨中'" value="已到貨">已到貨</option>
@@ -32,41 +43,28 @@
 </template>
 
 <script>
-import axios from 'axios'; // 引用 axios
-
-// 假設 apiUrl 是一個全域變數或是從 .env 檔案取得
+import axios from 'axios';
 const apiUrl = import.meta.env.VITE_API_URL;
 
 export default {
   data() {
     return {
-      orders: [], // 儲存所有訂單
+      orders: [],
+      selectedOrder: null, // Store the currently selected order for viewing details
     };
   },
   methods: {
-    // 取得所有訂單資料
     async fetchOrders() {
       try {
-        const response = await axios.get(`${apiUrl}/orders/admin`); // 使用 axios 發送請求
+        const response = await axios.get(`${apiUrl}/orders/admin`);
         this.orders = response.data.map(order => ({
           ...order,
-          newStatus: order.orderStatus, // 預設選擇當前狀態
+          newStatus: order.orderStatus,
         }));
-        // 根據訂單狀態自動選定下一步狀態
-        this.orders.forEach(order => {
-          if (order.orderStatus === "已付款") {
-            order.newStatus = "備貨中";
-          } else if (order.orderStatus === "備貨中") {
-            order.newStatus = "出貨中";
-          } else if (order.orderStatus === "出貨中") {
-            order.newStatus = "已到貨";
-          }
-        });
       } catch (error) {
         console.error("獲取訂單資料失敗:", error);
       }
     },
-    // 更新訂單狀態
     async updateStatus(order) {
       try {
         const response = await axios.put(`${apiUrl}/orders/${order.orderId}`, {
@@ -74,7 +72,7 @@ export default {
         });
         if (response.status === 200) {
           alert("狀態更新成功");
-          this.fetchOrders(); // 更新訂單列表
+          this.fetchOrders();
         } else {
           alert("狀態更新失敗");
         }
@@ -83,34 +81,35 @@ export default {
         alert("狀態更新失敗");
       }
     },
-    // 判斷按鈕是否可用
     isUpdateDisabled(order) {
-      // 如果訂單狀態是「已到貨」，則禁用按鈕
-      if (order.orderStatus === '已到貨') {
-        return true;
-      }
-      if (order.orderStatus === '已付款' && order.newStatus !== '備貨中') {
-        return true;
-      }
-      if (order.orderStatus === '備貨中' && order.newStatus !== '出貨中') {
-        return true;
-      }
-      if (order.orderStatus === '出貨中' && order.newStatus !== '已到貨') {
-        return true;
-      }
+      if (order.orderStatus === '已到貨') return true;
+      if (order.orderStatus === '已付款' && order.newStatus !== '備貨中') return true;
+      if (order.orderStatus === '備貨中' && order.newStatus !== '出貨中') return true;
+      if (order.orderStatus === '出貨中' && order.newStatus !== '已到貨') return true;
       return false;
     },
+    viewDetails(order) {
+      this.selectedOrder = this.selectedOrder === order ? null : order;
+    },
+    getStatusClass(status) {
+      return {
+        'status-paid': status === '已付款',
+        'status-processing': status === '備貨中',
+        'status-shipped': status === '出貨中',
+        'status-delivered': status === '已到貨'
+      };
+    }
   },
   mounted() {
-    this.fetchOrders(); // 初始載入訂單資料
+    this.fetchOrders();
   },
 };
 </script>
 
 <style scoped>
 .order-row {
-  background-color: white; /* 每一行背景為白色 */
-  border-bottom: 1px solid #ddd; /* 增加行間分隔線 */
+  background-color: white;
+  border-bottom: 1px solid #ddd;
 }
 
 table {
@@ -131,4 +130,23 @@ button {
   padding: 5px 10px;
   margin-left: 5px;
 }
+
+.order-details {
+  position: absolute;
+  top: 0;
+  right: 100%; /* This makes it appear on the left side */
+  margin-right: 10px;
+  background-color: white;
+  border: 1px solid #ddd;
+  padding: 10px;
+  width: 200px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  font-size: 12px;
+}
+
+.status-paid { color: blue; }
+.status-processing { color: orange; }
+.status-shipped { color: green; }
+.status-delivered { color: gray; }
 </style>
