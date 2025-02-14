@@ -86,9 +86,21 @@ const routes = [
     path: "/admin", component: AdminManagement, name: "adminManagement-link", meta: { hideNavbar: true }, children: [
       { path: "rescueCase", component: RescueManagement },
       { path: "rescueAnalysis", component: RescueAnalysis },
-
+      { path: "categories", component: ShopManagement },
+      { path: "products", component: ProductManagement },
+      { path: "notifications", component: Notifications },
+      { path: "orders", component: Ordersrders },
     ],
   },
+
+  //商城頁面
+  {
+    path: "/shop",
+    component: ShopLayout, meta: { hideNavbar: true }, // ✅ 隱藏通用導覽列
+    children: [...shopRoutes] // ✅ 正確展開商城子路由
+  },
+  { path: "/productForm", component: ProductForm }
+
 ];
 
 const router = createRouter({
@@ -116,6 +128,8 @@ router.beforeEach(async (to, from, next) => {
     '/lost',
     '/pet/lost/member',
     "/admin",
+    "/shop",
+    "/shop/product",
 
   ];  // 不需要驗證的路由
 
