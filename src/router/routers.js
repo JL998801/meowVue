@@ -54,7 +54,7 @@ const routes = [
   //卓穎頁面
   { path: "/pets/lostform", component: LostForm, name: "pets-LostForm-link" },
   { path: "/pets/reportform", component: ReportForm, name: "pets-ReportForm-link" },
-  { path: "/pet/lostCase", component: LostCase, name: "pet-lostCase-link", props: true },
+  { path: "/pet/lostCase/:id", component: LostCase, name: "pet-lostCase-link", props: true },
 
   //冠儒頁面
   // { path: "/pet/rescue/search", component: RescueSearch, name: "pet-rescueSearch-link" },
@@ -113,10 +113,10 @@ route.beforeEach(async (to, from, next) => {
 
   //用來判斷救援案件頁面路徑，需要是公開
   const isRescueCaseDetail = to.path.startsWith("/pet/rescueCase/") && to.path.split("/").length === 4;
-
+  const isLostCaseDetail = to.path.startsWith("/pet/lostCase/") && to.path.split("/").length === 4;
 
   // 需要驗證的路由，startsWith會包括上述路由所有/**`，some() 會逐個檢查 publicPages 陣列中的每個元素，確保 只要前綴匹配就視為公開頁面
-  const authRequired = !publicPages.includes(to.path) && !isRescueCaseDetail;
+  const authRequired = !publicPages.includes(to.path) && !isRescueCaseDetail && !isLostCaseDetail;
 
 
 

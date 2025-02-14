@@ -14,9 +14,6 @@
                             <router-link :to="`/pet/lostCase/edit/${lostCase.lostCaseId}`" class="router-link">
                                 <button @click="editCase">編輯案件</button>
                             </router-link>
-                            <router-link :to="`/pet/lostCase/update/${lostCase.lostCaseId}`" class="router-link">
-                                <button @click="updateProgress">進度更新</button>
-                            </router-link>
                         </div>
                         <div v-else>
                             <button>通知失主</button>
@@ -36,7 +33,7 @@
 
                     <div class="sidebar">
                         <div class="support-button">
-                            <RouterLink to="/pet/lost/add" class="button-link">
+                            <RouterLink to="/pet/lostform" class="button-link">
                                 新增遺失通報
                             </RouterLink>
                         </div>
@@ -62,28 +59,6 @@ const route = useRoute();
 const lostCase = ref({});
 const userStore = useUserStore(); // 取得 Pinia 狀態
 
-// 保存案件進度數據
-const lostProgressList = ref([]);
-
-// 從後端獲取案件進度數據
-const fetchLostProgress = async () => {
-    try {
-        const caseId = route.params.id;  
-        const response = await axios.get(
-        `${baseUrl}/LostCase/lostProgress/${caseId}`
-        );
-
-        //打進救援進度結果
-        console.log(response.data);
-
-        // 將返回的數據存入 lostProgressList
-        lostProgressList.value = response.data;
-    } catch (error) {
-        console.error("獲取案件進度數據失敗:", error);
-    }
-};
-
-
 // 獲取當前登入的 memberId，進而決定是否顯示案件編輯
 const userMemberId = computed(() => {
     console.log("從pinia抓到memberId", userStore.memberId);
@@ -99,11 +74,6 @@ const userMemberId = computed(() => {
     // 編輯案件功能
     const editCase = () => {
     console.log("進入編輯模式");
-};
-
-// 進度更新功能
-const updateProgress = () => {
-    console.log("進入進度更新模式");
 };
 
 

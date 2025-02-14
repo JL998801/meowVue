@@ -2,11 +2,31 @@
   <div class="lost-content">
     <div class="title-container">
       <font-awesome-icon icon="fa-solid fa-paw" class="paw-icon" />
+      <h3>特徵描述</h3>
+    </div>
+    <div>
+      <p>
+        {{ lostReason.featureDescription }}
+      </p>
+    </div>
+    <hr>
+    <div class="title-container">
+      <font-awesome-icon icon="fa-solid fa-paw" class="paw-icon" />
       <h3>走失經過</h3>
     </div>
     <div>
       <p>
-        {{ lostReason.lostReason }}
+        {{ lostReason.lostExperience }}
+      </p>
+    </div>
+    <hr>
+    <div class="title-container">
+      <font-awesome-icon icon="fa-solid fa-paw" class="paw-icon" />
+      <h3>聯絡資訊</h3>
+    </div>
+    <div>
+      <p>
+        {{ lostReason.contactInformation }}
       </p>
     </div>
   </div>

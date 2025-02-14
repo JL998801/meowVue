@@ -87,16 +87,12 @@
       <div class="form-group">
         <label for="microChipNumber">晶片號碼：</label>
         <input
-          type="text"
-          id="microChipNumber"
-          v-model="microChipNumber"
+          v-model="form.microChipNumber" 
           @input="validateMicroChipNumber"
-          placeholder="請輸入10位數字"
+          type="text" 
+          placeholder="請輸入晶片號碼"
         />
-        <p
-          v-if="microChipNumber.length !== 10 && microChipNumber.length > 0"
-          style="color: red"
-        >
+        <p v-if="form.microChipNumber && form.microChipNumber.toString().length !== 10" style="color: red">
           晶片號碼必須為 10 位數字
         </p>
       </div>
@@ -132,7 +128,7 @@
       <!-- 走失地點 -->
       <div class="form-group">
         <label>詳細地址：</label>
-        <input v-model="form.street" type="text" />
+        <input v-model="form.street" type="text" placeholder="請輸入街道名稱" />
       </div>
 
       <!-- 走失經過 -->
@@ -175,7 +171,7 @@ import axiosapi from "@/plugins/axios.js";
 import { useRouter } from "vue-router";
 import ImageUpload from "./ImageUpload.vue";
 
-const router = useRouter();
+// const router = useRouter();
 
 // **檢查是否已登入**
 // const checkLogin = () => {
@@ -199,7 +195,7 @@ const form = ref({
   gender: "",
   sterilization: "",
   age: null,
-  microChipNumber: null,
+  microChipNumber: "",
   cityId: "",
   districtAreaId: "",
   street: "",
@@ -274,12 +270,12 @@ watch(
   }
 );
 
-// 定義 microChipNumber
-const microChipNumber = ref("");
-
-// 限制輸入只能是 10 位數字
+//晶片長度檢測
 const validateMicroChipNumber = () => {
-  microChipNumber.value = microChipNumber.value.replace(/\D/g, "").slice(0, 10);
+  // 確保 microChipNumber 只能是 10 位數字
+  if (form.microChipNumber) {
+    form.microChipNumber = parseInt(form.microChipNumber.toString().replace(/\D/g, "").slice(0, 10), 10);
+  }
 };
 
 // **圖片預覽**
@@ -323,6 +319,7 @@ const submitForm = async () => {
     });
 
     alert("案件已成功提交！");
+    console.log("📌 microChipNumber 類型:", typeof form.value.microChipNumber);
     console.log("✅ 回應資料：", response.data);
   } catch (error) {
     console.error(

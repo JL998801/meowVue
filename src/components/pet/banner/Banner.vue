@@ -43,21 +43,21 @@ import axiosapi from "@/plugins/axios.js";
 const caseCategories = ref([
     { title: "流浪救援", type: "RESCUE", moreLink: "/rescue" },
     { title: "遺失協尋", type: "LOST", moreLink: "/lost" },
-    { title: "動物認養", type: "ADOPT", moreLink: "/adopt" }
+    { title: "動物認養", type: "ADOPTION", moreLink: "/adopt" }
 ]);
 
 // **存儲所有案件**
 const cases = ref({
     RESCUE: [],
     LOST: [],
-    ADOPT: []
+    ADOPTION: []
 });
 
 // **當前顯示的 5 個最新案件**
 const displayedCases = ref({
     RESCUE: [],
     LOST: [],
-    ADOPT: []
+    ADOPTION: []
 });
 
 // **獲取 Banner 資料**
@@ -78,7 +78,9 @@ const fetchBannerData = async () => {
         const processBanner = (banner) => ({
             bannerId: banner.bannerId, // ✅ `bannerId` 作為唯一標識
             caseTitle: banner.caseTitle || "未知標題", 
-            imageUrl: banner.pictureUrl || "/images/default.png", // ✅ 確保圖片可用
+            imageUrl: banner.pictureUrl  
+            ? `${axiosapi.defaults.baseURL}${banner.pictureUrl.replace("C:/upload", "/upload")}`
+            : "/images/default.png", // ✅ 確保圖片可用
             type: banner.bannerType,
             lostCaseId: banner.lostCaseId || null,
             rescueCaseId: banner.rescueCaseId || null,
@@ -88,12 +90,12 @@ const fetchBannerData = async () => {
         // **分類案件**
         cases.value.LOST = banners.filter(b => b.bannerType === "LOST").map(processBanner);
         cases.value.RESCUE = banners.filter(b => b.bannerType === "RESCUE").map(processBanner);
-        cases.value.ADOPT = banners.filter(b => b.bannerType === "ADOPT").map(processBanner);
+        cases.value.ADOPTION = banners.filter(b => b.bannerType === "ADOPTION").map(processBanner);
 
         // **只顯示最新的 5 筆案件**
         displayedCases.value.LOST = [...cases.value.LOST.slice(0, 5)];
         displayedCases.value.RESCUE = [...cases.value.RESCUE.slice(0, 5)];
-        displayedCases.value.ADOPT = [...cases.value.ADOPT.slice(0, 5)];
+        displayedCases.value.ADOPTION = [...cases.value.ADOPTION.slice(0, 5)];
 
         console.log("🔍 最新案件:", displayedCases.value);
     } catch (error) {
@@ -102,42 +104,38 @@ const fetchBannerData = async () => {
 };
 
 // **點擊 Banner，導向對應的案件詳情頁**
-const goToCaseDetail = (banner) => {
-    if (!banner) {
-        console.warn("⚠️ Banner 數據為空，無法跳轉");
+const goToCaseDetail = async (banner) => {
+    if (!banner || !banner.bannerId) {
+        console.warn("⚠️ 缺少 Banner ID，無法跳轉:", banner);
         return;
     }
 
-    let targetUrl = "";
+    try {
+        // **透過 bannerId 查詢對應的案件**
+        const response = await axiosapi.get(`/banners/${banner.bannerId}`);
+        const caseData = response.data;
 
-    if (banner.type === "LOST") {
-        if (banner.lostCaseId) {
-            targetUrl = `/pet/lostCase/${banner.lostCaseId}`;
+        let targetUrl = "";
+
+        if (banner.type === "LOST" && caseData.lostCaseId) {
+            targetUrl = `/pet/lostCase/${caseData.lostCaseId}`;
+        } else if (banner.type === "RESCUE" && caseData.rescueCaseId) {
+            targetUrl = `/pet/rescueCase/${caseData.rescueCaseId}`;
+        } else if (banner.type === "ADOPTIONION" && caseData.adoptionCaseId) {
+            targetUrl = `/pet/adoptCase/${caseData.adoptionCaseId}`;
         } else {
-            alert("⚠️ 這則遺失協尋沒有對應的案件 ID");
+            alert("⚠️ 這則 Banner 沒有對應的案件 ID");
             return;
         }
-    } else if (banner.type === "RESCUE") {
-        if (banner.rescueCaseId) {
-            targetUrl = `/pet/rescueCase/${banner.rescueCaseId}`;
-        } else {
-            alert("⚠️ 這則流浪救援沒有對應的案件 ID");
-            return;
-        }
-    } else if (banner.type === "ADOPT") {
-        if (banner.adoptionCaseId) {
-            targetUrl = `/pet/adoptCase/${banner.adoptionCaseId}`;
-        } else {
-            alert("⚠️ 這則動物認養沒有對應的案件 ID");
-            return;
-        }
-    } else {
-        console.warn("⚠️ 無對應的案件類型", banner);
-        return;
+
+        // **成功獲取案件後跳轉**
+        window.location.href = targetUrl;
+    } catch (error) {
+        console.error("❌ 查詢案件失敗:", error);
+        alert("⚠️ 無法取得對應案件，請稍後再試");
     }
-
-    window.location.href = targetUrl;
 };
+
 
 // **自動輪播**
 const startAutoSlide = () => {
@@ -175,7 +173,7 @@ onMounted(async () => {
 <style scoped>
 /* 設置輪播器最大寬度以及內容寬度 */
 .carousel-container {
-    max-width: 1250px;
+    max-width: 1280px;
     margin: auto;
     padding: 20px;
 }
@@ -234,7 +232,7 @@ onMounted(async () => {
     display: flex;
     position: relative;  /* 讓內部的 .nav-button 可以定位 */
     flex-wrap: nowrap; /* 保持橫向排列 */
-    overflow-x: hidden; /* 允許水平滾動 */
+    overflow: hidden; /* 允許水平滾動 */
     gap: 10px; /* 控制每個項目之間的間距 */
     scroll-behavior: smooth;
     padding: 10px 0; /* 縮小垂直間距 */
@@ -250,11 +248,11 @@ onMounted(async () => {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: 18px;
+    width: 220px;
      /* 設定固定寬度 */
     min-width: 180px; 
     /* 確保不會縮小 */
-    height: 250px;
+    height: 300px;
     text-align: center;
     border-radius: 10px;
     background: #fff;
@@ -263,6 +261,11 @@ onMounted(async () => {
     margin: 0;
     flex: 0 0 auto; 
     /* 讓每個 item 佔據適當的寬度 */
+}
+
+/* ✅ 滑鼠懸停時放大效果 */
+.carousel-item:hover {
+    transform: scale(1.1);
 }
 
 /* 案件圖片格式 */
@@ -275,10 +278,11 @@ onMounted(async () => {
 
 /* 案件標題文字格式 */
 .case-title {
-    font-size: 14px;
-    margin-top: 5px;
+    font-size: 16px;
+    margin-top: 10px;
     overflow: hidden;
     text-overflow: ellipsis;
+    font-weight: bold;
 }
 
 /* 輪播器左右按鈕 */

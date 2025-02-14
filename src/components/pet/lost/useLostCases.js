@@ -17,9 +17,9 @@ export default function useLostCases(memberId) {
     // }, { immediate: true });
 
     // **🚀 Debug: 監聽 losts**
-    watch(losts, (newLosts) => {
-        console.log("🐛 Debug - `losts` 更新:", newLosts);
-    });
+    // watch(losts, (newLosts) => {
+    //     console.log("🐛 Debug - `losts` 更新:", newLosts);
+    // });
 
     // **🚀 Debug: 監聽 isLoading**
     watch(isLoading, (newStatus) => {
@@ -76,15 +76,23 @@ export default function useLostCases(memberId) {
         updatePage(page);
     };
 
-    // **🔍 取得單筆案件**
+    //取得單比案件資訊
     const fetchLostCaseById = async (lostCaseId) => {
         try {
+            console.log("🚀 發送 API 請求，案件 ID:", lostCaseId);
             const response = await LostCaseAPI.getLostCaseById(lostCaseId);
-            console.log("📌 Debug - 單筆案件回應:", response.data);
+
+            console.log("✅ API 回應:", response.data);
+
+            if (!response.data || Object.keys(response.data).length === 0) {
+                console.warn("⚠️ API 回傳為空，確保後端有正確返回數據");
+                return null; // 返回 null 避免 undefined
+            }
+
             return response.data;
         } catch (err) {
-            console.error("❌ Debug - 查詢案件失敗:", err);
-            throw new Error("查詢案件失敗");
+            console.error("❌ API 查詢失敗:", err);
+            return null; // API 失敗時回傳 null
         }
     };
 
