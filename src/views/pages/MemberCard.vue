@@ -57,14 +57,14 @@ const address = ref('');
 const phone = ref('');
 const notifyExchange = ref('啟用');
 const notifyEvent = ref('啟用');
-
+const baseUrl = import.meta.env.VITE_API_URL;
 // Fetch member data
 const fetchMemberData = async () => {
   const memberId = localStorage.getItem('memberId');
   
   if (memberId) {
     try {
-      const response = await fetch(`http://localhost:8080/api/members/${memberId}`);
+      const response = await fetch(`${baseUrl}/api/members/${memberId}`); 
       
       if (!response.ok) {
         throw new Error('無法載入資料');
@@ -134,7 +134,7 @@ const submitForm = async () => {
   console.log(updatedMember);  // Check the data being sent
 
   try {
-    const response = await fetch(`http://localhost:8080/api/members/${memberId}`, {
+    const response = await fetch(`${baseUrl}/api/members/${memberId}`,  {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',

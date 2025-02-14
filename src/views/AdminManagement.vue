@@ -65,32 +65,37 @@
   </div>
 </template>
 
-<script>
-import axiosapi from '@/plugins/axios.js';
+<script setup>
+import { ref, onMounted } from 'vue';
 import Swal from 'sweetalert2';
+import axios from 'axios';
 
-export default {
-  name: "memberManagement",
-  data() {
-    return {
-      members: [],  // 存儲會員資料
-      searchQuery: '',  // 搜索關鍵字
-    };
+const baseUrl = import.meta.env.VITE_API_URL;
+const members = ref([]);  // 存儲會員資料
+const searchQuery = ref('');  // 搜索關鍵字
+
+
+// 設定axios的基本URL
+const axiosInstance = axios.create({
+  baseURL: baseUrl,  // 使用環境變數設置 baseURL
+  headers: {
+    'Content-Type': 'application/json',
   },
-  methods: {
-    // 獲取所有會員資料
-    async fetchmembers() {
-      try {
-        const response = await axiosapi.get('/api/members');
-        console.log("Fetched members:", response.data); // 確認資料結構
-        this.members = response.data; // 設定 Vue 的 members 陣列
-      } catch (error) {
-        console.error("Error fetching members:", error); // 捕獲並顯示錯誤
-      }
-    },
+});
 
-  // 編輯會員
-async editMember(memberId) {
+// 獲取所有會員資料
+const fetchmembers = async () => {
+  try {
+    const response = await axiosInstance.get('/api/members');
+    console.log("Fetched members:", response.data); // 確認資料結構
+    members.value = response.data; // 設定 Vue 的 members 陣列
+  } catch (error) {
+    console.error("Error fetching members:", error); // 捕獲並顯示錯誤
+  }
+};
+
+// 編輯會員
+const editMember = async (memberId) => {
   try {
     // 確保傳入的 memberId 是有效的
     if (!memberId) {
@@ -100,7 +105,7 @@ async editMember(memberId) {
     }
 
     // 獲取會員的詳細資料
-    const response = await axiosapi.get(`/api/members/${memberId}`);
+    const response = await axiosInstance.get(`/api/members/${memberId}`); 
     const member = response.data;
 
     // 顯示編輯表單，並回填會員資料
@@ -130,18 +135,17 @@ async editMember(memberId) {
 
     // 如果點擊確認按鈕並且填寫了資料，則進行編輯
     if (isConfirmed && editedMemberData) {
-      this.updateMember(memberId, editedMemberData);
+      updateMember(memberId, editedMemberData);
     }
   } catch (error) {
     console.error("Error editing member:", error);
     Swal.fire('錯誤', '無法獲取會員資料', 'error');
   }
-},
+};
 
 // 更新會員資料
-async updateMember(memberId, updatedData) {
+const updateMember = async (memberId, updatedData) => {
   try {
-    // 準備傳遞的資料
     const memberData = {
       email: updatedData.email,
       nickName: updatedData.nickName,
@@ -151,38 +155,34 @@ async updateMember(memberId, updatedData) {
       address: updatedData.address
     };
 
-    // 發送更新會員資料請求
-    const response = await axiosapi.put(`/api/members/${memberId}`, memberData);
+    const response = await axiosInstance.put(`/api/members/${memberId}`, memberData);
 
-    // 成功後顯示提示並更新會員列表
     Swal.fire('修改成功！', '會員資料已成功更新。', 'success');
-    this.fetchmembers(); // 重新載入會員列表
+    fetchmembers(); // 重新載入會員列表
   } catch (error) {
     console.error('Error updating member:', error);
     Swal.fire('修改失敗', '請稍後再試。', 'error');
   }
-},
+};
 
+// 根據搜尋關鍵字過濾會員資料
+const searchmembers = async () => {
+  if (searchQuery.value) {
+    try {
+      const response = await axiosInstance.get('/api/members', {
+        params: { search: searchQuery.value }
+      });
+      members.value = response.data;
+    } catch (error) {
+      console.error("Error searching members:", error);
+    }
+  } else {
+    fetchmembers();  // 沒有搜尋關鍵字時，重新獲取所有資料
+  }
+};
 
-    // 根據搜尋關鍵字過濾會員資料
-    async searchmembers() {
-      if (this.searchQuery) {
-        try {
-          // 發送帶有搜尋參數的請求
-          const response = await axiosapi.get('/api/members', {
-            params: { search: this.searchQuery }
-          });
-          this.members = response.data;
-        } catch (error) {
-          console.error("Error searching members:", error);
-        }
-      } else {
-        this.fetchmembers();  // 沒有搜尋關鍵字時，重新獲取所有資料
-      }
-    },
-
-   // 顯示新增會員的 SweetAlert2 表單
-async showAddMemberModal() {
+// 顯示新增會員的 SweetAlert2 表單
+const showAddMemberModal = async () => {
   const { value: newMemberData, isConfirmed } = await Swal.fire({
     title: '新增會員',
     html: `
@@ -211,24 +211,19 @@ async showAddMemberModal() {
     }
   });
 
-  // 如果點擊確認按鈕並且填寫了資料，則進行新增
   if (isConfirmed && newMemberData) {
-    this.addMember(newMemberData);
+    addMember(newMemberData);
   }
-},
+};
 
-   // 新增會員
-async addMember(newMemberData) {
-  console.log('Adding new member with data:', newMemberData);
-
-  // 檢查是否所有必要的欄位都已經填寫
+// 新增會員
+const addMember = async (newMemberData) => {
   if (!newMemberData || !newMemberData.nickName || !newMemberData.email || !newMemberData.password) {
     Swal.fire('錯誤', '請填寫完整的會員資料', 'error');
     return;
   }
 
   try {
-    // 顯示確認新增會員的提示框
     const result = await Swal.fire({
       title: '確認新增會員？',
       text: '請確認新增此會員資料。',
@@ -241,167 +236,158 @@ async addMember(newMemberData) {
     });
 
     if (result.isConfirmed) {
-      // 準備傳遞的資料
       const memberData = {
         nickName: newMemberData.nickName,
         password: newMemberData.password,
-        name: newMemberData.fullName, // 修改為fullName對應到name
+        name: newMemberData.fullName,
         email: newMemberData.email,
         phone: newMemberData.phone,
         address: newMemberData.address,
         birthday: newMemberData.birthday
       };
 
-      // 發送新增會員資料請求
-      const response = await axiosapi.post('http://localhost:8080/api/members', memberData);
+      const response = await axiosInstance.post(`/api/members`, memberData);  
 
-      // 成功後顯示提示並更新會員列表
       Swal.fire('新增成功！', '會員已成功新增。', 'success');
-      this.fetchmembers(); // 重新載入會員列表
+      fetchmembers(); // 重新載入會員列表
     }
   } catch (error) {
-    // 出現錯誤時顯示錯誤提示
     console.error('Error adding member:', error);
     Swal.fire('新增失敗', '請稍後再試。', 'error');
   }
-},
+};
 
-    // 刪除會員
-    async deleteMember(memberId) {
-      console.log('Deleting member with ID:', memberId); // 確認 memberId 是否正確
-      if (!memberId) {
-        Swal.fire('錯誤', '會員 ID 無效', 'error');
-        return;
-      }
-      try {
-        const result = await Swal.fire({
-          title: '您確定要刪除此會員嗎？',
-          text: '此操作將永久刪除此會員！',
-          icon: 'warning',
-          showCancelButton: true,
-          confirmButtonColor: '#3085d6',
-          cancelButtonColor: '#d33',
-          confirmButtonText: '是的，刪除！',
-          cancelButtonText: '取消'
-        });
-        if (result.isConfirmed) {
-          await axiosapi.delete(`/api/members/${memberId}`);
-          Swal.fire('刪除成功！', '會員已被刪除。', 'success');
-          this.fetchmembers(); // 重新獲取會員列表
-        }
-      } catch (error) {
-        console.error('Error deleting member:', error);
-        Swal.fire('刪除失敗', '請稍後再試。', 'error');
-      }
-    },
+// 刪除會員
+const deleteMember = async (memberId) => {
+  if (!memberId) {
+    Swal.fire('錯誤', '會員 ID 無效', 'error');
+    return;
+  }
 
-  
-  },
-  mounted() {
-    // 頁面加載時自動獲取會員資料
-    this.fetchmembers();
+  try {
+    const result = await Swal.fire({
+      title: '您確定要刪除此會員嗎？',
+      text: '此操作將永久刪除此會員！',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: '是的，刪除！',
+      cancelButtonText: '取消'
+    });
+
+    if (result.isConfirmed) {
+      await axiosInstance.delete(`/api/members/${memberId}`);  
+      Swal.fire('刪除成功！', '會員已被刪除。', 'success');
+      fetchmembers(); // 重新獲取會員列表
+    }
+  } catch (error) {
+    console.error('Error deleting member:', error);
+    Swal.fire('刪除失敗', '請稍後再試。', 'error');
   }
 };
+
+onMounted(() => {
+  fetchmembers();
+});
 </script>
 
-  
-  <style scoped>
-  body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f5f5f5;
-  }
-  
-  .sidebar {
-    width: 240px;
-    background-color: #0d2741;
-    color: #fff;
-    position: fixed;
-    height: 100%;
-    padding: 20px 10px;
-  }
-  
-  .sidebar h2 {
-    font-size: 20px;
-    margin-bottom: 20px;
-  }
-  
-  .sidebar a {
-    display: block;
-    color: #fff;
-    text-decoration: none;
-    margin: 10px 0;
-    padding: 10px;
-    border-radius: 4px;
-  }
-  
-  .sidebar a:hover {
-    background-color: #1a456a;
-  }
-  
-  .main-content {
-    margin-left: 240px;
-    padding: 20px;
-  }
-  
-  .main-content .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  .header .title {
-    font-size: 24px;
-    font-weight: bold;
-  }
-  
-  .header .member-info {
-    font-size: 14px;
-  }
-  
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-    background-color: #fff;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  }
-  
-  th,
-  td {
-    padding: 10px;
-    text-align: center;
-    border: 1px solid #ddd;
-  }
-  
-  th {
-    background-color: #f8f8f8;
-  }
-  
-  .pagination {
-    margin: 20px 0;
-    display: flex;
-    justify-content: center;
-    list-style: none;
-    padding: 0;
-  }
-  
-  .pagination li {
-    margin: 0 5px;
-  }
-  
-  .pagination a {
-    text-decoration: none;
-    color: #007bff;
-    padding: 5px 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-  }
-  
-  .pagination a:hover {
-    background-color: #007bff;
-    color: #fff;
-  }
-  </style>
-  
+<style scoped>
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f5f5f5;
+}
+
+.sidebar {
+  width: 240px;
+  background-color: #0d2741;
+  color: #fff;
+  position: fixed;
+  height: 100%;
+  padding: 20px 10px;
+}
+
+.sidebar h2 {
+  font-size: 20px;
+  margin-bottom: 20px;
+}
+
+.sidebar a {
+  display: block;
+  color: #fff;
+  text-decoration: none;
+  margin: 10px 0;
+  padding: 10px;
+  border-radius: 4px;
+}
+
+.sidebar a:hover {
+  background-color: #1a456a;
+}
+
+.main-content {
+  margin-left: 240px;
+  padding: 20px;
+}
+
+.main-content .header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header .title {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.header .member-info {
+  font-size: 14px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background-color: #fff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+th,
+td {
+  padding: 10px;
+  text-align: center;
+  border: 1px solid #ddd;
+}
+
+th {
+  background-color: #f8f8f8;
+}
+
+.pagination {
+  margin: 20px 0;
+  display: flex;
+  justify-content: center;
+  list-style: none;
+  padding: 0;
+}
+
+.pagination li {
+  margin: 0 5px;
+}
+
+.pagination a {
+  text-decoration: none;
+  color: #007bff;
+  padding: 5px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.pagination a:hover {
+  background-color: #007bff;
+  color: #fff;
+}
+</style>

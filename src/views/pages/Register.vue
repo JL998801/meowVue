@@ -57,125 +57,92 @@
   </form>
 </template>
 
-<script>
+<script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 
-export default {
-  setup() {
-    const router = useRouter();
+// Reactive state variables
+const nickName = ref('');
+const email = ref('');
+const password = ref('');
+const confirmPassword = ref('');
+const name = ref('');
+const phone = ref('');
+const birthday = ref('');
+const address = ref('');
+const baseUrl = import.meta.env.VITE_API_URL;
 
-    // 使用 ref 或 reactive 來管理狀態
-    const memberId = ref(null);
-    const nickName = ref('');
-    const email = ref('');
-    const password = ref('');
-    const confirmPassword = ref('');
-    const name = ref('');
-    const phone = ref('');
-    const birthday = ref('');
-    const address = ref('');
+const router = useRouter();
 
-   // 註冊表單提交函數
+// Submit form function
 const submitForm = () => {
-  // 驗證密碼是否一致
+  // 密碼一致性驗證
   if (password.value !== confirmPassword.value) {
-    alert("密碼不一致！");
+    alert('密碼不一致！');
     return;
   }
 
-  // 註冊的資料
+  // 註冊資料
   const memberData = {
     nickName: nickName.value,
     email: email.value,
     password: password.value,
     name: name.value,
     phone: phone.value,
-    birthday: birthday.value,  // 使用字串格式的日期
+    birthday: birthday.value,  // 日期格式
     address: address.value
   };
 
   // 註冊 API 請求
-  axios.post('http://localhost:8080/api/register', memberData)
+  axios.post(`${baseUrl}/api/register`, memberData)
     .then(response => {
       alert('註冊成功！');
 
-      // 模擬延遲，讓資料庫有時間處理註冊資料
       setTimeout(() => {
-        // 註冊成功後自動呼叫登入 API
+        // 註冊成功後進行自動登入
         const loginData = {
           email: email.value,
           password: password.value
         };
 
         // 登入 API 請求
-        axios.post('http://localhost:8080/ajax/secure/login', loginData)
+        axios.post(`${baseUrl}/ajax/secure/login`, loginData)
           .then(loginResponse => {
-            console.log('Login response:', loginResponse.data);  // 调试打印返回数据
             const { token, user } = loginResponse.data;
-
             const { memberId, email, nickname } = user;
-            // 儲存登入資訊到 localStorage
-            localStorage.setItem('memberId', memberId); // 儲存 `memberId`
-            localStorage.setItem('email', email); // 儲存 `email`
-            localStorage.setItem('token', token); // 儲存 JWT Token
-            localStorage.setItem("nickname", nickname); // 儲存 `nickname`
 
-            // 設定 authorization header
+            // 儲存登入資訊到 localStorage
+            localStorage.setItem('memberId', memberId);
+            localStorage.setItem('email', email);
+            localStorage.setItem('token', token);
+            localStorage.setItem('nickname', nickname);
+
+            // 設置 HTTP header
             axios.defaults.headers.authorization = "Bearer " + token;
 
             // 跳轉到會員中心
             router.push('/pages/MemberCenter');
           })
           .catch(loginError => {
-            console.log("登入失敗: loginError", loginError);
+            console.log("登入失敗: ", loginError);
             alert('登入失敗: ' + (loginError.response ? loginError.response.data.message : '未知錯誤'));
           });
       }, 1000);  // 延遲 1 秒
     })
     .catch(error => {
-      // 打印完整的錯誤對象，以便調試
       console.error("錯誤詳細信息:", error);
-
-      // 如果錯誤有 response 屬性（例如 HTTP 請求錯誤）
       if (error.response) {
-        // 打印 HTTP 狀態碼
-        console.error("HTTP 狀態碼:", error.response.status);
-
-        // 打印錯誤信息
-        console.error("錯誤訊息:", error.response.data.message || error.response.data);
-
-        // 顯示錯誤訊息給用戶
         alert('註冊失敗: ' + (error.response.data.message || '未知錯誤'));
       } else if (error.request) {
-        // 如果請求發送出去但沒有收到回應
-        console.error("請求沒有收到回應:", error.request);
         alert('註冊失敗: 請求未收到回應');
       } else {
-        // 其他錯誤（例如在設置請求過程中發生錯誤）
-        console.error("發生錯誤:", error.message);
         alert('註冊失敗: ' + error.message);
       }
     });
 };
-
-    // 返回需要在模板中使用的資料和方法
-    return {
-      memberId,
-      nickName,
-      email,
-      password,
-      confirmPassword,
-      name,
-      phone,
-      birthday,
-      address,
-      submitForm
-    };
-  }
-};
 </script>
+
   <style scoped>
 
 .gg {

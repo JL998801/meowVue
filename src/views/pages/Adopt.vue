@@ -38,8 +38,8 @@
 
     <!-- Ad Section -->
     <div class="ad">
-      <button type="submit">新增送養通報</button>
-    </div>
+    <button type="button" @click="goToFormAdopt">新增送養通報</button>
+  </div>
 
     <!-- Search Form -->
     <form @submit.prevent="searchCases">
@@ -67,14 +67,14 @@
                 </select>
               </div>
 
-              <div>
-                <select v-model="district">
-                  <option value="" disabled selected hidden>鄉鎮區</option>
-                  <option v-for="district in districts" :key="district.distinctAreaId" :value="district.distinctAreaName">
-                    {{ district.distinctAreaName }}
-                  </option>
-                </select>
-              </div>
+                        <div>
+            <select v-model="district">
+              <option value="" disabled hidden>鄉鎮區</option>
+              <option v-for="district in districts" :key="district.districtAreaId" :value="district.districtAreaName">
+                {{ district.districtAreaName }}
+              </option>
+            </select>
+          </div>
           </div>
 
           <!-- Filters (Checkboxes) -->
@@ -137,88 +137,92 @@
   </div>
 </template>
 
-  <script>
-  import axios from 'axios';
+<script setup>
+import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import axios from 'axios';
 
-  export default {
-    data() {
-      return {
-        selectedCaseStatement: '',  // 儲存選中的選項
-        caseStatements: [] , // 儲存從後端獲取的案件狀態
-        cityId: '',  // 預設為空，當用戶選擇城市後，這裡會更新
-        district: '',  // 存儲選中的鄉鎮區
-        cities: [],  // 存儲城市數據
-        districts: [] , // 存儲鄉鎮區數據
-        keyword: '',
-        caseId: '',
-        status: '',
-        filters: {
-          cat: false,
-          dog: false,
-          male: false,
-          female: false,
-          neutered: false,
-        },
-        searchResult: {
-          title:"[台南市]三花小貓待送養",
-          image: "cat-example.jpg",
-          caseId: "S17352765407",
-          type: "貓",
-          name: "澎澎",
-          gender: "男",
-          earTipped: "是",
-          location: "新北市樹林區",
-        },
-      };
-    },
-      mounted() {
-      this.fetchCaseStatements();  // 當組件掛載時獲取資料
-      this.fetchCities();
-    },
-    methods: {
-      async fetchCaseStatements() {
-      try {
-        const response = await axios.get('http://localhost:8080/api/casestatement');  // 確保使用正確的後端端口
-        this.caseStatements = response.data;  // 將資料存入 caseStatements
-      } catch (error) {
-        console.error("Error fetching case statements:", error);}
-      },
-      async fetchCities() {
-    try {
-      const response = await fetch("http://localhost:8080/api/cities");
-      const data = await response.json();
-      this.cities = data;  // 保存城市數據
-    } catch (error) {
-      console.error("Error fetching cities:", error);
-    }
-  },
-         // 当选中某个城市时，获取该城市的鄉鎮區
-         async fetchDistricts() {
-    if (this.cityId) {
-      try {
-        console.log("發送請求到 API，城市 ID:", this.cityId);
-        
-        // 根據選中的 cityId 發送請求
-        const response = await fetch(`http://localhost:8080/api/districts/${this.cityId}`);
-        const data = await response.json();
-        
-        console.log("從 API 獲取的鄉鎮區資料:", data);
-        this.districts = data;  // 保存鄉鎮區數據
-      } catch (error) {
-        console.error("Error fetching districts:", error);
-      }
-    } else {
-      this.districts = [];  // 如果沒有選擇城市，清空鄉鎮區
-    }
+const router = useRouter();
+const baseUrl = import.meta.env.VITE_API_URL;
+// 状态数据
+const selectedCaseStatement = ref('');
+const caseStatements = ref([]);
+const cityId = ref('');
+const district = ref('');
+const cities = ref([]);
+const districts = ref([]);
+const keyword = ref('');
+const caseId = ref('');
+const filters = ref({
+  cat: false,
+  dog: false,
+  male: false,
+  female: false,
+  neutered: false,
+});
+const searchResult = ref({
+  title: "[台南市]三花小貓待送養",
+  image: "cat-example.jpg",
+  caseId: "S17352765407",
+  type: "貓",
+  name: "澎澎",
+  gender: "男",
+  earTipped: "是",
+  location: "新北市樹林區",
+});
+
+
+// 获取案件状态
+const fetchCaseStatements = async () => {
+  try {
+    const response = await axios.get(`${baseUrl}/api/casestatement`);  
+    caseStatements.value = response.data;
+  } catch (error) {
+    console.error("Error fetching case statements:", error);
   }
-,
-      
-     
-      reloadPage() {
-        location.reload();  // 重新載入當前頁面
-      },
-    },
-  };
+};
+
+// 获取城市数据
+const fetchCities = async () => {
+  try {
+    const response = await fetch(`${baseUrl}/pet/allCity`);  
+    const data = await response.json();
+    cities.value = data;
+  } catch (error) {
+    console.error("Error fetching cities:", error);
+  }
+};
+
+// 根据城市 ID 获取鄉鎮区
+const fetchDistricts = async () => {
+  if (cityId.value) {
+    try {
+      const response = await fetch(`${baseUrl}/pet/districtAreasByCity/${cityId.value}`); 
+      const data = await response.json();
+      districts.value = data;
+    } catch (error) {
+      console.error("Error fetching districts:", error);
+    }
+  } else {
+    districts.value = [];
+  }
+};
+
+// 跳转到送养表单
+const goToFormAdopt = () => {
+  router.push('/pages/FormAdopt');
+};
+
+// 页面重载
+const reloadPage = () => {
+  location.reload();
+};
+
+// 生命周期钩子
+onMounted(() => {
+  fetchCaseStatements();
+  fetchCities();
+});
 </script>
 
   

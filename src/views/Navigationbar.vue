@@ -17,7 +17,7 @@
                             </li>
                             <li>
                                 <RouterLink class="dropdown-item" to="/adopt">動物認養</RouterLink>
-                                <RouterLink class="dropdown-item" to="/adopt">動物認養</RouterLink>
+                                
                             </li>
                             <li>
                                 <RouterLink class="dropdown-item" to="/pets/products">遺失協尋</RouterLink>
@@ -25,7 +25,7 @@
                         </ul>
                     </li>
                     <li class="nav-item" title="寵物商城">
-                        <RouterLink class="nav-link active" aria-current="page" to="/pages/MemberCard">寵物商城</RouterLink>
+                        <RouterLink class="nav-link active" aria-current="page" to="/pages/FormAdopt">寵物商城</RouterLink>
                     </li>
                     <li class="nav-item" title="救援活動">
                         <RouterLink class="nav-link active" aria-current="page" to="/pages/MemberCenter">救援活動</RouterLink>

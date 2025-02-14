@@ -36,7 +36,7 @@ import Swal from 'sweetalert2';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import useUserStore from '@/stores/user.js';
-
+const baseUrl = import.meta.env.VITE_API_URL;
 const username=ref("")
 const password=ref("")
 const message=ref("")
@@ -62,7 +62,7 @@ async function login() {
   userStore.setEmail("");
 
   try {
-    const response = await axiosapi.post("/secure/loginadmin", body);
+    const response = await axiosapi.post(`${baseUrl}/secure/loginadmin`, body);
     console.log("response", response);
 
     if (response.data.success) {
