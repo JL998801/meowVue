@@ -41,17 +41,22 @@ const isShopRoute = computed(() => route.path.startsWith("/shop"));
 </template>
 
 <style scoped>
-/* 🔹 預設 Navbar & Footer 大小 */
-.navbar, .footer {
-  width: 100%;  /* ✅ 保持全寬 */
-  height: 80px; /* ✅ 預設高度 */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: fixed;
-  left: 0;
-  transition: height 0.3s ease-in-out; /* ✅ 只改變高度，動畫順暢 */
-  z-index: 1000;
+/* 全域樣式 */
+.container {
+  background-color: #ffffff;
+  margin: 10px auto;
+}
+
+/* 當 `isFullWidth` 為 true，讓 `.container` 變成全寬而且不要有卷軸 */
+.full-width {
+  padding: 0;
+  margin: 0;
+  width: 100vw;
+  height: 100vh; /* ✅ 讓 `/pet/map` 和 `/advanced-settings` 頁面占滿全畫面 */
+  max-width: 100%;
+  max-height: 100%;
+  overflow: hidden; /* ✅ 隱藏滾動條 */
+  background-image: none !important;
 }
 
 /* 🔹 讓 Navbar 固定在頂部 */
