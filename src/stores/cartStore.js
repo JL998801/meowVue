@@ -7,7 +7,7 @@ export const useCartStore = defineStore("cart", {
     const cartData = localStorage.getItem("cart");
     return {
       cart: cartData && cartData !== "undefined" ? JSON.parse(cartData) : [],
-      memberId: null, // Set to null initially, will fetch from server
+      memberId: 1, // Set to null initially, will fetch from server
       creditCard: "4311-9511-1111-1111", // Example credit card (use real data handling in production)
       shippingAddress: "123 Main St", // Example shipping address (use real address handling in production)
       selectedOrder: null,

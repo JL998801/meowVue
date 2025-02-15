@@ -242,7 +242,6 @@ onMounted(async () => {
   text-align: center;
 }
 
-
 .product-image {
   width: 100px;
   height: 100px;
