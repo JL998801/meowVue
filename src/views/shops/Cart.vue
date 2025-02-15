@@ -140,7 +140,7 @@ const clearCart = async () => {
     try {
       const memberId = cartStore.memberId;
       const cartId = cartStore.cartId; // 使用動態 cartId
-      await axios.delete(`${apiUrl}/pages/cart/clear/${memberId}/${cartId}`);
+      await axios.delete(`${apiUrl}/pages/cart/clear/${memberId}`);
       cartStore.clearCart();
       await cartStore.fetchCartDataFromServer();
     } catch (error) {
@@ -241,7 +241,6 @@ onMounted(async () => {
   align-items: center;
   text-align: center;
 }
-
 
 .product-image {
   width: 100px;

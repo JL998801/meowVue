@@ -49,9 +49,26 @@ onMounted(() => {
   productStore.fetchPagedProducts(); // ✅ 預設取得第一頁數據
 });
 
-// 獲取會員ID
-const getMemberId = () => {
-  return 1; // 假設會員ID為1
+// 獲取會員ID (可以改為從後端獲取)
+const getMemberId = async () => {
+  try {
+    const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/member/getMemberId`); 
+    return response.data.memberId; // 假設後端返回的是 { memberId: <id> }
+  } catch (error) {
+    console.error("獲取會員ID失敗:", error);
+    return null; // 如果獲取失敗，可以回傳 null 或做相應處理
+  }
+};
+
+// 獲取購物車ID (可以改為從後端獲取)
+const getCartId = async () => {
+  try {
+    const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/cart/getCartId`);
+    return response.data.cartId; // 假設後端返回的是 { cartId: <id> }
+  } catch (error) {
+    console.error("獲取購物車ID失敗:", error);
+    return null; // 如果獲取失敗，可以回傳 null 或做相應處理
+  }
 };
 
 // 加入購物車
@@ -60,11 +77,18 @@ const addToCart = async (index) => {
   if (!product) return;
 
   try {
-    const memberId = getMemberId();
+    const memberId = await getMemberId(); // 從後端獲取會員ID
+    const cartId = await getCartId(); // 從後端獲取購物車ID
+    if (!memberId || !cartId) {
+      alert("無法獲取會員或購物車資訊");
+      return;
+    }
+
     const productId = product.productId;
     const quantity = 1;
 
     await axios.post(`${import.meta.env.VITE_API_URL}/pages/cart/add`, {
+      cartId,
       memberId,
       productId,
       quantity,
@@ -84,7 +108,7 @@ const addToWishlist = (product) => {
   alert("商品已加入願望清單！"); //跳出彈窗
 };
 </script>
- 
+
 <template>
     <!-- 🔹 搜尋前: 顯示商品卡片-->
     <div class="shop-home">
@@ -103,7 +127,7 @@ const addToWishlist = (product) => {
       <div class="product-grid" v-if="productStore.products.length > 0">
         <ProductCard
           displayMode="one"
-          v-for="product in productStore.products"
+          v-for="(product, index) in productStore.products"
           :key="product.productId"
           :product="product"
           @add-to-cart="addToCart(index)"
@@ -138,12 +162,10 @@ const addToWishlist = (product) => {
   min-height: 40px; /* ✅ 設定最小高度，避免壓縮過頭 */
 }
 
-/* 讓下拉選單更緊湊 */
 select.form-select {
   max-width: 80px;
 }
 
-/* 商品卡片排版 */
 .product-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -153,7 +175,6 @@ select.form-select {
   width: 100%; /* ✅ 確保內容撐滿畫面 */
 }
 
-/* 分頁控制 */
 .pagination {
   display: flex;
   justify-content: center;
@@ -162,12 +183,12 @@ select.form-select {
 
 .carousel-container {
   display: flex;
-  flex-direction: column; /* 讓每個 Carousel 區塊獨立一行 */
-  gap: 20px; /* 設定間距 */
+  flex-direction: column;
+  gap: 20px;
 }
 
 .carousel-item {
-  width: 100%; /* 讓每個類別區塊佔滿 */
+  width: 100%;
   text-align: center;
 }
 </style>

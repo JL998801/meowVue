@@ -118,13 +118,26 @@ const selectedImage = computed(() =>
     : new URL("@/assets/petLogo.png", import.meta.url).href
 );
 
+// **加入購物車**
+const addToCart = async () => {
+  if (!selectedProduct.value) return;
 
-// **加入購物車功能**
-const addToCart = () => {
-  if (selectedProduct.value) {
-    cartStore.addToCart(selectedProduct.value);
-    console.log(`加入購物車: ${selectedProduct.value.productName}`);
-    alert("商品已加入購物車");
+  try {
+    const memberId = localStorage.getItem("memberId") || 1; // 測試時使用固定 ID
+    const productId = selectedProduct.value.productId;
+    const quantity = 1;
+
+    await axios.post(`${import.meta.env.VITE_API_URL}/pages/cart/add`, {
+      memberId,
+      productId,
+      quantity,
+    });
+
+    cartStore.addToCart({ ...selectedProduct.value, quantity });
+    alert("商品已成功加入購物車");
+  } catch (error) {
+    console.error("加入購物車失敗:", error);
+    alert("加入購物車失敗，請稍後重試");
   }
 };
 

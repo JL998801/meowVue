@@ -26,7 +26,7 @@ const menuItems = [
   { label: "流浪救援管理", link: "/rescue-management" },
   { label: "動物送養管理", link: "/adoption-management" },
   { label: "動物領養管理", link: "/foster-management" },
-  { label: "遺失協尋管理", link: "/lost-management" },
+  { label: "遺失協尋管理", link: "/pet/lost/member" },
   { label: "追蹤案件管理", link: "/follow-management" },
   { label: "違規通報管理", link: "/violation-management" },
 ];
@@ -44,7 +44,7 @@ const logout = () => {
   // 等待頁面跳轉後刷新頁面
   setTimeout(() => {
     window.location.reload(); // 刷新頁面
-  }, 300); // 設置稍微的延遲確保頁面跳轉完成
+  }, 100); // 設置稍微的延遲確保頁面跳轉完成
 };
 </script>
 
