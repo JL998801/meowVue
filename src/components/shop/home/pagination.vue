@@ -1,52 +1,70 @@
 <script setup>
-import { defineProps, defineEmits, computed } from "vue";
+import { defineProps, computed } from "vue";
+import useProductStore from "@/stores/productStore";
 
 const props = defineProps({
-  currentPage: Number,  // 當前頁碼
-  totalPages: Number,   // 總頁數
+  loading: Boolean,    // 是否正在加載
 });
 
-const emit = defineEmits(["update-page"]);
+const productStore = useProductStore();
 
-// ✅ 計算分頁按鈕列表（最多顯示 5 個頁碼，確保體驗良好）
-const pages = computed(() => {
-  let startPage = Math.max(1, props.currentPage - 2);
-  let endPage = Math.min(props.totalPages, startPage + 4);
+// ✅ 計算可見的頁碼 (最多 5 頁)
+const visiblePages = computed(() => {
+  const currentPage = productStore.currentPage;
+  const totalPages = productStore.totalPages;
+  const pages = [];
 
-  if (endPage - startPage < 4) {
-    startPage = Math.max(1, endPage - 4);
+  // 計算開始與結束頁碼
+  let startPage = Math.max(0, currentPage - 2); // 左邊最多 2 頁
+  let endPage = Math.min(totalPages - 1, startPage + 4); // 右邊最多 2 頁
+  
+  // 如果右邊不足 2 頁，則向左補足
+  startPage = Math.max(0, endPage - 4);
+
+  // 產生分頁按鈕
+  for (let i = startPage; i <= endPage; i++) {
+    pages.push(i);
   }
-
-  return Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
+  
+  return pages;
 });
 
-// ✅ 切換頁面
-const changePage = (page) => {
-  if (page >= 1 && page <= props.totalPages) {
-    emit("update-page", page);
+// ✅ 更新頁面
+const updatePage = (page) => {
+  if (page >= 0 && page < productStore.totalPages) {
+    productStore.fetchPagedProducts(page);
   }
 };
+
 </script>
 
 <template>
-  <nav v-if="totalPages > 1" aria-label="商品分頁">
-    <ul class="pagination">
-      <!-- 🔹 上一頁 -->
-      <li class="page-item" :class="{ disabled: currentPage === 1 }">
-        <button class="page-link" @click="changePage(currentPage - 1)">上一頁</button>
-      </li>
+  <div class="pagination">
+    <nav v-if="productStore.totalPages" aria-label="商品分頁">
+      <ul class="pagination">
+        
+        <!-- 上一頁按鈕 -->
+        <li class="page-item" :class="{ disabled: productStore.currentPage === 0 }">
+          <a class="page-link" href="#" @click.prevent="updatePage(productStore.currentPage - 1)" aria-label="上一頁">
+            <span aria-hidden="true">&laquo;</span>
+          </a>
+        </li>
 
-      <!-- 🔹 動態生成頁碼 -->
-      <li v-for="page in pages" :key="page" class="page-item" :class="{ active: page === currentPage }">
-        <button class="page-link" @click="changePage(page)">{{ page }}</button>
-      </li>
+        <!-- 產生分頁按鈕 (最多顯示 5 頁) -->
+        <li v-for="page in visiblePages" :key="page" class="page-item" :class="{ active: page === productStore.currentPage }">
+          <a class="page-link" href="#" @click.prevent="updatePage(page)">{{ page + 1 }}</a>
+        </li>
 
-      <!-- 🔹 下一頁 -->
-      <li class="page-item" :class="{ disabled: currentPage === totalPages }">
-        <button class="page-link" @click="changePage(currentPage + 1)">下一頁</button>
-      </li>
-    </ul>
-  </nav>
+        <!-- 下一頁按鈕 -->
+        <li class="page-item" :class="{ disabled: productStore.currentPage === productStore.totalPages - 1 }">
+          <a class="page-link" href="#" @click.prevent="updatePage(productStore.currentPage + 1)" aria-label="下一頁">
+            <span aria-hidden="true">&raquo;</span>
+          </a>
+        </li>
+      
+      </ul>
+    </nav>
+  </div>
 </template>
 
 <style scoped>
@@ -61,5 +79,33 @@ const changePage = (page) => {
 }
 .page-item .page-link {
   cursor: pointer;
+}
+
+.pagination {
+  display: flex;
+  list-style: none;
+  padding: 0;
+}
+
+.page-item {
+  margin: 0 5px;
+}
+
+.page-link {
+  padding: 8px 12px;
+  text-decoration: none;
+  border: 1px solid #ddd;
+  color: #007bff;
+  border-radius: 5px;
+}
+
+.page-item.disabled .page-link {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+.page-item.active .page-link {
+  background-color: #007bff;
+  color: white;
 }
 </style>

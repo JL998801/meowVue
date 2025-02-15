@@ -1,18 +1,21 @@
 <template>
   <div v-if="selectedProduct">
     <h1>{{ selectedProduct.productName }}</h1>
-    <img 
-      v-if="selectedProduct && selectedProduct.images && selectedProduct.images.length > 0" 
-      :src="selectedProduct.images[0]" 
-      alt="商品圖片" 
-    />
+    <!-- <img v-show="selectedProduct?.images?.length > 0" 
+       :src="selectedProduct.images?.[0]" 
+       alt="商品圖片" /> -->
+    <img v-if="selectedProduct && selectedProduct.   images && selectedProduct.images.length > 0"
+    :src="selectedProduct.images[0]" 
+    alt="商品圖片" />
   </div>
   <div v-else>
     <p>正在載入商品資料...</p>
   </div>
 
   <div class="product-detail-container">
+    <!-- 當 selectedProduct.images 存在時才會執行 v-for，避免 Invalid end tag 問題 -->
     <div class="product-images" v-if="selectedProduct && selectedProduct.images && selectedProduct.images.length > 0">
+      <!-- 左側縮圖列表 -->
       <div class="thumbnail-list">
         <img 
           v-for="(image, index) in selectedProduct.images" 
@@ -80,49 +83,48 @@ import useCartStore from "@/stores/cartStore"; // 使用 Pinia 管理購物車
 
 const route = useRoute();
 const router = useRouter();
-const productStore = useProductStore();
-const cartStore = useCartStore();
 
 const activeTab = ref("description");
-const productId = computed(() => Number(route.params.id));
+const productStore = useProductStore();
+const productId = computed(() => Number(route.params.id)); // 確保為數字型別
 
 const selectedProduct = computed(() => 
   productStore.products.find((product) => product.productId === productId.value) || null
 );
 
+// 測試可刪
+// ✅ 監聽 `productStore.products`，確保 `selectedProduct` 正確更新
 watch(() => productStore.products, (newProducts) => {
   selectedProduct.value = newProducts.find(
     (product) => product.productId === Number(route.params.id)
   ) || null;
+  
+  console.log("更新 selectedProduct:", selectedProduct.value); // ✅ 這裡可以看到 `selectedProduct` 變更
 }, { immediate: true });
 
-// 預設圖片
+console.log("組件加載時 selectedProduct:", selectedProduct.value); // ✅ 這裡可以檢查初始化時的 `selectedProduct`
+
+
+
+// 找到對應的商品:使用 computed()，當 productId 改變時，selectedProduct 會自動更新
+// const selectedProduct = computed(() => 
+//   productStore.products.find((product) => product.productId === productId.value) || { productName: "未知商品", images: [] }
+// );
+
+// **預設 `selectedImage` 為 `selectedProduct.images[0]`，但確保 images 不為空**
 const selectedImage = computed(() => 
   selectedProduct.value && selectedProduct.value.images && selectedProduct.value.images.length > 0
     ? selectedProduct.value.images[0]
     : new URL("@/assets/petLogo.png", import.meta.url).href
 );
 
-// **加入購物車**
-const addToCart = async () => {
-  if (!selectedProduct.value) return;
 
-  try {
-    const memberId = localStorage.getItem("memberId") || 1; // 測試時使用固定 ID
-    const productId = selectedProduct.value.productId;
-    const quantity = 1;
-
-    await axios.post(`${import.meta.env.VITE_API_URL}/pages/cart/add`, {
-      memberId,
-      productId,
-      quantity,
-    });
-
-    cartStore.addToCart({ ...selectedProduct.value, quantity });
-    alert("商品已成功加入購物車");
-  } catch (error) {
-    console.error("加入購物車失敗:", error);
-    alert("加入購物車失敗，請稍後重試");
+// **加入購物車功能**
+const addToCart = () => {
+  if (selectedProduct.value) {
+    cartStore.addToCart(selectedProduct.value);
+    console.log(`加入購物車: ${selectedProduct.value.productName}`);
+    alert("商品已加入購物車");
   }
 };
 
@@ -132,7 +134,7 @@ const goToShopDetail = () => {
 };
 
 // 組件掛載時加載數據
-onMounted(() => {
+onMounted(()=>{
   productStore.fetchProducts();
 });
 </script>

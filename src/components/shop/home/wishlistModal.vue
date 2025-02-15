@@ -3,8 +3,10 @@ import { useWishListStore } from "@/stores/wishlist";
 
 const wishListStore = useWishListStore();
 
-// **載入願望清單**
-wishListStore.fetchWishList();
+// 掛載時載入願望清單**
+onMounted(()=>{
+  wishListStore.fetchWishList();
+});
 
 // **移除願望清單商品**
 const removeFromWishList = (productId) => {

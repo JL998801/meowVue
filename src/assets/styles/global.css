@@ -1,0 +1,23 @@
+:root {
+    --font-stack: apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans TC', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}
+/* "Microsoft JhengHei"微軟正原體 */
+/* -apple-system 和 BlinkMacSystemFont： 對應 Apple 系統（macOS 和 iOS）的默認字體 San Francisco */
+/* Segoe UI：Windows 系統的默認字體 */
+/* Roboto 和 Helvetica Neue： Android 和其他設備常用的無襯線字體 */
+/* Noto Sans：支持多語言的 Google 字體。 */
+/*其他字體（Arial 和 sans-serif）： 作為最後的保險字體，選擇系統默認的無襯線字體。 */
+
+
+/* 藉此設定全站字體以及取消預設邊界大小 */
+body {
+    font-family: var(--font-stack);
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* 只對繁體中文設定 Noto Sans TC */
+:lang(zh-TW) {
+    font-family: "Noto Sans TC", sans-serif;
+  }
