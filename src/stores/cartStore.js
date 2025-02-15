@@ -7,7 +7,7 @@ export const useCartStore = defineStore("cart", {
     const cartData = localStorage.getItem("cart");
     return {
       cart: cartData && cartData !== "undefined" ? JSON.parse(cartData) : [],
-      memberId: 1, // Set to null initially, will fetch from server
+      memberId: 1, // Default member ID, can be changed later based on user login
       creditCard: "4311-9511-1111-1111", // Example credit card (use real data handling in production)
       shippingAddress: "123 Main St", // Example shipping address (use real address handling in production)
       selectedOrder: null,
@@ -82,7 +82,7 @@ export const useCartStore = defineStore("cart", {
     // Sync cart data with the server
     async syncCartWithServer() {
       try {
-        if (this.cart.length > 0 && this.memberId) {
+        if (this.cart.length > 0) {
           const cartData = this.cart.map((item) => ({
             cartId: item.cartId,
             quantity: item.quantity,
@@ -90,7 +90,7 @@ export const useCartStore = defineStore("cart", {
             productId: item.productId,
             productName: item.productName,
           }));
-          await axios.put(`${this.apiUrl}/pages/cart/update/${this.memberId}`, cartData); // Use memberId in the URL
+          await axios.put(`${this.apiUrl}/pages/cart/update`, cartData); // Use environment variable for API URL
         }
       } catch (error) {
         console.error("Failed to sync cart with server:", error); // Handle sync error
@@ -100,8 +100,7 @@ export const useCartStore = defineStore("cart", {
     // Fetch cart data from the server (use memberId to fetch personalized cart)
     async fetchCartDataFromServer() {
       try {
-        // Fetch memberId from server or local storage (adjust as necessary)
-        const response = await axios.get(`${this.apiUrl}/pages/cart/list/${this.memberId}`);
+        const response = await axios.get(`${this.apiUrl}/pages/cart/list/${this.memberId}`); // Use environment variable for API URL
         if (response.data) {
           const updatedCart = response.data.map((item) => ({
             ...item,
@@ -115,21 +114,6 @@ export const useCartStore = defineStore("cart", {
       } catch (error) {
         console.error("Failed to fetch cart data from server:", error);
         this.clearCart(); // Clear cart on error
-      }
-    },
-
-    // Fetch memberId from backend or session storage
-    async fetchMemberId() {
-      try {
-        const response = await axios.get(`${this.apiUrl}/pages/member/getId`); // Assuming there's an endpoint to get memberId
-        if (response.data && response.data.memberId) {
-          this.memberId = response.data.memberId; // Update memberId from server response
-          this.fetchCartDataFromServer(); // After getting memberId, fetch the cart data
-        } else {
-          console.error("Failed to fetch member ID");
-        }
-      } catch (error) {
-        console.error("Error fetching member ID:", error);
       }
     },
 
