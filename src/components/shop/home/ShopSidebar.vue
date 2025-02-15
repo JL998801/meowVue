@@ -1,54 +1,3 @@
-<script setup>
-import { ref, onMounted, defineProps, defineEmits,watch } from "vue";
-import useProductStore from "@/stores/productStore";
-import useCategoryStore from "@/stores/categoryStore";
-import useProductTagStore from "@/stores/productTagStore";
-
-const categoryStore = useCategoryStore();
-const tagStore = useProductTagStore();
-const selectedTags = ref([]); // ✅ 存儲使用者選擇的標籤
-
-onMounted(async() => {
-  await categoryStore.fetchCategories(); // 取得類別數據
-  await tagStore.fetchTags(); // 取得標籤數據
-});
-
-// 傳遞給父組件 shopLayout.vue
-const emit = defineEmits(["update-filter"]);
-const productStore = useProductStore();
-const selectedCategory = ref(null); // 選擇分類 (單選)
-const searchQuery = ref("");
-const minPrice = ref(null);
-const maxPrice = ref(null);
-
-// **觸發篩選條件**
-const applyFilter = async() => {
-  
-  const filter = {};
-
-  if (selectedCategory.value) {
-    filter.categoryId = selectedCategory.value.categoryId;
-  }
-  if (minPrice.value) {
-    filter.minPrice = minPrice.value;
-  }
-  if (maxPrice.value) {
-    filter.maxPrice = maxPrice.value;
-  }
-
-  try {
-    // 1️⃣ **向後端請求篩選結果**
-    await productStore.fetchFilteredProducts(filter);
-
-    // 2️⃣ **將篩選條件傳遞給 `ShopLayout.vue`**
-    emit("update-filter", filter);
-  } catch (error) {
-    console.error("篩選請求失敗:", error);
-  }
-};
-
-</script>
-
 <template>
   <aside class="shop-filters">
     <!-- 🔹 商品搜尋 -->
@@ -57,9 +6,9 @@ const applyFilter = async() => {
       
     </div>
 
-    <!-- 🔹 商品分類 -->
+    <!-- 🔹 分類篩選 -->
     <div class="category-filter">
-      <!-- <label class="form-label">商品分類</label> -->
+      <label class="form-label">商品分類</label>
       <select v-model="selectedCategory" class="form-select" placeholder="選擇分類" >
         <option :value="null">全部</option>
         <option v-for="category in categoryStore.categories" :key="category.categoryId" :value="category">
@@ -69,30 +18,21 @@ const applyFilter = async() => {
     </div>
 
     <!-- 🔹 多選按鈕組 -->
-    <div>
-      <label class="form-label">選擇標籤篩選</label>
-      <div class="btn-group" role="group">
-        <div v-for="tag in tagStore.tags" :key="tag.tagId">
-        <!-- ✅ 讓標籤按鈕與 input 綁定 -->
-          <input 
-            type="checkbox" 
-            class="btn-check" 
-            :id="`tag-${tag.tagId}`"
-            :value="tag.tagName"
-            v-model="selectedTags"
-          />
-          <label 
-            class="btn"
-            :class="selectedTags.includes(tag.tagName) ? 'btn-primary' : 'btn-outline-primary'"
-            :for="`tag-${tag.tagId}`"
-          >
-            {{ tag.tagName }}
-          </label>
-        </div>
+    <label class="form-label">選擇標籤篩選</label>
+    
+    <!-- ✅ 容器，確保按鈕能自動換行 -->
+    <div class="tag-container">
+      <div class="tag-item" v-for="tag in tagStore.tags" :key="tag.tagId">
+        <input type="checkbox"
+               class="btn-check"
+               v-model="selectedTags"
+               :value="tag.tagId"
+               :id="'tag-' + tag.tagId"
+               @click="toggleTag(tag.tagId)">
+        <label class="btn btn-outline-primary tag-button" :for="'tag-' + tag.tagId">
+          {{ tag.tagName }}
+        </label>
       </div>
-
-      <!-- 🔹 顯示已選擇的標籤 -->
-      <!-- <p class="mt-3">已選擇標籤: {{ selectedTags }}</p> -->
     </div>
 
     <!-- 價格範圍 -->
@@ -111,6 +51,63 @@ const applyFilter = async() => {
   </aside>
 </template>
 
+<script setup>
+import { ref, defineProps, computed } from "vue";
+import useProductStore from "@/stores/productStore";
+import useCategoryStore from "@/stores/categoryStore";
+import useProductTagStore from "@/stores/productTagStore";
+
+const categoryStore = useCategoryStore();
+const tagStore = useProductTagStore();
+const selectedTags = ref([]); // ✅ 存儲使用者選擇的標籤
+const selectedCategory = ref(null); // 選擇分類 (單選)
+const searchQuery = ref("");
+const minPrice = ref(null);
+const maxPrice = ref(null);
+
+// 傳遞給父組件 shopLayout.vue
+// const emit = defineEmits(["update-filter"]);
+const productStore = useProductStore();
+
+// products 預設為 []，防止 v-for 無法綁定
+const products = computed(() => productStore.filteredProducts || []);
+
+
+// 🔹 點擊標籤時切換選中狀態
+const toggleTag = (tagId) => {
+  if (!tagId) return; // ✅ 確保 `tagId` 不是 `null` 或 `undefined`
+
+  if (selectedTags.value.includes(tagId)) {
+    selectedTags.value = selectedTags.value.filter(tag => tag !== tagId);
+  } else {
+    selectedTags.value.push(tagId);
+  }
+
+  console.log("🔍 選中的標籤:", selectedTags.value);
+};
+
+// **點擊搜尋按鈕時調用 `fetchFilteredProducts` 並發送事件**
+const applyFilter = async () => {
+  const filter = {
+    query: searchQuery.value || null,
+    categoryId: selectedCategory.value?.categoryId  || null, // ✅ 只傳 `categoryId`
+    tagIds: selectedTags.value.filter(id => id !== null), // ✅ 過濾 `null`        
+    minPrice: minPrice.value || null,
+    maxPrice: maxPrice.value || null
+  };
+
+  console.log("🔍 送出的完整請求:", JSON.stringify(filter, null, 2)); 
+  try {
+    await productStore.fetchFilteredProducts(filter);
+    // emit("update-filter", filter); // ✅ 通知父組件更新篩選條件
+    console.log("🔍篩選條件已應用", filter);
+    console.log("🔍 篩選後的商品:", productStore.filteredProducts);
+  } catch (error) {
+    console.error("篩選商品失敗", error);
+  }
+};
+</script>
+
 <style scoped>
 .shop-filters {
   width: 300px;
@@ -126,23 +123,20 @@ const applyFilter = async() => {
   gap: 10px;
 }
 
-/* ✅ 當標籤被選中時，改變背景顏色 */
-.btn-check:checked + .btn {
-  background-color: #007bff; /* ✅ 藍色高亮 */
-  color: white;
-  border-color: #007bff;
+.tag-container {
+  display: flex;
+  flex-wrap: wrap;  /* ✅ 當按鈕超過寬度時自動換行 */
+  gap: 10px;  /* ✅ 設定按鈕之間的間距 */
 }
 
-/* ✅ 預設狀態 */
-.btn-outline-primary {
-  color: #007bff;
-  border-color: #007bff;
-  transition: 0.3s;
+.tag-item {
+  display: flex;
+  align-items: center;  /* ✅ 確保 Checkbox 和文字垂直居中 */
 }
 
-/* ✅ 滑鼠懸停時變色 */
-.btn-outline-primary:hover {
-  background-color: #007bff;
-  color: white;
+.tag-button {
+  padding: 8px 12px;  /* ✅ 按鈕內邊距，讓標籤更美觀 */
+  white-space: nowrap; /* ✅ 防止標籤內文字換行 */
+  border-radius: 8px;  /* ✅ 圓角美觀 */
 }
 </style>

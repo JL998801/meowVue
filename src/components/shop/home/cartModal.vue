@@ -1,3 +1,9 @@
+<script setup>
+import { useCartStore } from "@/stores/cart";
+
+const cartStore = useCartStore();
+</script>
+
 <template>
   <div class="small-cart-container">
       <!-- 小購物車圖示，顯示數量 -->

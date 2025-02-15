@@ -9,8 +9,8 @@
     <div class="post-details">
       <div class="info">
         <div class="post-id">遺失案件編號 : {{ caseData.lostCaseId }}</div>
-        <div class="case-status" :class="statusClass(caseData.caseState)" >
-          {{ caseData.caseState }}
+        <div class="case-status" :class="getStatusClass(caseData.caseState?.caseStateId)">
+          {{ caseData.caseState?.caseStatement || "未知狀態" }}
         </div>
       </div>
       <div class="info-3">
@@ -22,10 +22,11 @@
         </h2>
       <div class="post-details-p">
         <p>寵物類別：{{ caseData.species }}</p>
-        <p>寵物名稱：{{ caseData.species }}</p>
+        <p>寵物名稱：{{ caseData.petName}}</p>
+        <p>寵物名稱：{{ caseData.gender}}</p>
         <p>寵物品種：{{ caseData.breed }}</p>
-        <p>絕育狀態：{{ caseData.breed }}</p>
-        <p>晶片號碼：{{ caseData.breed }}</p>
+        <p>絕育狀態：{{ caseData.sterilization }}</p>
+        <p>晶片號碼：{{ caseData.microChipNumber || "無" }}</p>
         <p>地點: {{ caseData.cityName }}{{ caseData.districtAreaName }}{{caseData.street}} </p>
       </div>
       <div class="case-footer">
@@ -42,38 +43,48 @@
 </template>
 
 <script setup>
-import { defineProps, ref, computed } from "vue";
+import { ref, onMounted } from "vue";
+import { useRoute } from "vue-router";
+import useLostCases from "@/components/pet/lost/useLostCases.js";
 
-//從RescueCase父組件傳遞的caseData
-defineProps({
-    caseData: {
-    type: Object,
-    required: true,
-  },
-});
+// 獲取路由中的 `lostCaseId`
+const route = useRoute();
+const lostCaseId = route.params.lostCaseId;
 
+// 使用 `useLostCases` 來獲取 API 方法
+const { fetchLostCaseById } = useLostCases();
 
-// 格式化日期函數
-const formatDate = (date) => {
-  if (!date) return "未知日期";
-  const options = { year: "numeric", month: "2-digit", day: "2-digit" };
-  return new Date(date).toLocaleDateString("zh-TW", options);
+// 定義 `caseData` 來存放案件詳情
+const caseData = ref({});
+
+// 取得單筆案件資訊
+const fetchCaseDetails = async () => {
+    try {
+        caseData.value = await fetchLostCaseById(lostCaseId);
+        console.log("✅ 取得案件詳情:", caseData.value);
+    } catch (error) {
+        console.error("❌ 取得案件詳情失敗:", error);
+    }
 };
 
-// 狀態樣式類別
-const statusClass = (caseState) => {
-  switch (caseState) {
-    case "待協尋":
-      return "status-pending";
-    case "已尋獲":
-      return "status-completed";
-    default:
-      return "status-default";
-  }
+// 設定案件狀態樣式
+const getStatusClass = (caseStateId) => {
+    console.log("🚀 Debug - statusClass:", caseStateId);
+    return caseStateId === 5 ? "status-pending" : 
+            caseStateId === 6 ? "status-found" : 
+            "status-unknown";
+  };
+
+// 格式化日期
+const formatDate = (dateString) => {
+    console.log("📅 Debug - formatDate:", dateString);
+    return dateString ? new Date(dateString).toLocaleDateString() : "未知日期";
 };
 
-
+// 頁面載入時自動獲取案件資訊
+onMounted(fetchCaseDetails);
 </script>
+
 
 <style scoped>
 
