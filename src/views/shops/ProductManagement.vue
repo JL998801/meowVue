@@ -83,18 +83,32 @@
 
                     <!-- 標籤 -->
                     <td v-if="!editMode[product.productId]">
-                        <span v-for="tag in product.tags || []" :key="tag.tagId" class="badge bg-primary">
-                        {{ tag.tagName }}
+                        <span v-for="tag in product.tags || []" :key="tag.tagId" class="badge bg-primary me-1">
+                            {{ tag.tagName }}
                         </span>
                     </td>
                     <td v-else>
-                        <select v-model="product.categoryId" class="form-select">
-                        <option v-for="tag in tagStore.tags" :value="tag.tagId">
-                            {{ tag.tagName }}
-                        </option>
-                        </select>
+                        <Multiselect
+                            v-model="product.tags"
+                            :options="tagStore.tags"
+                            label="tagName"
+                            track-by="tagId"
+                            multiple
+                            :close-on-select="false"
+                            placeholder="選擇標籤..."
+                            class="floating-multiselect custom-multiselect"
+                        >
+                            <!-- ✅ 這裡的 template 必須是 Multiselect 內部的 slot -->
+                            <!-- 當 editMode[product.productId] = true 時，確保 product.tags 預設為空數組 -->
+                            <template v-slot:option="{ option }">
+                                <div class="custom-option" :class="{ 'selected-option': isSelected(product, option) }">
+                                    <input type="checkbox" :checked="isSelected(product, option)" @change="toggleTag(product, option)" />
+                                    <span>{{ option.tagName }}</span>
+                                </div>
+                            </template>
+                        </Multiselect>
                     </td>
-
+                    
                     <!-- 到期日 -->
                     <td v-if="!editMode[product.productId]">{{ product.expire }}</td>
                     <td v-else><input type="date" v-model="product.expire" class="form-control" /></td>
@@ -165,13 +179,14 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, nextTick } from "vue";
 import { useRouter } from "vue-router";
 import productForm from "@/components/shop/manage/productForm.vue";
 import useProductStore from "@/stores/productStore";
 import useCategoryStore from "@/stores/categoryStore";
 import useTagStore from "@/stores/productTagStore";
 import Swal from "sweetalert2";
+import Multiselect from 'vue-multiselect';  // 先安裝 npm install vue-multiselect (Vue3才有)
 
 const router = useRouter();
 const productStore = useProductStore();
@@ -204,12 +219,12 @@ const getCategoryName = (categoryId) => {
     return category ? category.categoryName : "無分類";
 };
 
-// 新增商品: 導引到彈窗
+// ✅ 新增商品: 導引到彈窗
 const addProduct = () => {
     router.push("/admin/products/form")
 };
 
-// 刪除商品
+// ✅ 刪除商品: 跳出提醒訊息
 const deleteProduct = (id) => {
     Swal.fire({
         title: "確定刪除此筆商品嗎?",
@@ -255,24 +270,51 @@ const deleteProduct = (id) => {
     });
 };
 
-// 點選單列"修改"按鈕
-    // 切換編輯模式
-    const modifyProduct = (productId) => {
+// ✅ 修改商品: 每個欄位開放調整
+const modifyProduct = (productId) => {
     editMode.value[productId] = !editMode.value[productId];
-    };
+};
 
-    // 儲存修改
-    const saveProduct = (product) => {
-    console.log("儲存修改", product);
-    // 調用 API 更新商品資訊
-    // productStore.updateProduct(product);
-    editMode.value[product.productId] = false;
-    };
+/** 確認選項是否已選中:確保 product.tags 一定是數組，並增加 null 檢查 */
+const isSelected = (product, option) => {
+    return Array.isArray(product.tags) && product.tags.some(tag => tag.tagId === option.tagId);
+};
 
-    // 取消修改
-    const cancelEdit = (productId) => {
-    editMode.value[productId] = false;
-    };
+
+/** 切換標籤選擇狀態 */
+const toggleTag = (product, option) => {
+    const index = product.tags.findIndex(tag => tag.tagId === option.tagId);
+    if (index === -1) {
+        product.tags.push(option); // ✅ 如果沒選，就加入
+    } else {
+        product.tags.splice(index, 1); // ✅ 如果已選，就移除
+    }
+};
+
+/** 儲存變更 */
+const saveProduct = async (product) => {
+    console.log("儲存商品:", product);
+
+    // ✅ 確保 Vue 能檢測到 `editMode` 變化
+    editMode.value = { ...editMode.value, [product.productId]: false };
+
+    await nextTick(); // ✅ 讓 Vue 立即重新渲染，讓前端立即顯示
+
+    // ✅ 顯示 SweetAlert 成功提示
+    Swal.fire({
+        title: "修改成功!",
+        text: "成功修改商品資訊。",
+        icon: "success",
+        timer: 2000, // 2 秒後自動關閉
+        showConfirmButton: false,
+        timerProgressBar: true
+    });
+};
+
+/** 取消編輯 */
+const cancelEdit = (productId) => {
+    editMode[productId] = false;
+};
 
 onMounted(() => {
     productStore.fetchProducts();
@@ -284,7 +326,178 @@ onMounted(() => {
 
 <style>
 .table{
-    border-radius: 999px; /* 讓邊框成為橢圓形 */
+    width: 100%;
+    border-radius: 10px; /* 讓邊框成為橢圓形 */
+    table-layout: fixed; /* 讓表格維持固定大小 */
+    /* overflow: hidden; 防止內容溢出 */
+    overflow: visible; /* ✅ 允許內容超出 `table` 顯示 */
+}
+
+/* 固定表格首欄的寬度 */
+.table th,
+.table td {
+    position: relative; /* ✅ 讓 `td` 內部可以顯示超出的內容；Multiselect` 的相對參照  */
+    text-align: center;
+    vertical-align: middle;
+    white-space: nowrap; /* ✅ 除非 `textarea`，否則不允許換行 */
+    /* overflow: hidden; ✅ 避免表格變形，但允許內容顯示(除了到期日欄位) */
+    overflow: visible !important; /*✅ 允許 `Multiselect` 顯示*/
+
+    height: auto; /* ✅ 允許 `td` 在 `editMode` 時增高 */
+    min-height: 40px; /* ✅ 設定最小高度，避免過度壓縮 */
+}
+
+/* 設定固定寬度（可根據實際內容調整） */
+th:nth-child(1), td:nth-child(1) { width: 50px; }  /* 商品編號 */
+th:nth-child(2), td:nth-child(2) { width: 180px; } /* 商品圖片 */
+th:nth-child(3), td:nth-child(3) { width: 120px; } /* 名稱 */
+th:nth-child(4), td:nth-child(4) { width: 150px; } /* 類別 */
+th:nth-child(5), td:nth-child(5) { width: 150px; } /* 標籤 */
+th:nth-child(6), td:nth-child(6) { width: 130px; } /* ✅ 調整到期日 */
+th:nth-child(7), td:nth-child(7) { width: 90px; } /* ✅ 調整原價 */
+th:nth-child(8), td:nth-child(8) { width: 90px; } /* ✅ 調整售價 */
+th:nth-child(9), td:nth-child(9) { width: 90px; } /* ✅ 調整庫存數量 */
+th:nth-child(10), td:nth-child(10) { width: 60px; } /* ✅ 調整單位 */
+th:nth-child(11), td:nth-child(11) { width: 250px; } /* 描述 */
+th:nth-child(12), td:nth-child(12) { width: 100px; } /* 狀態 */
+th:nth-child(13), td:nth-child(13) { width: 150px; } /* 操作按鈕 */
+
+/* 單選類別 */
+td .form-select,
+td .multiselect {
+    position: relative; /* ✅ 讓 Multiselect 內容不會被 `td` 限制 */
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 120px; /* ✅ 防止過小 */
+    max-width: 100%; /* ✅ 不讓它超過 td */
+    z-index: 9999;  /* ✅ 確保 `dropdown` 不被 `td` 遮擋 */
+}
+
+/* ✅ 讓 `form-select`（單選類別）懸浮於 `td` 上方 */
+td .form-select:focus {
+    position: absolute;
+    z-index: 9999;
+    width: auto; /* ✅ 讓寬度自適應，但不超過 `td` */
+    min-width: 100%;
+    max-width: 200px; /* ✅ 限制最大寬度 */
+}
+
+/* ✅ 讓 Multiselect (多選標籤)本身的輸入框填滿 `td` */
+.custom-multiselect {
+    position: relative;  /* ✅ 讓 `Multiselect` 定位不影響表格 */
+    z-index: 9999;
+    width: 100%;
+    min-width: 120px;
+    max-width: 100%;
+    box-sizing: border-box;
+    z-index: 10; /* ✅ 確保不被其他元素遮擋 */
+}
+
+/* ✅ 讓 Multiselect 下拉選單能懸浮於 `td` 之上 */
+.custom-multiselect .multiselect__content-wrapper {
+    position: absolute !important;
+    z-index: 9999; /* ✅ 確保 `dropdown` 顯示在 `td` 之上 */
+    width: auto;
+    min-width: 100%;
+    max-width: 200px; /* ✅ 限制最大寬度 */
+    max-height: 180px; /* ✅ 限制最大高度，防止溢出 */
+    overflow-y: auto; /* ✅ 允許滾動 */
+    background: white;
+    /* border: 1px solid #c6bc77; */
+    border-radius: 2px;
+    box-shadow: 0 2px 10px #d0ccd0;
+}
+
+/* ✅ 讓 Multiselect 內的選項間距更清晰 */
+.custom-multiselect .multiselect__option {
+    padding: 8px 12px;
+    white-space: nowrap; /* ✅ 防止換行 */
+    overflow: hidden;
+    text-overflow: ellipsis; /* ✅ 內容過長時顯示省略號 */
+}
+
+/* ✅ 讓選擇的標籤 (tag) 正確顯示 */
+.custom-multiselect .multiselect__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 5px;
+    background: white;
+    border-radius: 5px;
+}
+
+/* ✅ 讓每個選項顯示 `Checkbox` 而不是預設標籤 */
+.custom-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    cursor: pointer;
+    border-radius: 5px; /* ✅ 圓角 */
+    transition: background 0.2s ease-in-out;
+}
+
+/* ✅ 當選中時，改變底色 */
+.selected-option {
+    background: #cce5ff; /* ✅ 輕微藍色背景，表示選中 */
+}
+
+/* ✅ 調整 Checkbox 樣式 */
+.custom-option input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: #007bff; /* ✅ 設定 Checkbox 顏色 */
+}
+
+/* ✅ 隱藏 `vue-multiselect` 預設的 `•` 點點 */
+.multiselect__option::before {
+    display: none !important;
+    content: "" !important;
+}
+
+/* ✅ 讓標籤 (tag) 不會影響行內元素 */
+.custom-multiselect .multiselect__tag {
+    background: #feba07;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+/* 其他欄位 */
+.form-control {
+    position: relative;  /* ✅ 讓 `select` 內容完整顯示 */
+    z-index: 10;
+    width: 100%; /* ✅ 讓 `input` 佔滿 `td` 但不超過 */
+    max-width: 100%; /* ✅ 限制最大寬度 */
+    box-sizing: border-box; /* ✅ 避免 padding 影響大小 */
+    padding: 5px; /* ✅ 讓輸入框內文字不會擠壓 */
+    margin: 0 auto; /* ✅ 讓輸入框水平置中 */
+    border: 1px solid #ced4da; /* ✅ 統一邊框 */
+    background-color: white; /* ✅ 確保輸入框不被隱藏 */
+    display: block;
+}
+
+/* ✅ 讓 `textarea` 不影響其他欄位，但可以多行輸入 */
+textarea {
+    width: 100%;
+    min-height: 40px;
+    resize: vertical; /* ✅ 允許上下調整 */
+    max-height: 120px; /* ✅ 限制最大高度 */
+}
+
+/* ✅ 允許 `過期日期` 內容超過時換行，但不影響其他欄位 */
+td.expire-cell {
+    white-space: normal; /* ✅ 允許換行 */
+}
+
+/* 固定按鈕大小 */
+.action-buttons .btn {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    min-width: 50px; /* 讓按鈕大小一致 */
+    max-width: 100%; /* ✅ 限制按鈕區域不能超出表格 */
 }
 
 /* 搜尋欄樣式 */
@@ -310,17 +523,6 @@ onMounted(() => {
     padding: 10px 16px;
     font-size: 16px;
     background: transparent; /* 讓背景與 `.search-bar` 保持一致 */
-}
-
-/* 讓 <td> 高度固定為 80px */
-td {
-    height: 80px;
-    vertical-align: middle; /* 確保內容在 td 內垂直置中 */
-    text-align: center;
-}
-
-.button{
-    margin: 10px;
 }
 
 /* 🔹 調整 SweetAlert2 內按鈕間距 */
@@ -397,11 +599,17 @@ td:last-child {
 }
 
 /* 讓 `input` / `select` 在編輯模式下不影響按鈕空間 */
-td input,
 td select,
 td textarea {
   width: 100%; /* 讓輸入框填滿 `td` */
   min-width: 100px; /* 防止輸入框變得太小 */
+  max-height: 120px; /* ✅ 限制最大高度 */
+  resize: vertical; /* ✅ 允許上下縮放，但不能擠壓橫向欄位 */
+}
+
+/* input欄位: 原價、售價、庫存、單位 */
+td input{
+
 }
 
 /* 讓按鈕不會被壓縮 */

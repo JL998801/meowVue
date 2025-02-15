@@ -22,20 +22,6 @@ const loading = ref(false);
 const cartStore = useCartStore();
 const store = useStore();
 
-// 用來管理商品數量
-// const selectedQuantities = ref({});
-
-// 動態計算符合篩選條件的商品
-// const filteredProducts = computed(() => {
-//   return productStore.products.filter(product => {
-//     const matchesCategory = !props.filter.categoryId || product.categoryId === props.filter.categoryId;
-//     const matchesMinPrice = !props.filter.minPrice || product.salePrice >= props.filter.minPrice;
-//     const matchesMaxPrice = !props.filter.maxPrice || product.salePrice <= props.filter.maxPrice;
-    
-//     return matchesCategory && matchesMinPrice && matchesMaxPrice;
-//   });
-// });
-
 // ✅ 確保 `filteredProducts` 只在 `productStore.products` 有值時運行
 const filteredProducts = computed(() => {
   if (!Array.isArray(productStore.products)) return [];
@@ -46,24 +32,6 @@ const filteredProducts = computed(() => {
     return matchesCategory && matchesMinPrice && matchesMaxPrice;
   });
 });
-
-// 監聽當前頁面和總頁數
-// const currentPage = computed(() => productStore.page);
-// const totalPages = computed(() => productStore.totalPages);
-// const pageSize = computed(() => productStore.size); // ✅ 每頁顯示數量
-
-// ✅ 更新每頁顯示的商品數量
-// const updatePageSize = (event) => {
-//   productStore.size = Number(event.target.value);
-//   productStore.page = 1; // ✅ 切回第一頁，避免超出範圍
-//   productStore.fetchProducts();
-// };
-
-// // ✅ 切換分頁
-// const updatePage = (newPage) => {
-//   productStore.page = newPage;
-//   productStore.fetchProducts();
-// };
 
 // 輪播器設定
 // const targetCategories = ["貓用品", "狗用品", "保健品"]; // 只篩選這三個類別
@@ -122,10 +90,9 @@ const addToWishlist = (product) => {
 </script>
  
 <template>
-    <!-- 🔹 如果有搜尋結果，顯示商品卡片 -->
+    <!-- 🔹 搜尋前: 顯示商品卡片-->
     <div class="shop-home">
       <div class="d-flex justify-content-between align-items-center mb-3">
-        <p>搜尋結果</p>
         <!-- 🔹 分頁控制 -->
         <div class="spinner-grow text-warning" role="status" v-if="productStore.loading">
           <span class="sr-only">Loading...</span>
@@ -134,18 +101,6 @@ const addToWishlist = (product) => {
           <Pagination 
           v-if="productStore.totalPages"
           />
-          <!-- <Pagination 
-            v-if="filteredProducts.length > 1"
-            :currentPage="productStore.currentPage" 
-            :totalPages="productStore.totalPages" 
-            @update-page="updatePage"
-          />
-          <label for="pageSizeSelect" class="me-2">每頁顯示：</label>
-          <select id="pageSizeSelect" class="form-select w-auto"  :value="pageSize" @change="updatePageSize">
-            <option :value="10">10</option>
-            <option :value="20">20</option>
-            <option :value="50">50</option>
-          </select> -->
       </div>
     </div>
       <!-- 🔹 商品卡片:點擊需要傳入 product 資訊 -->
@@ -159,11 +114,8 @@ const addToWishlist = (product) => {
           @add-to-wishlist="addToWishlist"
         />
       </div>
-<!-- 
-      @add-to-cart="emit('add-to-cart', $event)"
-      @add-to-wishlist="emit('add-to-wishlist', $event)" -->
 
-      <!-- 🔹 無結果 -->
+      <!-- 🔹 搜尋後無結果 -->
       <div v-else-if="!productStore.loading">
         <p>沒有符合條件的商品</p>
       </div>
@@ -177,9 +129,17 @@ const addToWishlist = (product) => {
 
 <style scoped>
 .shop-home {
-  padding: 20px;
+  padding: 10px;
   margin-bottom: 20px;
   overflow: hidden; /* 防止內容區域擴展超出範圍 */
+}
+
+/* 標題列 */
+.d-flex {
+  padding: 5px 10px; /* ✅ 減少內邊距 */
+  margin-bottom: 10px; /* ✅ 減少底部間距 */
+  height: 80px; /* ✅ 讓高度依內容自適應 */
+  min-height: 40px; /* ✅ 設定最小高度，避免壓縮過頭 */
 }
 
 /* 讓下拉選單更緊湊 */
@@ -191,14 +151,17 @@ select.form-select {
 .product-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 15px;
+  flex-wrap: wrap;  /* ✅ 商品超出畫面時自動換行 */
+  gap: 5px;  /* ✅ 設定卡片之間的間距 */
+  justify-content: space-between;  /* ✅ 讓商品平均分配 */
+  width: 100%; /* ✅ 確保內容撐滿畫面 */
 }
 
 /* 分頁控制 */
 .pagination {
   display: flex;
   justify-content: center;
-  margin-top: 20px;
+  margin-top: 5px;
 }
 
 .carousel-container {

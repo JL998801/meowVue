@@ -38,10 +38,10 @@
     <!-- 價格範圍 -->
     <div>
       <label>最低價格：</label>
-      <input type="number" v-model="minPrice" placeholder="最低價格" />
+      <input type="number" v-model="minPrice" placeholder="最低價格" @keyup.enter="applyFilter" />
       
       <label>最高價格：</label>
-      <input type="number" v-model="maxPrice" placeholder="最高價格"/>
+      <input type="number" v-model="maxPrice" placeholder="最高價格" @keyup.enter="applyFilter"/>
     </div>
 
     <div>
@@ -111,12 +111,13 @@ const applyFilter = async () => {
 <style scoped>
 .shop-filters {
   width: 300px;
-  padding: 15px;
-  margin: 2px;
+  padding: 20px; /* ✅ 增加內邊距，讓內容不會太擠 */
+  margin: 5px;
   background-color: #d0ccd0;
   border-radius: 5%;
-  row-gap: 10px;
-  gap: 10px;
+  display: flex;
+  flex-direction: column; /* ✅ 垂直排列所有篩選區塊 */
+  row-gap: 15px; /* ✅ 設定每個篩選區塊之間的間距 */
 }
 .search-bar {
   display: flex;
