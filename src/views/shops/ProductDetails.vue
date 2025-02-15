@@ -1,21 +1,18 @@
 <template>
   <div v-if="selectedProduct">
     <h1>{{ selectedProduct.productName }}</h1>
-    <!-- <img v-show="selectedProduct?.images?.length > 0" 
-       :src="selectedProduct.images?.[0]" 
-       alt="商品圖片" /> -->
-    <img v-if="selectedProduct && selectedProduct.   images && selectedProduct.images.length > 0"
-    :src="selectedProduct.images[0]" 
-    alt="商品圖片" />
+    <img 
+      v-if="selectedProduct && selectedProduct.images && selectedProduct.images.length > 0" 
+      :src="selectedProduct.images[0]" 
+      alt="商品圖片" 
+    />
   </div>
   <div v-else>
     <p>正在載入商品資料...</p>
   </div>
 
   <div class="product-detail-container">
-    <!-- 當 selectedProduct.images 存在時才會執行 v-for，避免 Invalid end tag 問題 -->
     <div class="product-images" v-if="selectedProduct && selectedProduct.images && selectedProduct.images.length > 0">
-      <!-- 左側縮圖列表 -->
       <div class="thumbnail-list">
         <img 
           v-for="(image, index) in selectedProduct.images" 
@@ -135,7 +132,7 @@ const goToShopDetail = () => {
 };
 
 // 組件掛載時加載數據
-onMounted(()=>{
+onMounted(() => {
   productStore.fetchProducts();
 });
 </script>
