@@ -9,6 +9,7 @@ import { ref, onMounted, watch } from "vue";
 import { axiosapi2 } from "@/plugins/axios.js";
 import { useRoute } from "vue-router";
 import Swal from "sweetalert2";
+import followIcon from "@/assets/follow-icon.png";
 
 const baseUrl = import.meta.env.VITE_API_BASE_URL;
 
@@ -39,7 +40,7 @@ const showAlert = (message, icon) => {
   Swal.fire({
     title: "追蹤狀態",
     text: message,
-    imageUrl: `${baseUrl}/upload/final/pet/images/follow-icon.png`,
+    imageUrl: followIcon,
     // icon: icon,
     imageWidth: 150, // 設定寬度
     imageHeight: 120, // 設定高度

@@ -1,9 +1,9 @@
 <template>
   <div class="rescue-page">
-    <RescueProgressTitle></RescueProgressTitle>
+    <EditProgressTitle></EditProgressTitle>
     <div class="second-container">
       <div class="main-content">
-        <RescueProgressForm></RescueProgressForm>
+        <EditProgressForm></EditProgressForm>
       </div>
       <div class="sidebar">
         <div class="advertisement">
@@ -16,8 +16,8 @@
 </template>
 
 <script setup>
-import RescueProgressTitle from "@/components/pet/rescue/newRescueProgress/RescueProgressTitle.vue";
-import RescueProgressForm from "@/components/pet/rescue/newRescueProgress/RescueProgressForm.vue";
+import EditProgressTitle from "@/components/pet/rescue/editRescueProgress/EditProgressTitle.vue";
+import EditProgressForm from "@/components/pet/rescue/editRescueProgress/EditProgressForm.vue";
 </script>
 
 <style scoped>

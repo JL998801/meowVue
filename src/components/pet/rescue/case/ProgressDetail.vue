@@ -2,7 +2,7 @@
   <div class="progress-detail">
     <div class="progress-header">
       <span class="create-time">{{ formatDate(createTime) }}</span>
-      <span class="edit-button">修改</span>
+      <span class="edit-button" @click="goToEditPage">修改</span>
     </div>
     <div class="progress-body">
       <img
@@ -18,15 +18,18 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
+import { useRouter } from "vue-router";
 
 const route = useRoute();
+const router = useRouter();
 const rescueProgressList = ref([]);
 
-// 接收父組件的 props
+// 接收rescueCase父組件的 props
 const props = defineProps({
   progressDetail: String,
   createTime: String,
   imageUrl: String,
+  progressId: Number,
 });
 
 const formatDate = (date) => {
@@ -38,6 +41,15 @@ const formatDate = (date) => {
     minute: "2-digit",
   };
   return new Date(date).toLocaleString("zh-TW", options);
+};
+
+//點擊修改按鈕時，跳轉到 `/pet/rescueCase/rescueProgress/{progressId}`
+const goToEditPage = () => {
+  if (props.progressId) {
+    router.push(`/pet/rescueCase/rescueProgress/${props.progressId}`);
+  } else {
+    console.error("progressId 不存在，無法跳轉");
+  }
 };
 </script>
 

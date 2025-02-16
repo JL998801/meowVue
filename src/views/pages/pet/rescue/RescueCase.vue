@@ -53,14 +53,15 @@
                 :progress-detail="progress.progressDetail"
                 :create-time="progress.createTime"
                 :image-url="progress.imageUrl"
+                :progress-id="progress.rescueProgressId"
               />
             </div>
           </div>
-          <div class="comments-section">
+          <!-- <div class="comments-section">
             <h3>留言區</h3>
             <textarea placeholder="新增留言..."></textarea>
             <button>提交留言</button>
-          </div>
+          </div> -->
         </div>
 
         <div class="sidebar">
@@ -112,6 +113,7 @@ const fetchRescueProgress = async () => {
 
     // 將返回的數據存入 rescueProgressList
     rescueProgressList.value = response.data;
+    console.log("案件進度", rescueProgressList.value);
   } catch (error) {
     console.error("獲取案件進度數據失敗:", error);
   }
