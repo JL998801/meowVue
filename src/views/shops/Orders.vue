@@ -13,9 +13,9 @@
       </thead>
       <tbody>
         <tr v-for="order in orders" :key="order.orderId" class="order-row" style="position: relative;">
-          <td>{{ order.orderId }}</td>
-          <td v-if="order.memberId">{{ order.memberId }}</td>
-          <td v-else>無會員ID</td>
+    <td>{{ order.orderId }}</td>
+    <td v-if="order.memberId"> {{ order.memberId }} </td>
+    <td v-else>無會員ID</td>
           <td>
             <button @click="viewDetails(order)">查看明細</button>
             <!-- Details display on the left of the button -->
@@ -43,8 +43,7 @@
 </template>
 
 <script>
-import axios from 'axios';
-const apiUrl = import.meta.env.VITE_API_URL;
+import axiosapi from "@/plugins/axios.js";
 
 export default {
   data() {
@@ -56,7 +55,7 @@ export default {
   methods: {
     async fetchOrders() {
       try {
-        const response = await axios.get(`${apiUrl}/orders/admin`);
+        const response = await axiosapi.get(`/orders/admin`);
         this.orders = response.data.map(order => ({
           ...order,
           newStatus: order.orderStatus,
@@ -67,7 +66,7 @@ export default {
     },
     async updateStatus(order) {
       try {
-        const response = await axios.put(`${apiUrl}/orders/${order.orderId}`, {
+        const response = await axiosapi.put(`/orders/${order.orderId}`, {
           orderStatus: order.newStatus,
         });
         if (response.status === 200) {

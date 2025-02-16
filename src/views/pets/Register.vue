@@ -60,7 +60,7 @@
 <script>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import axios from 'axios';
+import axiosapi from "@/plugins/axios.js";
 
 export default {
   setup() {
@@ -97,7 +97,7 @@ const submitForm = () => {
   };
 
   // 註冊 API 請求
-  axios.post('http://localhost:8080/api/register', memberData)
+  axiosApi.post('/api/register', memberData)
     .then(response => {
       alert('註冊成功！');
 
@@ -110,8 +110,8 @@ const submitForm = () => {
         };
 
         // 登入 API 請求
-        axios.post('http://localhost:8080/ajax/secure/login', loginData)
-          .then(loginResponse => {
+        axiosApi.post('/ajax/secure/loginlogin', this.loginData)
+        .then(loginResponse => {
             console.log('Login response:', loginResponse.data);  // 调试打印返回数据
             const { token, user } = loginResponse.data;
 

@@ -74,7 +74,7 @@
 <script setup>
 import { ref, computed, onMounted, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import axios from "axios";
+import axiosapi from "@/plugins/axios.js";
 import useProductStore from "@/stores/productStore";
 import useCartStore from "@/stores/cartStore"; // 使用 Pinia 管理購物車
 
@@ -103,21 +103,22 @@ const selectedImage = computed(() =>
     : new URL("@/assets/petLogo.png", import.meta.url).href
 );
 
-// **加入購物車**
 const addToCart = async () => {
   if (!selectedProduct.value) return;
 
   try {
-    const memberId = localStorage.getItem("memberId") || 1; // 測試時使用固定 ID
+    const memberId = localStorage.getItem("memberId") || 1; // 先從 localStorage 讀取會員 ID，若無則使用固定 ID
     const productId = selectedProduct.value.productId;
     const quantity = 1;
 
-    await axios.post(`${import.meta.env.VITE_API_URL}/pages/cart/add`, {
+    // 發送請求到後端，將會員 ID、商品 ID 和數量發送過去
+    await axiosapi.post('/pages/cart/add', {
       memberId,
       productId,
       quantity,
     });
 
+    // 將商品加入到購物車 store
     cartStore.addToCart({ ...selectedProduct.value, quantity });
     alert("商品已成功加入購物車");
   } catch (error) {

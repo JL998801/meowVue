@@ -85,6 +85,7 @@ const routes = [
   //這樣 /admin/* 下面的所有路由都會套用 AdminManagement.vue，讓 Sidebar 固定存在！
   { path: "/admin", component: AdminManagement, name: "adminManagement-link", meta: { hideNavbar: true },children: [
     { path: "rescueCase", component: RescueManagement },
+    { path: "orders", component: Ordersrders },
     { path: "rescueAnalysis", component: RescueAnalysis },
     { path: "shopManage", component: ShopManagement },
     { path: "notifications", component: Notifications },

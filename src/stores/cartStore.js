@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import axios from "axios";
+import axiosApi from "@/plugins/axios.js"; // Ensure axiosApi is imported correctly
 
 export const useCartStore = defineStore("cart", {
   state: () => {
@@ -7,15 +7,15 @@ export const useCartStore = defineStore("cart", {
     const cartData = localStorage.getItem("cart");
     return {
       cart: cartData && cartData !== "undefined" ? JSON.parse(cartData) : [],
-      memberId: 1, // Default member ID, can be changed later based on user login
+      memberId: localStorage.getItem('memberId') || 1, // Retrieve memberId from localStorage, fallback to 1
       creditCard: "4311-9511-1111-1111", // Example credit card (use real data handling in production)
       shippingAddress: "123 Main St", // Example shipping address (use real address handling in production)
       selectedOrder: null,
-      apiUrl: import.meta.env.VITE_API_URL, // Use environment variable for API URL
       ecpayUrl: import.meta.env.VITE_ECPAY_URL, // Use environment variable for ECPay URL
       detailUrl: import.meta.env.VITE_DETAIL_URL, // Use environment variable for detail URL
     };
   },
+
   actions: {
     // Add a product to the cart
     addToCart(product) {
@@ -82,7 +82,7 @@ export const useCartStore = defineStore("cart", {
     // Sync cart data with the server
     async syncCartWithServer() {
       try {
-        if (this.cart.length > 0) {
+        if (this.cart.length > 0 && this.memberId) {
           const cartData = this.cart.map((item) => ({
             cartId: item.cartId,
             quantity: item.quantity,
@@ -90,7 +90,7 @@ export const useCartStore = defineStore("cart", {
             productId: item.productId,
             productName: item.productName,
           }));
-          await axios.put(`${this.apiUrl}/pages/cart/update`, cartData); // Use environment variable for API URL
+          await axiosApi.put(`/pages/cart/update/${this.memberId}`, cartData); // Sync with member-specific cart
         }
       } catch (error) {
         console.error("Failed to sync cart with server:", error); // Handle sync error
@@ -100,21 +100,22 @@ export const useCartStore = defineStore("cart", {
     // Fetch cart data from the server (use memberId to fetch personalized cart)
     async fetchCartDataFromServer() {
       try {
-        const response = await axios.get(`${this.apiUrl}/pages/cart/list/${this.memberId}`); // Use environment variable for API URL
+        const response = await axiosApi.get(`/pages/cart/list/${this.memberId}`);
         if (response.data) {
           const updatedCart = response.data.map((item) => ({
             ...item,
-            cartId: item.cartId || item.id, // Ensure cartId is set correctly
+            cartId: item.cartId || item.id, // 確保 cartId 來自伺服器
             productName: item.productName || (item.product ? item.product.name : "未知商品"),
           }));
-          this.setCart(updatedCart); // Set cart from server data
+          this.setCart(updatedCart);
         } else {
-          this.clearCart(); // If no cart data, clear the local cart
+          this.clearCart();
         }
       } catch (error) {
         console.error("Failed to fetch cart data from server:", error);
-        this.clearCart(); // Clear cart on error
+        this.clearCart();
       }
+    
     },
 
     // Submit the order to the server (checkout process)
@@ -129,7 +130,7 @@ export const useCartStore = defineStore("cart", {
           }));
 
         if (selectedItems.length === 0) {
-          alert("請選擇至少一個商品進行結帳"); // Prompt if no items selected
+          alert("請至少勾選一個商品進行結帳"); // Prompt if no items selected
           return;
         }
 
@@ -140,8 +141,7 @@ export const useCartStore = defineStore("cart", {
           selectedItems,
         };
 
-        const response = await axios.post(`${this.apiUrl}/pages/order/create`, orderData); // Use environment variable for API URL
-
+        const response = await axiosApi.post(`/pages/order/create`, orderData);
         if (response.data.success) {
           alert("訂單提交成功！"); // Success alert
           this.setSelectedOrder(response.data.order); // Set selected order details

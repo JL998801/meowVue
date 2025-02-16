@@ -87,7 +87,7 @@ const addToCart = async (index) => {
     const productId = product.productId;
     const quantity = 1;
 
-    await axios.post(`${import.meta.env.VITE_API_URL}/pages/cart/add`, {
+    await axios.post(`${import.meta.env.VITE_API_URL}/api/pages/cart/add`, {
       cartId,
       memberId,
       productId,
