@@ -24,11 +24,11 @@
     <div class="tag-container">
       <div class="tag-item" v-for="tag in tagStore.tags" :key="tag.tagId">
         <input type="checkbox"
-               class="btn-check"
-               v-model="selectedTags"
-               :value="tag.tagId"
-               :id="'tag-' + tag.tagId"
-               @click="toggleTag(tag.tagId)">
+              class="btn-check"
+              v-model="selectedTags"
+              :value="tag.tagId"
+              :id="'tag-' + tag.tagId"
+              @click="toggleTag(tag.tagId)">
         <label class="btn btn-outline-primary tag-button" :for="'tag-' + tag.tagId">
           {{ tag.tagName }}
         </label>

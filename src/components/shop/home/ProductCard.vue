@@ -1,5 +1,5 @@
 <template>
-   <div class="product-card" @click="goToProductDetails">
+  <div class="product-card" @click="goToProductDetails">
     <!-- 根據 displayMode 顯示所有圖片或僅顯示首圖 -->
     <div v-if="displayMode === 'all'" class="image-gallery">
       <img
@@ -76,7 +76,12 @@ const goToProductDetails = () => {
     console.error("商品 ID 不存在，無法跳轉到詳情頁");
     return;
   }
-  router.push(`/shop/product/${props.product.productId}`);
+
+  // 確保完整傳遞 product 物件
+  router.push({
+    path: `/shop/product/${props.product.productId}`,
+    query: { productData: JSON.stringify(props.product) }
+  });
 };
 
 // 加入購物車: shopHome右上角亮燈，跳出未讀訊息

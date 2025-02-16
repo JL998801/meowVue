@@ -1,6 +1,6 @@
 import { jsonRequest } from "@/plugins/axios";
 
-const API_URL = "/wishlists";
+const API_URL = "/api/wishlists";
 
 export const WishListService = {
   async addToWishList(productId, memberId) {

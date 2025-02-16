@@ -19,7 +19,6 @@ import { shopRoutes } from './shopRouter'; // 引入商城路由
 import ShopManagement from '@/views/shops/ShopManagement.vue';
 import ProductManagement from '@/views/shops/ProductManagement.vue';
 import Notifications from '@/views/shops/Notifications.vue';
-import ProductForm from "@/components/shop/manage/ProductForm.vue"
 // import RescueCase from '@/views/pets/pet/rescue/RescueCase.vue';
 // import EditRescueCase from '../views/pets/pet/rescue/EditRescueCase.vue';
 // import NewRescueProgress from '../views/pets/pet/rescue/NewRescueProgress.vue';
@@ -27,6 +26,7 @@ import ProductForm from "@/components/shop/manage/ProductForm.vue"
 // import LineMessage from '@/views/secure/LineMessage.vue';
 // import NewRescueCase from '../views/pets/pet/rescue/NewRescueCase.vue';
 // import GoogleMap from '@/views/pets/pet/map/GoogleMap.vue';
+
 //會員中心功能
 import LineMessage from '@/views/secure/LineMessage.vue'; 
 import FollowCase from '@/views/secure/FollowCase.vue';
@@ -70,10 +70,10 @@ const routes = [
   // { path: "/pet/map", component: GoogleMap, name: "googleMap-link" },
   // { path: "/pet/rescueCase/update/:id", component: NewRescueProgress, name: "newRescueProgress-link" }, // 使用 props 傳遞參數產生動態路由(編輯案件)
   
-   //會員中心功能
-   { path: "/pages/Register", component: Register, name: "register-link" },
-   { path: "/member-center/followCase", component: FollowCase, name: "followCase-link" },
-   { path: "/member-center/rescueCase", component: MemberRescueCase, name: "memberRescueCase-link" },
+  //會員中心功能
+  { path: "/pages/Register", component: Register, name: "register-link" },
+  { path: "/member-center/followCase", component: FollowCase, name: "followCase-link" },
+  { path: "/member-center/rescueCase", component: MemberRescueCase, name: "memberRescueCase-link" },
 
   //管理員後台頁面
   //加上 meta 標記，表示這頁面不顯示導航列。
@@ -83,11 +83,7 @@ const routes = [
     { path: "rescueAnalysis", component: RescueAnalysis },
     { path: "shopManage", component: ShopManagement },
     { path: "notifications", component: Notifications },
-    { path: "products", component: ProductManagement, 
-      children: [
-        { path: "form", component: ProductForm }
-      ]
-    },
+    { path: "products", component: ProductManagement, },
   ],},
 
   //商城頁面

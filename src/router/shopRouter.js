@@ -7,7 +7,7 @@ import Payment from '../views/shops/Payment.vue';  // 付款明細
 export const shopRoutes = [
   { path: '', name: 'ShopHome', component: ShopHome },
   { path: 'product/:id', name: 'ProductDetails', component: ProductDetails },
-  { path: 'cart', name: 'Cart', component: Cart },
   { path: 'details/:id?', name: 'ShopDetails', component: ShopDetails, props: true },
+  { path: 'cart', name: 'Cart', component: Cart },
   { path: 'payment', name: 'Payment', component: Payment }
 ]; 

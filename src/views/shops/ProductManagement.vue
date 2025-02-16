@@ -2,18 +2,23 @@
     <!-- 讓 container 佔滿剩餘空間 -->
     <div class="container-fluid content">
 
-        <!-- 標題與新增按鈕 -->
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h2>商品管理</h2>
+        <!-- 🔹 標題、搜尋欄、新增按鈕 (統一佈局) -->
+        <div class="d-flex justify-content-between align-items-center mb-3 header-container">
+            
+            <!-- ✅ 商品管理標題 (左側) -->
+            <h2 class="page-title">商品管理</h2>
 
-            <!-- 商品模糊查詢 -->
+            <!-- ✅ 搜尋欄 -->
             <div class="search-bar">
-            <input v-model="searchQuery" type="text" class="form-control" placeholder="輸入商品關鍵字..." @keyup.enter="applyFilter" />
+                <input v-model="searchQuery" type="text" class="form-control" placeholder="輸入商品關鍵字..." @keyup.enter="applyFilter" />
             </div>
 
-            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#productFormModal">
-            新增商品
+            <!-- ✅ 新增商品按鈕 -->
+            <button class="btn btn-success add-product-btn" @click="addProduct">
+                + 新增商品
             </button>
+                <!-- 引入 Modal 組件 -->
+                <ProductFormModal ref="productFormRef" />
         </div>
 
         <!-- 商品列表 -->
@@ -23,21 +28,26 @@
                     <th scope="col">編號</th>
                     <th scope="col">圖片</th>
                     <th scope="col">名稱</th>
-                    <th scope="col">類別</th>
+                    <th scope="col">分類</th>
                     <th scope="col">標籤</th>
-                    <th scope="col">到期日</th>
                     <th scope="col">原價</th>
                     <th scope="col">售價</th>
                     <th scope="col">庫存數量</th>
                     <th scope="col">單位</th>
                     <th scope="col">描述</th>
+                    <th scope="col">到期日</th>
+                    <th scope="col">建立時間</th>
+                    <th scope="col">更新時間</th>
                     <th scope="col">狀態</th>
                     <th scope="col" ></th>
                 </tr>
             </thead>
             <tbody>
                 <tr v-for="product in productStore.products" :key="product.productId">
+                    <!-- 編號 -->
                     <td>{{ product.productId }}</td>
+
+                    <!-- 圖片 -->
                     <td>
                     <div class="image-gallery">
                         <figure class="figure">
@@ -65,13 +75,13 @@
                     </div>
                     </td>
 
-                    <!-- 商品名稱 -->
+                    <!-- 名稱 -->
                     <td v-if="!editMode[product.productId]">{{ product.productName }}</td>
                     <td v-else><input type="text" v-model="product.productName" class="form-control" /></td>
 
-                    <!-- 類別 -->
+                    <!-- 分類 -->
                     <td v-if="!editMode[product.productId]">
-                        {{ getCategoryName(product.categoryId) ? getCategoryName(product.categoryId) : "無分類" }}
+                        {{ product.category.categoryName? product.category.categoryName : "無分類" }}
                     </td>
                     <td v-else>
                         <select v-model="product.categoryId" class="form-select">
@@ -108,10 +118,6 @@
                             </template>
                         </Multiselect>
                     </td>
-                    
-                    <!-- 到期日 -->
-                    <td v-if="!editMode[product.productId]">{{ product.expire }}</td>
-                    <td v-else><input type="date" v-model="product.expire" class="form-control" /></td>
 
                     <!-- 原價 -->
                     <td v-if="!editMode[product.productId]">{{ product.originalPrice }}</td>
@@ -132,6 +138,18 @@
                     <!-- 商品描述 -->
                     <td v-if="!editMode[product.productId]">{{ product.description }}</td>
                     <td v-else><textarea v-model="product.description" class="form-control"></textarea></td>
+
+                    <!-- 到期日 -->
+                    <td v-if="!editMode[product.productId]">{{ product.expire }}</td>
+                    <td v-else><input type="date" v-model="product.expire" class="form-control" /></td>
+
+                    <!-- 建立時間 -->
+                    <td v-if="!editMode[product.productId]">{{ formatDate(product.createdAt) }}</td>
+                    <td v-else><textarea v-model="product.createdAt" class="form-control"></textarea></td>
+
+                    <!-- 更新時間 -->
+                    <td v-if="!editMode[product.productId]">{{ formatDate(product.updatedAt) }}</td>
+                    <td v-else><textarea v-model="product.updatedAt" class="form-control"></textarea></td>
 
                     <!-- 狀態 -->
                     <td v-if="!editMode[product.productId]">{{ product.status }}</td>
@@ -160,28 +178,13 @@
                 </tr>
             </tbody>
         </table>
-
-        <!-- 新增商品 Modal -->
-        <div class="modal fade" id="productFormModal" tabindex="-1" aria-labelledby="productFormLabel" aria-hidden="true">
-            <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                <h5 class="modal-title" id="productFormLabel">新增商品</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <productForm />
-                </div>
-            </div>
-            </div>
-        </div>
     </div>
 </template>
 
 <script setup>
 import { ref, onMounted, nextTick } from "vue";
 import { useRouter } from "vue-router";
-import productForm from "@/components/shop/manage/productForm.vue";
+import ProductFormModal from "@/components/shop/manage/ProductFormModal.vue";
 import useProductStore from "@/stores/productStore";
 import useCategoryStore from "@/stores/categoryStore";
 import useTagStore from "@/stores/productTagStore";
@@ -193,9 +196,17 @@ const productStore = useProductStore();
 const categoryStore = useCategoryStore();
 const tagStore = useTagStore();
 const searchQuery = ref("");
+const originalProductData = ref({}); // 備份原始商品數據（當修改狀態下，用戶取消編輯時回到原始狀態）
 
 const editMode = ref({}); // 追蹤每個 product 是否處於編輯狀態
 const placeholderImage = "https://via.placeholder.com/100"; // 預設空白圖片
+
+// ✅ 格式化日期函數: 建立時間、更新時間
+const formatDate = (dateString) => {
+    if (!dateString) return "無"; // 若日期不存在，顯示 "無"
+    const date = new Date(dateString);
+    return date.toISOString().split("T")[0]; // 轉換成 YYYY-MM-DD
+};
 
 // **點擊搜尋按鈕時調用 `fetchFilteredProducts` 並發送事件**
 const applyFilter = async () => {
@@ -219,9 +230,100 @@ const getCategoryName = (categoryId) => {
     return category ? category.categoryName : "無分類";
 };
 
-// ✅ 新增商品: 導引到彈窗
+// ✅ 新增商品
+//  打開 Modal 彈窗並重置表單內容
+const productFormRef = ref(null);
+
+// 打開 Modal
 const addProduct = () => {
-    router.push("/admin/products/form")
+    if (productFormRef.value) {
+        productFormRef.value.openModal();
+    }
+};
+
+/** 確認選項是否已選中:確保 product.tags 一定是數組，並增加 null 檢查 */
+const isSelected = (product, option) => {
+    return Array.isArray(product.tags) && product.tags.some(tag => tag.tagId === option.tagId);
+};
+
+/** 切換標籤選擇狀態 */
+const toggleTag = (product, option) => {
+    const index = product.tags.findIndex(tag => tag.tagId === option.tagId);
+    if (index === -1) {
+        product.tags.push(option); // ✅ 如果沒選，就加入
+    } else {
+        product.tags.splice(index, 1); // ✅ 如果已選，就移除
+    }
+};
+
+// ✅ 修改商品: 每個欄位開放調整，備份一份原始數據供"取消"操作時恢復資料 */
+const modifyProduct = (productId) => {
+    editMode.value[productId] = true;
+
+    // 備份原始數據（確保每個 `productId` 都有對應的備份）
+    originalProductData.value[productId] = JSON.parse(JSON.stringify(productStore.products.find(p => p.productId === productId)));
+};
+
+// 取消編輯，恢復原始數據 */
+const cancelEdit = (productId) => {
+    if (originalProductData.value[productId]) {
+        // 找到該商品在 `productStore.products` 陣列中的索引
+        const index = productStore.products.findIndex(p => p.productId === productId);
+        if (index !== -1) {
+            // 還原原始數據
+            productStore.products[index] = JSON.parse(JSON.stringify(originalProductData.value[productId]));
+        }
+    }
+
+    // 清除備份
+    delete originalProductData.value[productId];
+
+    // 關閉編輯模式
+    editMode.value[productId] = false;
+};
+
+/* 儲存變更 */
+const saveProduct = async (product) => {
+    console.log("🔄 儲存商品:", product);
+
+  // 獲取修改後的商品數據
+    const updatedData = {
+        productName: product.productName,
+        categoryId: product.categoryId,
+        tags: product.tags,
+        expire: product.expire,
+        originalPrice: product.originalPrice,
+        salePrice: product.salePrice,
+        stockQuantity: product.stockQuantity,
+        unit: product.unit,
+        description: product.description,
+        status: product.status
+    };
+
+  // 獲取新的圖片（這裡假設前端有一個 `selectedImages` 存放新上傳的圖片）
+    const productImages = product.selectedImages || [];
+
+  // 調用 `store` 發送請求
+    const success = await productStore.modifyProduct(product.productId, updatedData, productImages);
+
+    if (success) {
+        Swal.fire({
+        title: "修改成功!",
+        text: "成功修改商品資訊。",
+        icon: "success",
+        timer: 2000,
+        showConfirmButton: false,
+        timerProgressBar: true
+        });
+
+    editMode.value[product.productId] = false; // 關閉編輯模式
+    } else {
+        Swal.fire({
+            title: "修改失敗!",
+            text: "發生錯誤，請稍後再試。",
+            icon: "error"
+        });
+    }
 };
 
 // ✅ 刪除商品: 跳出提醒訊息
@@ -270,64 +372,49 @@ const deleteProduct = (id) => {
     });
 };
 
-// ✅ 修改商品: 每個欄位開放調整
-const modifyProduct = (productId) => {
-    editMode.value[productId] = !editMode.value[productId];
-};
-
-/** 確認選項是否已選中:確保 product.tags 一定是數組，並增加 null 檢查 */
-const isSelected = (product, option) => {
-    return Array.isArray(product.tags) && product.tags.some(tag => tag.tagId === option.tagId);
-};
-
-
-/** 切換標籤選擇狀態 */
-const toggleTag = (product, option) => {
-    const index = product.tags.findIndex(tag => tag.tagId === option.tagId);
-    if (index === -1) {
-        product.tags.push(option); // ✅ 如果沒選，就加入
-    } else {
-        product.tags.splice(index, 1); // ✅ 如果已選，就移除
-    }
-};
-
-/** 儲存變更 */
-const saveProduct = async (product) => {
-    console.log("儲存商品:", product);
-
-    // ✅ 確保 Vue 能檢測到 `editMode` 變化
-    editMode.value = { ...editMode.value, [product.productId]: false };
-
-    await nextTick(); // ✅ 讓 Vue 立即重新渲染，讓前端立即顯示
-
-    // ✅ 顯示 SweetAlert 成功提示
-    Swal.fire({
-        title: "修改成功!",
-        text: "成功修改商品資訊。",
-        icon: "success",
-        timer: 2000, // 2 秒後自動關閉
-        showConfirmButton: false,
-        timerProgressBar: true
-    });
-};
-
-/** 取消編輯 */
-const cancelEdit = (productId) => {
-    editMode[productId] = false;
-};
-
 onMounted(() => {
     productStore.fetchProducts();
     categoryStore.fetchCategories();
     tagStore.fetchTags();
 });
-
 </script>
 
 <style>
+/* 隱藏滾動條但允許滾動 */
+html, body {
+    overflow: auto; /* ✅ 允許滾動 */
+    scrollbar-width: none; /* ✅ 隱藏 Firefox 滾動條 */
+    -ms-overflow-style: none; /* ✅ 隱藏 IE/Edge 滾動條 */
+}
+
+body::-webkit-scrollbar {
+    display: none; /* ✅ 隱藏 Chrome/Safari 滾動條 */
+}
+
+/* ✅ 讓標題、搜尋欄、新增按鈕在同一行 */
+.header-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 15px;
+    border-radius: 90px;
+    /* box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); */
+}
+
+/* ✅ 美化標題 */
+.page-title {
+    font-size: 30px;
+    font-weight: bold;
+    color: #feba07;
+    margin-left: 100px;
+    white-space: nowrap; /* 防止換行 */
+    text-shadow: #d0ccd0 ;
+}
+
 .table{
     width: 100%;
-    border-radius: 10px; /* 讓邊框成為橢圓形 */
+    border-radius: 20px; /* 讓邊框成為橢圓形 */
     table-layout: fixed; /* 讓表格維持固定大小 */
     /* overflow: hidden; 防止內容溢出 */
     overflow: visible; /* ✅ 允許內容超出 `table` 顯示 */
@@ -353,14 +440,16 @@ th:nth-child(2), td:nth-child(2) { width: 180px; } /* 商品圖片 */
 th:nth-child(3), td:nth-child(3) { width: 120px; } /* 名稱 */
 th:nth-child(4), td:nth-child(4) { width: 150px; } /* 類別 */
 th:nth-child(5), td:nth-child(5) { width: 150px; } /* 標籤 */
-th:nth-child(6), td:nth-child(6) { width: 130px; } /* ✅ 調整到期日 */
-th:nth-child(7), td:nth-child(7) { width: 90px; } /* ✅ 調整原價 */
-th:nth-child(8), td:nth-child(8) { width: 90px; } /* ✅ 調整售價 */
-th:nth-child(9), td:nth-child(9) { width: 90px; } /* ✅ 調整庫存數量 */
-th:nth-child(10), td:nth-child(10) { width: 60px; } /* ✅ 調整單位 */
-th:nth-child(11), td:nth-child(11) { width: 250px; } /* 描述 */
-th:nth-child(12), td:nth-child(12) { width: 100px; } /* 狀態 */
-th:nth-child(13), td:nth-child(13) { width: 150px; } /* 操作按鈕 */
+th:nth-child(6), td:nth-child(6) { width: 90px; } /* 原價 */
+th:nth-child(7), td:nth-child(7) { width: 90px; } /* 售價 */
+th:nth-child(8), td:nth-child(8) { width: 90px; } /* 庫存數量 */
+th:nth-child(9), td:nth-child(9) { width: 60px; } /* 單位 */
+th:nth-child(10), td:nth-child(10) { width: 250px; } /* 描述 */
+th:nth-child(11), td:nth-child(11) { width: 130px; } /* 到期日 */
+th:nth-child(12), td:nth-child(12) { width: 130px; } /* 建立時間 */
+th:nth-child(13), td:nth-child(13) { width: 130px; } /* 更新時間 */
+th:nth-child(14), td:nth-child(14) { width: 100px; } /* 狀態 */
+th:nth-child(15), td:nth-child(15) { width: 150px; } /* 操作按鈕 */
 
 /* 單選類別 */
 td .form-select,

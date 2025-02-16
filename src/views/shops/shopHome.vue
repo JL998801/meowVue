@@ -131,7 +131,9 @@ const addToWishlist = (product) => {
 .shop-home {
   padding: 10px;
   margin-bottom: 20px;
-  overflow: hidden; /* 防止內容區域擴展超出範圍 */
+  overflow-x: hidden; /* 只隱藏水平滾動 */
+  overflow-y: auto; /* ✅ 允許垂直滾動 */
+  max-height: 100vh; /* ✅ 防止內容過度擴展 */
 }
 
 /* 標題列 */

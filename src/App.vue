@@ -37,7 +37,15 @@ watchEffect(() => {
 });
 
 // 定義需要全螢幕顯示的路徑
-const fullWidthRoutes = ["/","/pages/MemberCenter","/pet/map", "/advanced-settings", "/admin","/shop"];
+const fullWidthRoutes = [
+  "/",
+  "/pages/MemberCenter",
+  "/pet/map", 
+  "/advanced-settings", 
+  "/admin",
+  "/shop",
+  "/shop/product", // 這是動態路徑的前綴，完整路徑為"/shop/product/:id"；使用 some() 來判斷動態路由
+];
 
 // 定義需要套用 `.admin` 樣式的頁面
 const adminRoutes = [
@@ -56,9 +64,8 @@ const adminRoutes = [
 const isAdminPage = computed(() => adminRoutes.includes(route.path));
 
 // 判斷是否應用 `full-width` 樣式
-const isFullWidth = computed(() => 
-  fullWidthRoutes.includes(route.path) || route.path.startsWith("/shop")
-);
+// const isFullWidth = computed(() => fullWidthRoutes.includes(route.path));
+const isFullWidth = computed(() =>   fullWidthRoutes.some(path => route.path.startsWith(path)));
 
 </script>
 
