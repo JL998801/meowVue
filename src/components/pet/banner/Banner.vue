@@ -42,7 +42,7 @@ import axiosapi from "@/plugins/axios.js";
 // **案件分類**
 const caseCategories = ref([
     { title: "流浪救援", type: "RESCUE", moreLink: "/rescue" },
-    { title: "遺失協尋", type: "LOST", moreLink: "/lost" },
+    { title: "遺失協尋", type: "LOST", moreLink: "/pet/lost/search" },
     { title: "動物認養", type: "ADOPTION", moreLink: "/adopt" }
 ]);
 

@@ -19,7 +19,7 @@
                                 <RouterLink class="dropdown-item" to="/adopt">動物認養</RouterLink>
                             </li>
                             <li>
-                                <RouterLink class="dropdown-item" to="/pets/products">遺失協尋</RouterLink>
+                                <RouterLink class="dropdown-item" to="/pet/lost/search">遺失協尋</RouterLink>
                             </li>
                         </ul>
                     </li>

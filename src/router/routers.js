@@ -18,6 +18,7 @@ import LostMember from '@/views/pets/lost/LostMember.vue';
 import LostForm from '@/views/pets/lost/LostForm.vue';
 import ReportForm from '@/views/pets/report/ReportForm.vue';
 import LostCase from '@/views/pets/lost/LostCase.vue';
+import AllLostCase from '@/views/pets/lost/LostSearch.vue';
 
 // import RescueCase from '@/views/pets/pet/rescue/RescueCase.vue';
 // import EditRescueCase from '../views/pets/pet/rescue/EditRescueCase.vue';
@@ -55,6 +56,7 @@ const routes = [
   { path: "/pets/lostform", component: LostForm, name: "pets-LostForm-link" },
   { path: "/pets/reportform", component: ReportForm, name: "pets-ReportForm-link" },
   { path: "/pet/lostCase/:id", component: LostCase, name: "pet-lostCase-link", props: true },
+  { path: "/pet/lost/search", component: AllLostCase, name: "pet-lostCase-link", props: true },
 
   //冠儒頁面
   // { path: "/pet/rescue/search", component: RescueSearch, name: "pet-rescueSearch-link" },
@@ -102,9 +104,8 @@ route.beforeEach(async (to, from, next) => {
     "/adopt",
     "/secure/loginadmin",
     '/callback',
+    '/pet/lost/search',
     '/pets/lostform',
-    '/pets/reportform',
-    '/lost',
     '/pet/lost/member',
     "/admin",
 
