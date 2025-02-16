@@ -30,6 +30,7 @@ const props = defineProps({
   createTime: String,
   imageUrl: String,
   progressId: Number,
+  caseId: Number, // 新增 caseId 作為 prop
 });
 
 const formatDate = (date) => {
@@ -43,10 +44,12 @@ const formatDate = (date) => {
   return new Date(date).toLocaleString("zh-TW", options);
 };
 
-//點擊修改按鈕時，跳轉到 `/pet/rescueCase/rescueProgress/{progressId}`
+//點擊修改按鈕時，跳轉到 `/pet/rescueCase/${caseId}/rescueProgress/{progressId}`
 const goToEditPage = () => {
   if (props.progressId) {
-    router.push(`/pet/rescueCase/rescueProgress/${props.progressId}`);
+    router.push(
+      `/pet/rescueCase/${props.caseId}/rescueProgress/${props.progressId}`
+    );
   } else {
     console.error("progressId 不存在，無法跳轉");
   }

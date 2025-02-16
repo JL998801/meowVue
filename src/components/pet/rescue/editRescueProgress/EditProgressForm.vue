@@ -15,7 +15,10 @@
       <div class="form-group">
         <label>圖片上傳(可選)</label>
         <div class="upload-image">
-          <ImageUpload @image-uploaded="ImageUploaded"></ImageUpload>
+          <ImageUpload
+            :imageUrl="form.imageUrl"
+            @image-uploaded="ImageUploaded"
+          ></ImageUpload>
         </div>
       </div>
 
@@ -27,36 +30,66 @@
 </template>
 
 <script setup>
-import ImageUpload from "@/components/pet/rescue/newRescueProgress/ImageUpload.vue";
+import ImageUpload from "@/components/pet/rescue/editRescueProgress/ImageUpload.vue";
 import { useRouter, useRoute } from "vue-router";
-import { reactive } from "vue";
+import { reactive, onMounted } from "vue";
 import { axiosapi2 } from "@/plugins/axios.js";
 
 const baseUrl = import.meta.env.VITE_API_BASE_URL;
 
-const router = useRoute(); //專門用來讀取當前路由資訊
-const route = useRouter(); //專門用來跳轉頁面
-const caseId = router.params.id; // 從路徑中獲取 ID
-console.log("獲取的案件 ID:", caseId);
+const route = useRoute(); //專門用來讀取當前路由資訊
+const router = useRouter(); //專門用來跳轉頁面
+const progressId = route.params.progressId; // 從路徑中獲取progressID
+const caseId = route.params.caseId; // 從路徑中獲取progressID
 
 // 用來傳送資料給後端   Vue的 reactive會產生 Proxy 物件，可能導致 axios無法正確發送數據，因此要記得轉換
 const form = reactive({
   progressDetail: "",
-  imageUrl: [],
+  imageUrl: "",
+});
+
+// 取得會員登入資訊
+const getAuthToken = () => {
+  const user = localStorage.getItem("user");
+  const parsedUser = user ? JSON.parse(user) : null;
+  return parsedUser ? parsedUser.token : null;
+};
+
+// 進入頁面時，根據 caseId 和 progressId 取得進度資料
+onMounted(async () => {
+  const token = getAuthToken();
+  try {
+    const response = await axiosapi2.get(
+      `/RescueCase/rescueProgress/${caseId}/${progressId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    const progressData = response.data;
+    console.log(progressData);
+    // 填充表單數據
+    form.progressDetail = progressData.progressDetail;
+    form.imageUrl = progressData.imageUrl ? progressData.imageUrl : "";
+  } catch (error) {
+    console.error("無法獲取救援進度資料: ", error);
+    alert("無法獲取進度資料，請重試！");
+  }
 });
 
 const submitForm = async () => {
-  const cleanForm = JSON.parse(JSON.stringify(form));
-  console.log("送出數據為 (轉換後)", cleanForm);
+  //reative需要經過轉換才能轉為json數據送給後端
+  // const cleanForm = JSON.parse(JSON.stringify(form));
 
-  const user = localStorage.getItem("user");
-  const parsedUser = JSON.parse(user);
-  const token = parsedUser ? parsedUser.token : null;
+  console.log("送出數據為 (轉換後)", form);
+
+  const token = getAuthToken();
 
   try {
-    const response = await axiosapi2.post(
-      `/RescueCase/rescueProgress/add/${caseId}`,
-      cleanForm,
+    const response = await axiosapi2.put(
+      `/RescueCase/rescueProgress/${caseId}/${progressId}`, // ✅ 正確的 API 路徑
+      form,
       {
         headers: {
           "Content-Type": "application/json",
@@ -64,10 +97,10 @@ const submitForm = async () => {
         },
       }
     );
-    console.log("表單提交成功:", response.data);
-    route.push(`/pet/rescueCase/${caseId}`); // 成功後跳轉到原本案件頁面
+    console.log("進度更新成功:", response.data);
+    router.push(`/pet/rescueCase/${caseId}`); // 🔄 成功後跳轉到原案件頁面
   } catch (error) {
-    console.error("表單提交失敗:", error);
+    console.error("進度更新失敗:", error);
     alert("提交失敗，請重試！");
   }
 };
@@ -75,7 +108,7 @@ const submitForm = async () => {
 // 監聽圖片上傳事件
 const ImageUploaded = (backTmpUrl) => {
   console.log("父組件拿到囉!", backTmpUrl);
-  form.imageUrl.push(backTmpUrl);
+  form.imageUrl = backTmpUrl;
   console.log("新增圖片進表單", form);
 };
 </script>

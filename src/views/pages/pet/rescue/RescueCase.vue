@@ -54,6 +54,7 @@
                 :create-time="progress.createTime"
                 :image-url="progress.imageUrl"
                 :progress-id="progress.rescueProgressId"
+                :case-id="rescueCase.rescueCaseId"
               />
             </div>
           </div>

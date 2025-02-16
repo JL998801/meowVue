@@ -68,7 +68,7 @@ const routes = [
   // { path: "/pet/rescue/add", component: NewRescueCase, name: "newRescueCase-link" },
   { path: "/pet/map", component: GoogleMap, name: "googleMap-link" },
   { path: "/pet/rescueCase/update/:id", component: NewRescueProgress, name: "newRescueProgress-link" }, //(新增案件進度)
-  { path: "/pet/rescueCase/rescueProgress/:progressId", component: EditRescueProgress, name: "editRescueProgress-link" }, //(修改案件進度)
+  { path: "/pet/rescueCase/:caseId/rescueProgress/:progressId", component: EditRescueProgress, name: "editRescueProgress-link" }, //(修改案件進度)
 
   //會員中心功能
   { path: "/pages/Register", component: Register, name: "register-link" },
