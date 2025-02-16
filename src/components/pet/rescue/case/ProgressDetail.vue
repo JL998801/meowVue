@@ -5,14 +5,18 @@
       <span class="edit-button">修改</span>
     </div>
     <div class="progress-body">
-      <img v-if="imageUrl" :src="imageUrl" alt="進度圖片" class="progress-image" />
+      <img
+        v-if="imageUrl"
+        :src="imageUrl"
+        alt="進度圖片"
+        class="progress-image"
+      />
       <p class="progress-text">{{ progressDetail }}</p>
     </div>
   </div>
 </template>
 <script setup>
 import { ref, onMounted } from "vue";
-import axios from "axios";
 import { useRoute } from "vue-router";
 
 const route = useRoute();

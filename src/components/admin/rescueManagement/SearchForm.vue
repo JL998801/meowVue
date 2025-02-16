@@ -44,7 +44,7 @@
 
 <script setup>
 import { ref, onMounted, computed, watch } from "vue";
-import axios from "axios";
+import { axiosapi2 } from "@/plugins/axios.js";
 
 const baseUrl = import.meta.env.VITE_API_BASE_URL;
 const emit = defineEmits(["search"]);
@@ -73,7 +73,7 @@ onMounted(() => {
 
 const fetchFurColors = async () => {
   try {
-    const response = await axios.get(`${baseUrl}/pet/allFurColor`);
+    const response = await axiosapi2.get(`/pet/allFurColor`);
     furColors.value = response.data;
   } catch (error) {
     console.error("無法獲取毛色資料:", error);
@@ -82,7 +82,7 @@ const fetchFurColors = async () => {
 
 const fetchCities = async () => {
   try {
-    const response = await axios.get(`${baseUrl}/pet/allCity`);
+    const response = await axiosapi2.get(`/pet/allCity`);
     cities.value = response.data;
   } catch (error) {
     console.error("無法獲取縣市資料:", error);
@@ -95,8 +95,8 @@ const fetchDistricts = async (selectedCityId) => {
     return;
   }
   try {
-    const response = await axios.get(
-      `${baseUrl}/pet/districtAreasByCity/${selectedCityId}`
+    const response = await axiosapi2.get(
+      `/pet/districtAreasByCity/${selectedCityId}`
     );
     districts.value = response.data;
   } catch (error) {
@@ -110,7 +110,7 @@ watch(cityId, (newCityId) => {
 
 const fetchBreeds = async () => {
   try {
-    const response = await axios.get(`${baseUrl}/pet/allBreed`);
+    const response = await axiosapi2.get(`/pet/allBreed`);
     breeds.value = response.data;
   } catch (error) {
     console.error("無法獲取品種資料:", error);
@@ -119,7 +119,7 @@ const fetchBreeds = async () => {
 
 const fetchCaseStates = async () => {
   try {
-    const response = await axios.get(`${baseUrl}/pet/allCaseState`);
+    const response = await axiosapi2.get(`/pet/allCaseState`);
     caseStates.value = response.data;
   } catch (error) {
     console.error("無法獲取救援狀態資料:", error);
