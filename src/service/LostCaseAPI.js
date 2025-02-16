@@ -1,4 +1,4 @@
-import axiosapi from "@/plugins/axios.js";
+import {axiosapi} from "@/plugins/axios.js";
 
 export default {
     /**
