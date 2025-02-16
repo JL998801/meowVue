@@ -28,7 +28,11 @@ const userStore = useUserStore();
 
 //設置管理員後台、救援頁面不要有背景圖
 watchEffect(() => {
-  if (route.path.startsWith("/admin") || route.path.startsWith("/pet/rescue")) {
+  if (
+    route.path.startsWith("/admin") ||
+    route.path.startsWith("/pet/rescue") ||
+    route.path.startsWith("/pet/rescue")
+  ) {
     document.body.classList.add("admin-page"); // 在 /admin 頁面加上 class
   } else {
     document.body.classList.remove("admin-page"); // 其他頁面移除 class
@@ -76,7 +80,9 @@ const isFullWidth = computed(() => fullWidthRoutes.includes(route.path));
 /* 全域樣式 */
 .container {
   background-color: #ffffff;
-  margin: 10px auto;
+  margin: 30px auto;
+  padding: 10px;
+  border-radius: 20px;
 }
 
 /* 當 `isFullWidth` 為 true，讓 `.container` 變成全寬而且不要有卷軸 */

@@ -15,6 +15,10 @@ import LoginAdmin from '@/views/secure/LoginAdmin.vue';
 import Register from '@/views/pages/Register.vue';
 import MemberCenter from '@/views/pages/MemberCenter.vue';
 import MemberCard from '@/views/pages/MemberCard.vue';
+//冠
+import LineMessage from '@/views/secure/LineMessage.vue';
+import FollowCase from '@/views/secure/FollowCase.vue';
+import MemberRescueCase from '../views/secure/MemberRescueCase.vue';
 
 //卓頁面
 import LostMember from '@/views/pets/lost/LostMember.vue';
@@ -29,12 +33,6 @@ import RescueCase from '@/views/pages/pet/rescue/RescueCase.vue';
 // import EditRescueCase from '../views/pages/pet/rescue/EditRescueCase.vue';
 // import NewRescueCase from '../views/pages/pet/rescue/NewRescueCase.vue';
 import GoogleMap from '@/views/pages/pet/map/GoogleMap.vue';
-
-
-//會員中心功能
-import LineMessage from '@/views/secure/LineMessage.vue';
-import FollowCase from '@/views/secure/FollowCase.vue';
-import MemberRescueCase from '../views/secure/MemberRescueCase.vue';
 
 
 //後臺頁面
@@ -72,9 +70,10 @@ const routes = [
 
   //會員中心功能
   { path: "/pages/Register", component: Register, name: "register-link" },
+  { path: "/pet/lost/member", component: LostMember, name: "pets-LostMember-link" },
+  //冠
   { path: "/member-center/followCase", component: FollowCase, name: "followCase-link" },
   { path: "/member-center/rescueCase", component: MemberRescueCase, name: "memberRescueCase-link" },
-  { path: "/pet/lost/member", component: LostMember, name: "pets-LostMember-link" },
 
   //管理員後台頁面
   //加上 meta 標記，表示這頁面不顯示導航列。
