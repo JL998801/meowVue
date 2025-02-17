@@ -1,26 +1,4 @@
 <template>
-    <h3>Login</h3>
-	<table>
-        <tbody>
-            <tr>
-                <td>ID : </td>
-                <td><input type="text" v-model="username" @keyup.enter="login"></td>
-                <td><span class="error">{{ message }}</span></td>
-            </tr>
-            <tr>
-                <td>PWD : </td>
-                <td><input type="text" v-model="password" @keyup.enter="login"></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td> </td>
-                <td align="right"><button type="button" @click="login">login</button></td>
-            </tr>
-			<tr>
-				<RouterLink class="nav-link" to="/secure/login">(切換會員)</RouterLink>
-			</tr>
-        </tbody>
-	</table>
     
 	<form class="aa" @submit.prevent="submitForm">
         
@@ -29,13 +7,13 @@
 		  <div class="register-box">
 			<h3>管理員</h3>
 			<div class="input-group">
-			  <label for="nickName">使用者暱稱</label>
-			  <input type="text" v-model="username" @keyup.enter="login">
+			  <label for="nickName">管理員</label>
+			  <input type="text" v-model="username" @keyup.enter="login" placeholder="Admin">
 			</div>
 			<span class="error">{{ message }}</span>
 			<div class="input-group">
 			  <label for="password">密碼</label>
-			  <input type="text" v-model="password" @keyup.enter="login">
+			  <input type="password" v-model="password" @keyup.enter="login" placeholder="Password">
 			</div>
 	
 			<div class="gg">
@@ -49,15 +27,16 @@
 		  </div>
 		</div>
 	  </form>
+	
+	
 </template>
-
 <script setup>
-import xxx from '@/plugins/axios.js';
+import axiosapi from '@/plugins/axios.js';
 import Swal from 'sweetalert2';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import useUserStore from '@/stores/user.js';
-
+const baseUrl = import.meta.env.VITE_API_URL;
 const username=ref("")
 const password=ref("")
 const message=ref("")
@@ -79,11 +58,11 @@ async function login() {
     "password": password.value,
   };
 
-  xxx.defaults.headers.authorization = "";
+  axiosapi.defaults.headers.authorization = "";
   userStore.setEmail("");
 
   try {
-    const response = await xxx.post("/secure/loginadmin", body);
+    const response = await axiosapi.post(`${baseUrl}/secure/loginadmin`, body);
     console.log("response", response);
 
     if (response.data.success) {
@@ -94,9 +73,9 @@ async function login() {
         title: response.data.message,
         icon: "success"
       });
-      xxx.defaults.headers.authorization = "Bearer " + response.data.token;
+      axiosapi.defaults.headers.authorization = "Bearer " + response.data.token;
       userStore.setEmail(response.data.user);
-      router.push({ path: "/admin/management" });
+      router.push({ path: "/admin" });
     } else {
       document.querySelector(".error").innerHTML = response.data.message;
       Swal.fire({
@@ -120,7 +99,6 @@ function saveUserInfoToLocalStorage(token) {
 }
 
 </script>
-
 
 <style scoped>
 

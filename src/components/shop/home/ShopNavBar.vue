@@ -104,26 +104,30 @@
 <script setup>
 import { computed, ref, defineProps } from 'vue';
 import { useRouter } from 'vue-router';
-import { useCartStore } from '@/stores/cartStore';
-import {storeToRefs} from "pinia";
-import useWishListStore from "@/stores/wishlistStore";
-import useNotificationStore from "@/stores/wishlistStore";
 import Swal from 'sweetalert2';
-// import BadgeCounter from '../home/BadgeCounter.vue';
 import petLogo from '@/assets/petLogo.png'; // Logo 圖示
 
+import useUserStore from "@/stores/user";
+import {storeToRefs} from "pinia";
+import useCartStore from "@/stores/cartStore";
+import useWishListStore from "@/stores/wishlistStore";
+import useNotificationStore from "@/stores/wishlistStore";
+
 // ✅ 接收來自 `ShopLayout.vue` 的 `props`
-const props = defineProps({
-  isUserLoggedIn: Boolean,
-  cartCount: Number,       // 購物車數量
-  wishlistCount: Number,   // 願望清單數量
-  notificationCount: Number, // 通知數量
-});
+// const props = defineProps({
+//   isUserLoggedIn: Boolean,
+//   cartCount: Number,       // 購物車數量
+//   wishlistCount: Number,   // 願望清單數量
+//   notificationCount: Number, // 通知數量
+// });
 
 const router = useRouter();
 
 // 初始化: Store、空陣列
 const cartStore = useCartStore();
+
+// 初始化: Store、空陣列
+const userStore = useUserStore();
 const wishListStore = useWishListStore();
 const notificationStore = useNotificationStore();
 

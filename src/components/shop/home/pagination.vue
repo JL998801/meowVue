@@ -40,7 +40,7 @@ const updatePage = (page) => {
 
 <template>
   <div class="pagination">
-    <nav v-if="productStore.totalPages > 1" aria-label="商品分頁">
+    <nav v-if="productStore.totalPages" aria-label="商品分頁">
       <ul class="pagination">
         
         <!-- 上一頁按鈕 -->

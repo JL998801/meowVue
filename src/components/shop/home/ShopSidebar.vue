@@ -24,11 +24,11 @@
     <div class="tag-container">
       <div class="tag-item" v-for="tag in tagStore.tags" :key="tag.tagId">
         <input type="checkbox"
-               class="btn-check"
-               v-model="selectedTags"
-               :value="tag.tagId"
-               :id="'tag-' + tag.tagId"
-               @click="toggleTag(tag.tagId)">
+              class="btn-check"
+              v-model="selectedTags"
+              :value="tag.tagId"
+              :id="'tag-' + tag.tagId"
+              @click="toggleTag(tag.tagId)">
         <label class="btn btn-outline-primary tag-button" :for="'tag-' + tag.tagId">
           {{ tag.tagName }}
         </label>
@@ -38,10 +38,10 @@
     <!-- 價格範圍 -->
     <div>
       <label>最低價格：</label>
-      <input type="number" v-model="minPrice" placeholder="最低價格" />
+      <input type="number" v-model="minPrice" placeholder="最低價格" @keyup.enter="applyFilter" />
       
       <label>最高價格：</label>
-      <input type="number" v-model="maxPrice" placeholder="最高價格"/>
+      <input type="number" v-model="maxPrice" placeholder="最高價格" @keyup.enter="applyFilter"/>
     </div>
 
     <div>
@@ -52,7 +52,7 @@
 </template>
 
 <script setup>
-import { ref, defineProps, defineEmits, computed } from "vue";
+import { ref, defineProps, computed } from "vue";
 import useProductStore from "@/stores/productStore";
 import useCategoryStore from "@/stores/categoryStore";
 import useProductTagStore from "@/stores/productTagStore";
@@ -66,7 +66,7 @@ const minPrice = ref(null);
 const maxPrice = ref(null);
 
 // 傳遞給父組件 shopLayout.vue
-const emit = defineEmits(["update-filter"]);
+// const emit = defineEmits(["update-filter"]);
 const productStore = useProductStore();
 
 // products 預設為 []，防止 v-for 無法綁定
@@ -111,12 +111,13 @@ const applyFilter = async () => {
 <style scoped>
 .shop-filters {
   width: 300px;
-  padding: 15px;
-  margin: 2px;
+  padding: 20px; /* ✅ 增加內邊距，讓內容不會太擠 */
+  margin: 5px;
   background-color: #d0ccd0;
   border-radius: 5%;
-  row-gap: 10px;
-  gap: 10px;
+  display: flex;
+  flex-direction: column; /* ✅ 垂直排列所有篩選區塊 */
+  row-gap: 15px; /* ✅ 設定每個篩選區塊之間的間距 */
 }
 .search-bar {
   display: flex;

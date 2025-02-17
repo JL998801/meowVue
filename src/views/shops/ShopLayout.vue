@@ -13,7 +13,7 @@
     <!-- 🔹 商城主要內容區域 -->
     <main class="shop-container">
       <!-- 🔹 商品篩選側邊欄 (左側) -->
-      <aside clase="shop-sidebar">
+      <aside clase="shop-sidebar" v-if="!isProductDetailPage">
        <!-- 🔹 接收 `update-filter` 事件，更新 `filter` -->
         <ShopSideBar
           @update-filter="updateFilter"
@@ -22,7 +22,7 @@
 
       <!-- 🔹 商品顯示區域 (右側) -->
       <section class="shop-content">
-        <router-view 
+        <router-view
           @add-to-cart="handleAddToCart"
           @add-to-wishlist="handleAddToWishlist"
         />
@@ -34,6 +34,7 @@
 <script setup>
 // 負責商城的全局狀態管理，類似首頁 App.vue的作用
 import { ref, computed, onMounted,watch } from "vue";
+import { useRoute } from "vue-router";
 import useUserStore from "@/stores/user";
 import useProductStore from "@/stores/productStore";
 import useCategoryStore from "@/stores/categoryStore"
@@ -43,6 +44,12 @@ import useWishListStore from "@/stores/wishlistStore";
 import useNotificationStore from "@/stores/wishlistStore";
 import ShopNavBar from '@/components/shop/home/ShopNavBar.vue';  // 導覽列
 import ShopSideBar from "@/components/shop/home/ShopSideBar.vue"; //左側搜尋欄
+
+// 獲取當前路由
+const route = useRoute();
+
+// **當路由是 `/shop/product/:id` 時，隱藏 ShopSideBar**
+const isProductDetailPage = computed(() => route.path.startsWith("/shop/product/"));
 
 // 初始化: Store、空陣列
 const userStore = useUserStore();
@@ -142,22 +149,18 @@ onMounted(async () => {
 <style scoped>
 /* ✅ 確保 `shop-layout` 正確填滿畫面 */
 .shop-layout {
-  display: flex;
+  flex-grow: 1;  
+  overflow-x: hidden; 
   flex-direction: column;
   height: 100vh;
   width: 100vw;
-  position: relative;
+  height: auto;
 }
 
 /* ✅ 讓 `shop-container` 正確排列 */
 .shop-container {
-  padding: 20px;
-  display: flex;
-  flex: 1;
-  gap: 20px;
-  width: 100%;
-  margin: auto;
-  height: calc(100vh - 80px);
+  display: flex; /* ✅ 確保 `aside` 和 `section` 水平排列 */
+  flex-grow: 1;
 }
 
 /* ✅ 讓 `.shop-sidebar` 與 `.shop-content` 正確對齊 */
@@ -172,11 +175,8 @@ onMounted(async () => {
 /* ✅ 讓 `.shop-content` 正確滾動 */
 .shop-content {
   flex: 1;
-  min-width: 0;
-  height: 100%;
+  width: 100%;
   overflow-y: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
 }
 .shop-content::-webkit-scrollbar {
   display: none;

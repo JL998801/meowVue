@@ -1,7 +1,7 @@
 import { jsonRequest } from "@/plugins/axios";
 import axiosapi from "@/plugins/axios";
 
-const API_URL = "/products";
+const API_URL = "/api/products";
 
 export const ProductService = {
   /**
@@ -11,6 +11,7 @@ export const ProductService = {
    * @param {string} sortBy 排序字段 (預設 "productName")
    * @param {string} order 排序方式 ("asc" 或 "desc")
    */
+
   async getPagedProducts(page = 0, size = 10, sortBy = "productName", order = "asc") {
     // return axiosapi.get(`${API_URL}/paged`, {
     //   params: { page, size, sortBy, order } // ✅ 傳遞 API 參數
@@ -28,57 +29,39 @@ export const ProductService = {
 
   async searchProducts(searchParams) {
     return jsonRequest("post", `${API_URL}/search`, searchParams);
-},
-};
-// import axios,{} from "axios";
+  },
 
-// const API_URL = "/products";
+  // 商品增刪改
+  async deleteProducts(id) {
+    return jsonRequest("delete", `${API_URL}/${id}`);
+  },
 
-// export const ProductService = {
-//   /**
-//    * ✅ 取得分頁商品數據
-//    */
-//   async getPagedProducts(page = 0, size = 10, sortBy = "productName", order = "asc") {
-//     return axios.get(`${API_URL}/paged`, {
-//       params: { page, size, sortBy, order } // ✅ 傳遞 API 參數
-//     });
-//   },
+  async addProducts() {
+    return jsonRequest("post", `${API_URL}`);
+  },
 
-//   /**
-//    * ✅ 取得所有商品
-//    */
-//   async getAllProducts() {
-//     return axios.get(API_URL);
-//   },
 
-//   /**
-//    * ✅ 透過商品 ID 取得單一商品
-//    */
-//   async getProductById(id) {
-//     return axios.get(`${API_URL}/${id}`);
-//   },
-
-//   /**
-//    * ✅ 根據條件查詢商品（名稱、類別、價格、標籤）
-//    */
-//   async searchProducts(filter) {
-//     try {
-//         // ✅ 確保 `tags` 是 `List<String>`，避免空值影響
-//         if (filter.tags && Array.isArray(filter.tags)) {
-//             filter.tags = filter.tags.filter(tag => tag.trim() !== "");
-//         }
-
-//         const response = await axios.post(`${API_URL}/search`, filter, {
-//             headers: {
-//                 "Content-Type": "application/json"
-//             }
-//         });
-
-//         return response;
-//     } catch (error) {
-//         console.error("搜尋 API 錯誤:", error);
-//         throw error;
-//     }
-//   },
+  // 修改包含回傳圖片，需要以 multipart/form-data 格式同步後端 api
+  async modifyProducts(id, productData, productImages = []) {
+    const formData = new FormData();
   
-// };
+    // 將 JSON 物件轉為字串
+    formData.append("productRequest", JSON.stringify(productData));
+  
+    // 附加圖片檔案
+    productImages.forEach((image) => {
+      formData.append("productImages", image);
+    });
+  
+    try {
+      const response = await axiosapi.put(`/products/${id}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("🔴 修改商品失敗:", error);
+      return null;
+    }
+  }
+
+};

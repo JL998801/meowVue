@@ -1,6 +1,6 @@
 import { jsonRequest } from "@/plugins/axios";
 
-const API_URL = "/categories";
+const API_URL = "/api/categories";
 
 export const CategoryService = {
   async getAllCategories() {
