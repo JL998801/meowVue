@@ -10,7 +10,7 @@ import LoginAdmin from '@/views/secure/LoginAdmin.vue';
 import LostForm from '@/views/pets/lost/LostForm.vue';
 import ReportForm from '@/views/pets/report/ReportForm.vue';
 import Register from '@/views/pets/Register.vue';
-import MemberCenter from '@/views/pets/MemberCenter.vue';
+import MemberCenter from '@/views/pages/MemberCenter.vue';
 import MemberCard from '@/views/pets/MemberCard.vue';
 import ShopLayout from '@/views/shops/ShopLayout.vue';
 import { shopRoutes } from './shopRouter'; // 引入商城路由
@@ -60,7 +60,7 @@ const routes = [
   // { path:"/pet/map", component: GoogleMap, name: "googleMap-link"},
   // {path:"/pet/rescueCase/update/:id", component: NewRescueProgress, name: "newRescueProgress-link"}, // 使用 props 傳遞參數產生動態路由(編輯案件)
   { path: "/pages/Register", component: Register, name: "register-link" },
-  { path: "/pets/MemberCenter", component: MemberCenter, name: "MemberCenter-link" },
+  { path: "/pages/MemberCenter", component: MemberCenter, name: "MemberCenter-link" },
   { path: "/pets/MemberCard", component: MemberCard, name: "MemberCard-link" },
   // { path: "/pet/rescue/search", component: RescueSearch, name: "pet-rescueSearch-link" },
   // { path: "/pet/rescueCase/:id", component: RescueCase, name: "pet-rescueCase-link", props: true },  // 使用 props 傳遞參數產生動態路由(新增案件)
@@ -69,7 +69,7 @@ const routes = [
   // { path: "/pet/rescue/add", component: NewRescueCase, name: "newRescueCase-link" },
   // { path: "/pet/map", component: GoogleMap, name: "googleMap-link" },
   // { path: "/pet/rescueCase/update/:id", component: NewRescueProgress, name: "newRescueProgress-link" }, // 使用 props 傳遞參數產生動態路由(編輯案件)
-  
+
   //會員中心功能
   { path: "/pages/Register", component: Register, name: "register-link" },
   { path: "/member-center/followCase", component: FollowCase, name: "followCase-link" },

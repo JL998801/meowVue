@@ -59,8 +59,8 @@
         <img v-if="item.product?.imageUrl" :src="item.product.imageUrl" alt="Product Image"
           class="product-image" />
         <p>
-          {{ item.product?.productName || '商品名稱加載中...' }} - 單價:
-          {{ item.product?.salePrice || 0 }}元 ×
+          {{ item.product?.productName || '已經加入商品 前往購物車確認' }} - 單價:
+          {{ item.product?.salePrice || '???' }}元 ×
           <span>{{ item.quantity }}</span>
         </p>
       </div>
