@@ -31,8 +31,8 @@ import RescueSearch from '@/views/pages/pet/rescue/RescueSearch.vue';
 import RescueCase from '@/views/pages/pet/rescue/RescueCase.vue';
 import NewRescueProgress from '@/views/pages/pet/rescue/NewRescueProgress.vue';
 import EditRescueProgress from '@/views/pages/pet/rescue/EditRescueProgress.vue';
-// import EditRescueCase from '@/views/pages/pet/rescue/EditRescueCase.vue';
-// import NewRescueCase from '@/views/pages/pet/rescue/NewRescueCase.vue';
+import EditRescueCase from '@/views/pages/pet/rescue/EditRescueCase.vue';
+import NewRescueCase from '@/views/pages/pet/rescue/NewRescueCase.vue';
 import GoogleMap from '@/views/pages/pet/map/GoogleMap.vue';
 
 
@@ -63,9 +63,9 @@ const routes = [
   //冠頁面
    { path: "/pet/rescue/search", component: RescueSearch, name: "pet-rescueSearch-link" },
    { path: "/pet/rescueCase/:id", component: RescueCase, name: "pet-rescueCase-link", props: true },  // 使用 props 傳遞參數產生動態路由(新增案件)
-  // { path: "/pet/rescueCase/edit/:id", component: EditRescueCase, name: "pet-rescueCase-edit-link", props: true },  // 使用 props 傳遞參數產生動態路由(編輯案件)
+  { path: "/pet/rescueCase/edit/:id", component: EditRescueCase, name: "pet-rescueCase-edit-link", props: true },  // 使用 props 傳遞參數產生動態路由(編輯案件)
   { path: "/advanced-settings", component: LineMessage, name: "advanced-settings-link" },
-  // { path: "/pet/rescue/add", component: NewRescueCase, name: "newRescueCase-link" },
+  { path: "/pet/rescue/add", component: NewRescueCase, name: "newRescueCase-link" },
   { path: "/pet/map", component: GoogleMap, name: "googleMap-link" },
   { path: "/pet/rescueCase/update/:id", component: NewRescueProgress, name: "newRescueProgress-link" }, //(新增案件進度)
   { path: "/pet/rescueCase/:caseId/rescueProgress/:progressId", component: EditRescueProgress, name: "editRescueProgress-link" }, //(修改案件進度)
