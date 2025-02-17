@@ -167,7 +167,7 @@
 
 <script setup>
 import { ref, onMounted, watch } from "vue";
-import axiosapi from "@/plugins/axios.js";
+import { axiosapi } from "@/plugins/axios.js";
 import { useRouter } from "vue-router";
 import ImageUpload from "./ImageUpload.vue";
 

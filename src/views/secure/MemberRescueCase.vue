@@ -2,16 +2,33 @@
   <div class="rescue-case-page">
     <h1>流浪救援管理</h1>
     <h2>我的救援紀錄</h2>
-    <div v-for="caseItem in rescueCases" :key="caseItem.rescueCaseId" class="case-item">
+    <div
+      v-for="caseItem in rescueCases"
+      :key="caseItem.rescueCaseId"
+      class="case-item"
+    >
       <div class="case-content">
         <h3>
-          <RouterLink :to="`/pet/rescueCase/${caseItem.rescueCaseId}`" class="case-link">
+          <RouterLink
+            :to="`/pet/rescueCase/${caseItem.rescueCaseId}`"
+            class="case-link"
+          >
             {{ caseItem.caseTitle }}
           </RouterLink>
         </h3>
         <div class="case-info">
           <p>救援案件編號：{{ caseItem.rescueCaseId }}</p>
-          <p><span>最後更新日期：<span class="info">{{ formatDate(caseItem.lastUpdateTime) }}</span></span><span>  建立日期：<span class="info">{{ formatDate(caseItem.publicationTime) }}</span></span></p>
+          <p>
+            <span
+              >最後更新日期：<span class="info">{{
+                formatDate(caseItem.lastUpdateTime)
+              }}</span></span
+            ><span>
+              建立日期：<span class="info">{{
+                formatDate(caseItem.publicationTime)
+              }}</span></span
+            >
+          </p>
         </div>
       </div>
       <div class="case-status">
@@ -25,9 +42,8 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import axios from "axios";
+import { axiosapi2 } from "@/plugins/axios.js";
 
-const baseUrl = import.meta.env.VITE_API_BASE_URL;
 const rescueCases = ref([]);
 
 // 格式化日期
@@ -59,7 +75,7 @@ const fetchRescueCases = async () => {
       return;
     }
 
-    const response = await axios.get(`${baseUrl}/RescueCase/memberRescueCases`, {
+    const response = await axiosapi2.get(`/RescueCase/memberRescueCases`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -78,10 +94,9 @@ onMounted(() => {
 
 <style scoped>
 .rescue-case-page {
-    margin: 20px;
-    padding: 10px;
+  margin: 20px;
+  padding: 10px;
 }
-
 
 h1 {
   font-size: 30px;
@@ -109,7 +124,7 @@ h2 {
   transition: all 0.2s ease-in-out;
 }
 
-.case-item h3{
+.case-item h3 {
   font-size: 19px;
   font-weight: 700;
   margin-bottom: 10px;
@@ -138,9 +153,9 @@ h2 {
   text-decoration: underline;
 }
 
-.case-info{
-    margin-top: 20px;
-    margin-left: 0;
+.case-info {
+  margin-top: 20px;
+  margin-left: 0;
 }
 
 .case-info p {
@@ -150,12 +165,11 @@ h2 {
 }
 
 .case-info p span {
-    margin-right: 30px;
- 
-} 
+  margin-right: 30px;
+}
 
-.info{
-    color:#333
+.info {
+  color: #333;
 }
 
 .case-status {
@@ -169,7 +183,7 @@ h2 {
   color: #e74c3c; /* 字體顏色 */
   background-color: #fbe3e3; /* 背景色 */
   padding: 5px 10px;
-  border-radius: 10px; 
+  border-radius: 10px;
   display: inline-block;
 }
 
@@ -178,7 +192,7 @@ h2 {
   color: #f39c12; /* 字體顏色 */
   background-color: #fdebd0; /* 背景色 */
   padding: 5px 10px;
-  border-radius: 10px; 
+  border-radius: 10px;
   display: inline-block;
 }
 
@@ -186,7 +200,7 @@ h2 {
   color: #95a5a6; /* 字體顏色 */
   background-color: #ecf0f1; /* 背景色 */
   padding: 5px 10px;
-  border-radius: 10px; 
+  border-radius: 10px;
   display: inline-block;
 }
 </style>

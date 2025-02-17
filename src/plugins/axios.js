@@ -1,8 +1,14 @@
 import axios from "axios";
+const baseUrl = import.meta.env.VITE_API_URL
+
+// 冠用
+export const axiosapi2 = axios.create({
+    baseURL: `${baseUrl}/api` // 確保 API Base URL 來自環境變數
+});
 
 // 所有 API 請求自動帶上 Authorization Token
-const axiosapi = axios.create({
-    baseURL: import.meta.env.VITE_API_URL // 確保 API Base URL 來自環境變數
+export const axiosapi = axios.create({
+    baseURL: `${baseUrl}/api` // 確保 API Base URL 來自環境變數
 });
 
 // 請求攔截器 (Request Interceptor)
@@ -54,6 +60,4 @@ export const uploadFile = (url, formData) => {
         headers: { "Content-Type": "multipart/form-data" }, // 確保 Form-Data 格式
     });
 };
-
-export default axiosapi;
 

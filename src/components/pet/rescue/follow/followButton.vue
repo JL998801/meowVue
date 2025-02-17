@@ -1,18 +1,22 @@
 <template>
-  <div @click="toggleFollow" class="follow-button" :class="{ following: isFollowing }">
+  <div
+    @click="toggleFollow"
+    class="follow-button"
+    :class="{ following: isFollowing }"
+  >
     <font-awesome-icon icon="fa-solid fa-heart" class="heart-icon" />
     <span>{{ isFollowing ? "已追蹤" : "追蹤" }} ({{ followCount }})</span>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, watch  } from "vue";
-import axios from "axios";
+import { ref, onMounted, watch } from "vue";
+import { axiosapi2 } from "@/plugins/axios.js";
 import { useRoute } from "vue-router";
-import Swal from 'sweetalert2';
+import Swal from "sweetalert2";
+import followIcon from "@/assets/follow-icon.png";
 
 const baseUrl = import.meta.env.VITE_API_BASE_URL;
-
 
 const props = defineProps({
   follow: {
@@ -34,13 +38,12 @@ const followCount = ref(props.follow);
 const isFollowing = ref(false);
 const route = useRoute();
 
-
 // 顯示彈窗訊息
 const showAlert = (message, icon) => {
   Swal.fire({
     title: "追蹤狀態",
     text: message,
-    imageUrl: "http://localhost:8080/upload/final/pet/images/follow-icon.png",
+    imageUrl: followIcon,
     // icon: icon,
     imageWidth: 150, // 設定寬度
     imageHeight: 120, // 設定高度
@@ -53,7 +56,6 @@ const showAlert = (message, icon) => {
   });
 };
 
-
 // 取得會員登入資訊
 const getAuthToken = () => {
   const user = localStorage.getItem("user");
@@ -61,22 +63,47 @@ const getAuthToken = () => {
   return parsedUser ? parsedUser.token : null;
 };
 
-
 // **監聽 `props.follow`，當值變化時更新 `followCount`**
 watch(
   () => props.follow,
-  async(newFollow) => {
+  async (newFollow) => {
     try {
-    if (newFollow !== undefined) {
-      followCount.value = newFollow;
-      console.log("追蹤數更新:", newFollow);
-    }
-  } catch (error) {
+      if (newFollow !== undefined) {
+        followCount.value = newFollow;
+        console.log("追蹤數更新:", newFollow);
+      }
+    } catch (error) {
       console.error("監聽 caseId 變更時發生錯誤:", error);
     }
   },
   { immediate: true }
 );
+
+// **初始化時檢查是否已追蹤**
+const checkIfFollowing = async () => {
+  const token = getAuthToken();
+  if (!token || !props.caseId || !props.caseType) return; // ✅ 確保所有數據都準備好
+
+  console.log("token為", token);
+  console.log("caseId為", props.caseId);
+  console.log("caseType為", props.caseType);
+
+  try {
+    const response = await axiosapi2.get(`/Case/follow/status`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      params: {
+        caseId: props.caseId,
+        caseType: props.caseType,
+      },
+    });
+
+    isFollowing.value = response.data.isFollowing; // 設定是否已追蹤，決定顯示追蹤或已追蹤
+  } catch (error) {
+    console.error("檢查追蹤狀態失敗:", error);
+  }
+};
 
 // **監聽 `props.caseId`，當 `caseId` 更新時，重新檢查追蹤狀態**
 watch(
@@ -94,47 +121,17 @@ watch(
   { immediate: true }
 );
 
-// **初始化時檢查是否已追蹤**
-const checkIfFollowing = async () => {
-  const token = getAuthToken();
-  if (!token || !props.caseId || !props.caseType) return; // ✅ 確保所有數據都準備好
-
-console.log("token為",token);
-console.log("caseId為",props.caseId);
-console.log("caseType為",props.caseType);
-
-  try {
-    const response = await axios.get(`${baseUrl}/Case/follow/status`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      params: {
-        caseId: props.caseId,
-        caseType: props.caseType,   
-      },
-    });
-
-    isFollowing.value = response.data.isFollowing; // 設定是否已追蹤，決定顯示追蹤或已追蹤
-  } catch (error) {
-    console.error("檢查追蹤狀態失敗:", error);
-  }
-};
-
-
 // 切換追蹤狀態
 const toggleFollow = async () => {
-    
   const token = getAuthToken();
   if (!token) {
     alert("請先登入才能追蹤案件！");
     return;
   }
 
-
-
   try {
-    const response = await axios.put(
-      `${baseUrl}/Case/follow/add`,
+    const response = await axiosapi2.put(
+      `/Case/follow/add`,
       {},
       {
         headers: {
@@ -146,12 +143,12 @@ const toggleFollow = async () => {
         },
       }
     );
-    
+
     console.log(response.data.message);
 
-   // 切換畫面追蹤狀態並更新數量(後端在送api時就會隨著更新資料表中的追蹤數量了，這裡只變化前端顯示，不重抓)
-  // 顯示不同的訊息
-  if (isFollowing.value) {
+    // 切換畫面追蹤狀態並更新數量(後端在送api時就會隨著更新資料表中的追蹤數量了，這裡只變化前端顯示，不重抓)
+    // 顯示不同的訊息
+    if (isFollowing.value) {
       showAlert("已取消追蹤", "info");
       followCount.value -= 1;
     } else {
@@ -168,13 +165,9 @@ const toggleFollow = async () => {
 onMounted(() => {
   checkIfFollowing();
 });
-
-
-
 </script>
 
 <style scoped>
-
 .follow-button {
   cursor: pointer;
   display: flex;
@@ -186,7 +179,7 @@ onMounted(() => {
 }
 
 .follow-button:hover {
-  color:#ed6c6c
+  color: #ed6c6c;
 }
 
 /* 已追蹤的樣式 */

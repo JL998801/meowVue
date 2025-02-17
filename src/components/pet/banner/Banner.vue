@@ -1,43 +1,56 @@
 <template>
-    <div class="carousel-container">
-        <div v-for="category in caseCategories" :key="category.type" class="carousel-section">
-            <div class="carousel-header">
-                <div class="title-container">
-                    <h3>🐾 {{ category.title }} </h3>
-                </div>
-                <router-link :to="category.moreLink" class="more-button">查看更多</router-link>
-            </div>
-
-            <div class="carousel-wrapper">
-                <button @click="prevSlide(category.type)" class="nav-button">‹</button>
-                <div class="carousel">
-                    <template v-if="displayedCases[category.type] && displayedCases[category.type].length > 0">
-                        <div
-                            v-for="caseItem in displayedCases[category.type]"
-                            :key="caseItem.bannerId"
-                            class="carousel-item"
-                            @click="goToCaseDetail(caseItem)"
-                            style="cursor: pointer;"
-                        >
-                            <img 
-                                :src="caseItem.imageUrl ? caseItem.imageUrl : '/images/default.png'"  
-                                alt="案件圖片"  
-                                class="case-image" 
-                            />
-                            <p class="case-title">{{ caseItem.caseTitle || "未知標題" }}</p>
-                        </div>
-                    </template>
-                    <p v-else class="no-data-message">目前沒有相關案件</p>
-                </div>
-                <button @click="nextSlide(category.type)" class="nav-button">›</button>
-            </div>
+  <div class="carousel-container">
+    <div
+      v-for="category in caseCategories"
+      :key="category.type"
+      class="carousel-section"
+    >
+      <div class="carousel-header">
+        <div class="title-container">
+          <h3>🐾 {{ category.title }}</h3>
         </div>
+        <router-link :to="category.moreLink" class="more-button"
+          >查看更多</router-link
+        >
+      </div>
+
+      <div class="carousel-wrapper">
+        <button @click="prevSlide(category.type)" class="nav-button">‹</button>
+        <div class="carousel">
+          <template
+            v-if="
+              displayedCases[category.type] &&
+              displayedCases[category.type].length > 0
+            "
+          >
+            <div
+              v-for="caseItem in displayedCases[category.type]"
+              :key="caseItem.bannerId"
+              class="carousel-item"
+              @click="goToCaseDetail(caseItem)"
+              style="cursor: pointer"
+            >
+              <img
+                :src="
+                  caseItem.imageUrl ? caseItem.imageUrl : '/images/default.png'
+                "
+                alt="案件圖片"
+                class="case-image"
+              />
+              <p class="case-title">{{ caseItem.caseTitle || "未知標題" }}</p>
+            </div>
+          </template>
+          <p v-else class="no-data-message">目前沒有相關案件</p>
+        </div>
+        <button @click="nextSlide(category.type)" class="nav-button">›</button>
+      </div>
     </div>
+  </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from "vue";
-import axiosapi from "@/plugins/axios.js";
+import { axiosapi } from "@/plugins/axios.js";
 
 // **案件分類**
 const caseCategories = ref([
@@ -48,31 +61,31 @@ const caseCategories = ref([
 
 // **存儲所有案件**
 const cases = ref({
-    RESCUE: [],
-    LOST: [],
-    ADOPTION: []
+  RESCUE: [],
+  LOST: [],
+  ADOPTION: [],
 });
 
 // **當前顯示的 5 個最新案件**
 const displayedCases = ref({
     RESCUE: [],
     LOST: [],
-    ADOPTION: []
+    ADOPT: []
 });
 
 // **獲取 Banner 資料**
 const fetchBannerData = async () => {
-    try {
-        const response = await axiosapi.get(`/banners`);
-        let banners = response.data;
+  try {
+    const response = await axiosapi.get(`/banners`);
+    let banners = response.data;
 
-        console.log("✅ 獲取的 banners:", banners);
+    console.log("✅ 獲取的 banners:", banners);
 
-        // 過濾掉 `isHidden: true` 的 Banner
-        banners = banners.filter(banner => !banner.isHidden);
+    // 過濾掉 `isHidden: true` 的 Banner
+    banners = banners.filter((banner) => !banner.isHidden);
 
-        // 按 `onlineDate` 降冪排序
-        banners.sort((a, b) => new Date(b.onlineDate) - new Date(a.onlineDate));
+    // 按 `onlineDate` 降冪排序
+    banners.sort((a, b) => new Date(b.onlineDate) - new Date(a.onlineDate));
 
         // 轉換資料格式，確保 `imageUrl` 存在
         const processBanner = (banner) => ({
@@ -97,10 +110,10 @@ const fetchBannerData = async () => {
         displayedCases.value.RESCUE = [...cases.value.RESCUE.slice(0, 5)];
         displayedCases.value.ADOPTION = [...cases.value.ADOPTION.slice(0, 5)];
 
-        console.log("🔍 最新案件:", displayedCases.value);
-    } catch (error) {
-        console.error("❌ 獲取 Banner 資料失敗:", error);
-    }
+    console.log("🔍 最新案件:", displayedCases.value);
+  } catch (error) {
+    console.error("❌ 獲取 Banner 資料失敗:", error);
+  }
 };
 
 // **點擊 Banner，導向對應的案件詳情頁**
@@ -139,34 +152,34 @@ const goToCaseDetail = async (banner) => {
 
 // **自動輪播**
 const startAutoSlide = () => {
-    setInterval(() => {
-        caseCategories.value.forEach(category => {
-            nextSlide(category.type);
-        });
-    }, 3000);
+  setInterval(() => {
+    caseCategories.value.forEach((category) => {
+      nextSlide(category.type);
+    });
+  }, 3000);
 };
 
 // **下一組**
 const nextSlide = (type) => {
-    if (displayedCases.value[type] && displayedCases.value[type].length > 1) {
-        let temp = displayedCases.value[type].shift(); // 取出第一個元素
-        displayedCases.value[type].push(temp); // 放到最後
-    }
+  if (displayedCases.value[type] && displayedCases.value[type].length > 1) {
+    let temp = displayedCases.value[type].shift(); // 取出第一個元素
+    displayedCases.value[type].push(temp); // 放到最後
+  }
 };
 
 // **上一組**
 const prevSlide = (type) => {
-    if (displayedCases.value[type] && displayedCases.value[type].length > 1) {
-        let temp = displayedCases.value[type].pop(); // 取出最後一個元素
-        displayedCases.value[type].unshift(temp); // 放到最前面
-    }
+  if (displayedCases.value[type] && displayedCases.value[type].length > 1) {
+    let temp = displayedCases.value[type].pop(); // 取出最後一個元素
+    displayedCases.value[type].unshift(temp); // 放到最前面
+  }
 };
 
 // **頁面載入時執行**
 onMounted(async () => {
-    console.log("⏩ 自動輪播觸發");
-    await fetchBannerData(); // ✅ 獲取最新案件
-    startAutoSlide(); // ✅ 開啟自動輪播
+  console.log("⏩ 自動輪播觸發");
+  await fetchBannerData(); // ✅ 獲取最新案件
+  startAutoSlide(); // ✅ 開啟自動輪播
 });
 </script>
 
@@ -180,51 +193,51 @@ onMounted(async () => {
 
 /* 每個類別段落的格式 */
 .carousel-section {
-    margin-bottom: 20px;
-    background: #f9f9f9;
-    padding: 15px;
-    border-radius: 10px;
-    opacity: 0.95;  /* 設置透明度 */
+  margin-bottom: 20px;
+  background: #f9f9f9;
+  padding: 15px;
+  border-radius: 10px;
+  opacity: 0.95; /* 設置透明度 */
 }
 
 /* 標題和按鈕欄 */
 .carousel-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 20px;
-    font-weight: bold;
-    color: #FEBA07;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 20px;
+  font-weight: bold;
+  color: #feba07;
 }
 
 /* 標題分組 */
 .title-container {
-    display: flex;
-    align-items: center;
+  display: flex;
+  align-items: center;
 }
 
 /* 類別圖標格式 */
 .section-icon {
-    color: #C6BC77;
-    margin-right: 8px;
+  color: #c6bc77;
+  margin-right: 8px;
 }
 
 /* 查看更多按鈕 */
 .more-button {
-    background-color: #C6BC77;
-    color: white;
-    padding: 5px 10px;
-    border-radius: 5px;
-    text-decoration: none;
-    font-size: 14px;
+  background-color: #c6bc77;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 5px;
+  text-decoration: none;
+  font-size: 14px;
 }
 
 /* 輪播系統的對齊格式 */
 .carousel-wrapper {
-    position: relative;
-    overflow: hidden; /* 如果有滾動條影響，可以嘗試 auto */
-    width: 100%;
-    padding: 0 20px;
+  position: relative;
+  overflow: hidden; /* 如果有滾動條影響，可以嘗試 auto */
+  width: 100%;
+  padding: 0 20px;
 }
 
 /* 內部輪播區域 */
@@ -270,10 +283,10 @@ onMounted(async () => {
 
 /* 案件圖片格式 */
 .case-image {
-    width: 100%;
-    height: auto;
-    object-fit: cover;
-    border-radius: 5px;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  border-radius: 5px;
 }
 
 /* 案件標題文字格式 */
@@ -287,23 +300,23 @@ onMounted(async () => {
 
 /* 輪播器左右按鈕 */
 .nav-button {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background: rgba(0, 0, 0, 0.5); /* 半透明背景 */
-    color: white;
-    border: none;
-    font-size: 24px;
-    padding: 10px;
-    cursor: pointer;
-    z-index: 10; /* 確保按鈕在最上層 */
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.5); /* 半透明背景 */
+  color: white;
+  border: none;
+  font-size: 24px;
+  padding: 10px;
+  cursor: pointer;
+  z-index: 10; /* 確保按鈕在最上層 */
 }
 
 .nav-button:first-child {
-    left: 10px; /* 左側按鈕 */
+  left: 10px; /* 左側按鈕 */
 }
 
 .nav-button:last-child {
-    right: 10px; /* 右側按鈕 */
+  right: 10px; /* 右側按鈕 */
 }
 </style>

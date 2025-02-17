@@ -17,7 +17,7 @@ export default defineConfig({
   server: {
     headers: {
       // 設定 CSP 設置
-      'Content-Security-Policy': "script-src 'self' https://www.gstatic.com https://apis.google.com https://accounts.google.com; frame-src 'self' https://accounts.google.com; connect-src 'self' https://www.googleapis.com http://localhost:8080;",
+      'Content-Security-Policy': "script-src 'self' https://www.gstatic.com https://apis.google.com https://accounts.google.com https://maps.googleapis.com; frame-src 'self' https://accounts.google.com; connect-src 'self' https://www.googleapis.com https://maps.googleapis.com http://localhost:8080;",
     },
   }
 

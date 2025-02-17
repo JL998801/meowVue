@@ -72,7 +72,7 @@
 
 <script setup>
 import { ref, onMounted, watch } from "vue";
-import axios from "axios";
+import { axiosapi2 } from "@/plugins/axios.js";
 
 const baseUrl = import.meta.env.VITE_API_BASE_URL;
 const props = defineProps({ searchParams: Object });
@@ -90,7 +90,7 @@ const fetchCases = async () => {
   isLoading.value = true;
 
   try {
-    const response = await axios.get(`${baseUrl}/RescueCase/search/allCases`, {
+    const response = await axiosapi2.get(`/RescueCase/search/allCases`, {
       params: { offset: offset.value, limit, sortOrder: sortOrder.value },
     });
 
@@ -116,7 +116,7 @@ const changeSortOrder = (order) => {
 // ✅ **刪除案件**
 const deleteCase = async (caseId) => {
   try {
-    await axios.delete(`${baseUrl}/RescueCase/delete/${caseId}`);
+    await axiosapi2.delete(`/RescueCase/delete/${caseId}`);
     rescueCaseList.value = rescueCaseList.value.filter(
       (c) => c.rescueCaseId !== caseId
     );
@@ -168,8 +168,8 @@ watch(
     isLoading.value = true;
 
     try {
-      const response = await axios.post(
-        `${baseUrl}/RescueCase/search/infinite`,
+      const response = await axiosapi2.post(
+        `/RescueCase/search/infinite`,
         newParams,
         {
           params: { offset: 0, limit: 10, sortOrder: sortOrder.value },

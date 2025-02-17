@@ -1,6 +1,6 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
-import axios from "axios";
+import {axiosapi2} from "@/plugins/axios.js";
 
 const useUserStore = defineStore("user", () => {
     const token = ref("");
@@ -26,8 +26,8 @@ const useUserStore = defineStore("user", () => {
         }
 
         try {
-            const response = await axios.post(
-                "http://localhost:8080/validateToken",
+            const response = await axiosapi2.post(
+                "/validateToken",
                 {},
                 {
                     headers: {
