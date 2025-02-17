@@ -14,7 +14,7 @@ pipeline {
             steps {
                 script {
                    // Clone 前端專案至JENKINS容器中
-                    dir('Meowfrontend') {
+                    dir('meowfrontend') {
                         checkout([
                             $class: 'GitSCM',
                             branches: [[name: '*/dev']],
@@ -48,7 +48,7 @@ pipeline {
 
         stage('建構前端 Docker 映像檔') {
             steps {
-                sh "docker build -t $FRONTEND_IMAGE ./Meowfrontend"   
+                sh "docker build -t $FRONTEND_IMAGE ./meowfrontend"   
                 // 從jenkins容器中讀取dockerfile，並啟動一個暫時的 Build 容器（這個容器會在 docker build 過程中運行）
             }
         }
