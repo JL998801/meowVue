@@ -58,7 +58,6 @@ async function login() {
 
   try {
     const response = await axiosapi.post("/secure/loginadmin", body);
-    const response = await axiosapi.post("/secure/loginadmin", body);
     console.log("response", response);
 
     if (response.data.success) {

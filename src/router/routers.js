@@ -24,9 +24,9 @@ import MemberRescueCase from '../views/secure/MemberRescueCase.vue';
 import LostMember from '@/views/pets/lost/LostMember.vue';
 import LostForm from '@/views/pets/lost/LostForm.vue';
 import ReportForm from '@/views/pets/report/ReportForm.vue';
-import Register from '@/views/pets/Register.vue';
-import MemberCenter from '@/views/pages/MemberCenter.vue';
-import MemberCard from '@/views/pets/MemberCard.vue';
+// import LostCase from '@/views/pets/lost/LostCase.vue';
+
+// 商城頁面
 import ShopLayout from '@/views/shops/ShopLayout.vue';
 import { shopRoutes } from './shopRouter'; // 引入商城路由
 import ShopManagement from '@/views/shops/ShopManagement.vue';
@@ -69,7 +69,7 @@ const routes = [
   //卓穎頁面
   { path: "/pets/lostform", component: LostForm, name: "pets-LostForm-link" },
   { path: "/pets/reportform", component: ReportForm, name: "pets-ReportForm-link" },
-  { path: "/pet/lostCase/:id", component: LostCase, name: "pet-lostCase-link", props: true },
+  // { path: "/pet/lostCase/:id", component: LostCase, name: "pet-lostCase-link", props: true },
   { path: "/pet/lost/search", component: AllLostCase, name: "pet-lostCase-link", props: true },
 
   //冠頁面
