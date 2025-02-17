@@ -1,5 +1,5 @@
 import { jsonRequest } from "@/plugins/axios";
-import { axiosapi } from "@/plugins/axios";
+// import { axiosapi } from "@/plugins/axios";
 
 const API_URL = "/products";
 
@@ -32,36 +32,31 @@ export const ProductService = {
   },
 
   // 商品增刪改
+  async addProducts() {
+    return jsonRequest("post", `${API_URL}`, newProduct);
+  },
+
   async deleteProducts(id) {
     return jsonRequest("delete", `${API_URL}/${id}`);
   },
 
-  async addProducts() {
-    return jsonRequest("post", `${API_URL}`);
+  async updateImages(id) {
+    return jsonRequest("patch", `${API_URL}/${id}/images`);
   },
 
-
-  // 修改包含回傳圖片，需要以 multipart/form-data 格式同步後端 api
-  async modifyProducts(id, productData, productImages = []) {
-    const formData = new FormData();
-  
-    // 將 JSON 物件轉為字串
-    formData.append("productRequest", JSON.stringify(productData));
-  
-    // 附加圖片檔案
-    productImages.forEach((image) => {
-      formData.append("productImages", image);
-    });
-  
+  async modifyProducts(id, formData) {
     try {
-      const response = await axiosapi.put(`/products/${id}`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      return response.data;
+        const response = await jsonRequest("put", `/products/${id}`, formData, 
+            {
+                headers: { "Content-Type": "multipart/form-data" },
+            }
+        );
+        console.log("✅ 後端 API 修改成功:", response);
+        return response;
     } catch (error) {
-      console.error("🔴 修改商品失敗:", error);
-      return null;
+        console.error("🔴 修改 API 失敗:", error);
+        throw new Error("修改 API 失敗");
     }
-  }
+  },
 
 };

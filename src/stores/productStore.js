@@ -3,16 +3,15 @@ import { ref } from 'vue';
 import { ProductService } from "@/services/ProductService";
 import Swal from "sweetalert2";
 
+// ✅ 定義響應式狀態 (ref)
 const useProductStore = defineStore("shop", () => {
-    // ✅ 定義響應式狀態 (ref)
-    const products = ref([]); // ✅ 產品列表
-    // const filteredProducts = ref([]); // ✅ 過濾後的產品
-    const totalPages = ref(0); // ✅ 總頁數
-    const currentPage = ref(0); // ✅ 當前頁
-    const totalProducts = ref(0); // ✅ 總產品數
-    const loading = ref(false); // ✅ 是否正在載入
-    const errorMessage = ref(null); // ✅ 錯誤訊息
-    const selectedFilter = ref(null); // ✅ 選擇的篩選條件
+    const products = ref([]); // 產品列表
+    const totalPages = ref(0); // 總頁數
+    const currentPage = ref(0); // 當前頁
+    const totalProducts = ref(0); // 總產品數
+    const loading = ref(false); // 是否正在載入
+    const errorMessage = ref(null); // 錯誤訊息
+    const selectedFilter = ref(null); // 選擇的篩選條件
 
     // ✅ 獲取所有商品
     async function fetchProducts() {
@@ -75,57 +74,103 @@ const useProductStore = defineStore("shop", () => {
     // ✅ 添加商品
     async function addProduct(newProduct) {
         loading.value = true;
-        error.value = null;
+        errorMessage.value = null;
         try {
-        const data = await ProductService.addProducts(newProduct);
-        products.value.push(data); // 添加到本地列表
+            const data = await ProductService.addProducts(newProduct);
+            products.value.push(data); // 添加到本地列表
         } catch (err) {
-        error.value = "添加商品失敗：" + err.message;
-        } finally {
-        loading.value = false;
-        }
-    }
-
-    // ✅ 刪除商品
-    async function deleteProduct(id) {
-        loading.value = true;
-        error.value = null;
-        try {
-        await ProductService.deleteProducts(id);
-        products.value = products.value.filter(product => product.productId !== id); // 從本地列表移除
-        } catch (err) {
-        error.value = "刪除商品失敗：" + err.message;
-        } finally {
-        loading.value = false;
-        }
-    }
-
-    // ✅ 修改商品
-    async function modifyProduct(id, updatedData) {
-        loading.value = true;
-        error.value = null;
-        try {
-            // ✅ 調用後端 API 進行更新
-            const updatedProduct = await ProductService.modifyProducts(id, updatedData);
-            
-            // ✅ 更新本地 `products` 陣列
-            const index = products.value.findIndex(product => product.productId === id);
-            if (index !== -1) {
-                products.value[index] = { ...products.value[index], ...updatedData };
-            }
-
-            return true; // ✅ 回傳成功狀態，讓 Vue 組件決定是否顯示 Swal
-        } catch (err) {
-            error.value = "修改商品失敗：" + err.message;
-            return false;
+            errorMessage.value = "添加商品失敗：" + err.message;
         } finally {
             loading.value = false;
         }
     }
 
+    // ✅ 刪除商品
+    async function deleteProduct(id) {
+        try {
+            const response = await ProductService.deleteProducts(id); // 🔹 呼叫 API
+            if (response.success) {
+                products.value = products.value.filter(product => product.productId !== id); // 🔹 UI 同步移除
+                return response;
+            } else {
+                throw new Error(response.message || "刪除失敗");
+            }
+        } catch (err) {
+            console.error("刪除商品失敗:", err);
+            return { success: false, message: err.message };
+        }
+    }
+    
+    // async function deleteProduct(id) {
+    //     loading.value = true;
+    //     errorMessage.value = null;
+    //     try {
+    //         await ProductService.deleteProducts(id);
+    //         products.value = products.value.filter(product => product.productId !== id); // 從本地列表移除
+    //     } catch (err) {
+    //         console.error("刪除商品失敗:", err);
+    //         errorMessage.value = "刪除商品失敗：" + err.message;
+    //         return false; // ✅ 回傳 `false`，讓 Vue 組件知道刪除失敗
+    //     } finally {
+    //         loading.value = false;
+    //     }
+    // }
+
+    // ✅ 修改商品欄位 (圖片欄位單獨處理)
+    async function modifyProduct(id, productData, productImages = []) {
+        try {
+            // ✅ 先更新商品資訊
+            const response = await ProductService.modifyProducts(id, productData);
+            console.log("✅ 商品資訊更新成功:", response);
+    
+            if (response && response.success) { 
+                // ✅ 如果有新圖片要上傳，則呼叫 `updateImages`
+                if (productImages.length > 0) {
+                    const imageUploadSuccess = await updateImages(id, productImages);
+                    if (!imageUploadSuccess) {
+                        console.error("⚠️ 圖片更新失敗");
+                        return false;
+                    }
+                }
+                return true;
+            } else {
+                console.error("⚠️ 修改商品 API 失敗:", response);
+                return false;
+            }
+        } catch (error) {
+            console.error("🔴 修改商品失敗:", error);
+            return false;
+        }
+    }    
+
+    // 修改商品圖片
+    async function updateImages(id, productImages) {
+        const formData = new FormData();
+    
+        // 附加圖片檔案
+        productImages.forEach((image) => {
+            formData.append("images", image);
+        });
+    
+        try {
+            const response = await ProductService.updateImages(id, formData);
+            console.log("✅ 圖片更新成功:", response);
+    
+            if (response && response.success) {
+                return true;
+            } else {
+                console.error("⚠️ 圖片 API 失敗:", response);
+                return false;
+            }
+        } catch (error) {
+            console.error("🔴 圖片更新失敗:", error);
+            return false;
+        }
+    }    
+
+    // ✅ 讓以下方法和參數，可以被 Vue 組件使用
     return {
         products,
-        // filteredProducts,
         totalPages,
         currentPage,
         totalProducts,
@@ -134,7 +179,11 @@ const useProductStore = defineStore("shop", () => {
         selectedFilter,
         fetchProducts,
         fetchPagedProducts,
-        fetchFilteredProducts
+        fetchFilteredProducts,
+        addProduct,
+        deleteProduct,
+        modifyProduct,
+        updateImages,
     };
 });
 

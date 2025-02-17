@@ -11,18 +11,24 @@ const useProductTagStore = defineStore("productTag", {
         async fetchTags() {
             try {
                 const response = await ProductTagService.getAllTags();
-                this.tags = response?.tags ?? []; // ✅ 確保只存 `tags`
-                // console.log("獲取的 tags:", JSON.stringify(this.tags, null, 2));
+        
+                // ✅ 確保 response 存在且成功
+                if (response?.success && Array.isArray(response.tags)) {
+                    this.tags = response.tags;
+                } else {
+                    console.warn("⚠️ API 回傳錯誤或 tags 不是陣列:", response);
+                    this.tags = []; // 確保 tags 為陣列，防止 Multiselect 錯誤
+                }
             } catch (error) {
-                console.error("標籤獲取失敗:", error);
-                this.tags = []; // ✅ 確保不會變 undefined
+                console.error("❌ 標籤獲取失敗:", error);
+                this.tags = []; // 確保 tags 永遠是陣列
                 Swal.fire({
                     icon: "error",
-                    title: "載入失敗",
-                    text: error.message,
+                    title: "載入標籤失敗",
+                    text: "無法獲取標籤，請稍後再試。",
                 });
             }
-        }
+        }        
     }
 });
 export default useProductTagStore;

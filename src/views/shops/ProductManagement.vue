@@ -49,30 +49,73 @@
 
                     <!-- 圖片 -->
                     <td>
-                    <div class="image-gallery">
-                        <figure class="figure">
-                        <!-- 主圖 -->
-                        <img
-                            :src="product.imageUrls.length > 0 ? product.imageUrls[0] : placeholderImage"
-                            alt="主商品圖片"
-                            class="figure-img img-fluid main-image"
-                            @changeImg="(product.imageUrls[0])"
-                        />
+                        <div class="image-gallery">
+                            <figure class="figure">
+                                <!-- 🔹 顯示模式 (不可修改) -->
+                                <template v-if="!editMode[product.productId]">
+                                    <img
+                                        :src="product.imageUrls.length > 0 ? product.imageUrls[0] : placeholderImage"
+                                        alt="主商品圖片"
+                                        class="figure-img img-fluid main-image"
+                                    />
+                                    <div class="thumbnail-container">
+                                        <img
+                                            v-for="(image, index) in product.imageUrls.slice(1, 5)"
+                                            :key="index"
+                                            :src="image"
+                                            :alt="`商品圖片 ${index + 1}`"
+                                            class="figure-img img-fluid thumbnail"
+                                        />
+                                    </div>
+                                </template>
 
-                        <!-- 其他圖片 (最多 4 張) -->
-                        <div class="thumbnail-container">
-                            <img
-                            v-for="(image, index) in product.imageUrls.slice(1, 5)"
-                            :key="index"
-                            :src="image"
-                            :alt="`商品圖片 ${index + 1}`"
-                            class="figure-img img-fluid thumbnail"
-                            />
-                            <!-- 如果圖片不足 4 張，補上空白 -->
-                            <div v-for="i in Math.max(0, 4 - (product.imageUrls.length - 1))" :key="'placeholder' + i" class="thumbnail placeholder"></div>
+                                <!-- 🔹 編輯模式 (可更換圖片) -->
+                                <template v-else>
+                                    <!-- 主圖 (可點擊更換) -->
+                                    <label class="upload-label">
+                                        <img
+                                            :src="product.imageUrls.length > 0 ? product.imageUrls[0] : placeholderImage"
+                                            alt="主商品圖片"
+                                            class="figure-img img-fluid main-image"
+                                        />
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            class="d-none"
+                                            @change="handleImageUpload($event, product, 0)"
+                                        />
+                                    </label>
+
+                                    <!-- 其他圖片 (最多 4 張，可更換) -->
+                                    <div class="thumbnail-container">
+                                        <label v-for="(image, index) in product.imageUrls.slice(1, 5)" :key="index" class="upload-label">
+                                            <img
+                                                :src="image"
+                                                :alt="`商品圖片 ${index + 1}`"
+                                                class="figure-img img-fluid thumbnail"
+                                            />
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                class="d-none"
+                                                @change="handleImageUpload($event, product, index + 1)"
+                                            />
+                                        </label>
+                                        <!-- 如果圖片不足 4 張，補上空白可上傳 -->
+                                        <label v-for="i in Math.max(0, 4 - (product.imageUrls.length - 1))"
+                                            :key="'placeholder' + i"
+                                            class="thumbnail placeholder upload-label">
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                class="d-none"
+                                                @change="handleImageUpload($event, product, product.imageUrls.length)"
+                                            />
+                                        </label>
+                                    </div>
+                                </template>
+                            </figure>
                         </div>
-                        </figure>
-                    </div>
                     </td>
 
                     <!-- 名稱 -->
@@ -83,21 +126,23 @@
                     <td v-if="!editMode[product.productId]">
                         {{ product.category.categoryName? product.category.categoryName : "無分類" }}
                     </td>
-                    <td v-else>
-                        <select v-model="product.categoryId" class="form-select">
-                        <option v-for="category in categoryStore.categories" :value="category.categoryId">
-                            {{ category.categoryName }}
-                        </option>
-                        </select>
+                    <td v-else class="editable-cell">
+                        <div class="select-wrapper">
+                            <select v-model="product.categoryId" class="form-select custom-select">
+                            <option v-for="category in categoryStore.categories" :value="category.categoryId">
+                                {{ category.categoryName }}
+                            </option>
+                            </select>
+                        </div>
                     </td>
 
                     <!-- 標籤 -->
-                    <td v-if="!editMode[product.productId]">
+                    <td v-if="!editMode[product.productId]" class="tag-cell">
                         <span v-for="tag in product.tags || []" :key="tag.tagId" class="badge bg-primary me-1">
                             {{ tag.tagName }}
                         </span>
                     </td>
-                    <td v-else>
+                    <td v-else class="tag-cell">
                         <Multiselect
                             v-model="product.tags"
                             :options="tagStore.tags"
@@ -143,21 +188,21 @@
                     <td v-if="!editMode[product.productId]">{{ product.expire }}</td>
                     <td v-else><input type="date" v-model="product.expire" class="form-control" /></td>
 
-                    <!-- 建立時間 -->
-                    <td v-if="!editMode[product.productId]">{{ formatDate(product.createdAt) }}</td>
-                    <td v-else><textarea v-model="product.createdAt" class="form-control"></textarea></td>
+                    <!-- 建立時間(自動更新) -->
+                    <td class="date-time-cell">{{ formatDate(product.createdAt) }}</td>
 
-                    <!-- 更新時間 -->
-                    <td v-if="!editMode[product.productId]">{{ formatDate(product.updatedAt) }}</td>
-                    <td v-else><textarea v-model="product.updatedAt" class="form-control"></textarea></td>
+                    <!-- 更新時間(自動更新) -->
+                    <td class="date-time-cell">{{ formatDate(product.updatedAt) }}</td>
 
                     <!-- 狀態 -->
                     <td v-if="!editMode[product.productId]">{{ product.status }}</td>
-                    <td v-else>
-                        <select v-model="product.status" class="form-select">
-                        <option>上架</option>
-                        <option>下架</option>
-                        </select>
+                    <td v-else class="editable-cell">
+                        <div class="select-wrapper">
+                            <select v-model="product.status" class="form-select custom-select">
+                                <option value="上架中">上架中</option>
+                                <option value="下架">下架</option>
+                            </select>
+                        </div>
                     </td>
 
                     <td>
@@ -182,8 +227,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick } from "vue";
-import { useRouter } from "vue-router";
+import { ref, onMounted } from "vue";
+import Swal from "sweetalert2";
 import ProductFormModal from "@/components/shop/manage/ProductFormModal.vue";
 import useProductStore from "@/stores/productStore";
 import useCategoryStore from "@/stores/categoryStore";
@@ -202,7 +247,17 @@ const placeholderImage = "https://via.placeholder.com/100"; // 預設空白圖�
 const formatDate = (dateString) => {
     if (!dateString) return "無"; // 若日期不存在，顯示 "無"
     const date = new Date(dateString);
-    return date.toISOString().split("T")[0]; // 轉換成 YYYY-MM-DD
+    
+    const pad = (num) => String(num).padStart(2, "0");
+
+    const year = date.getFullYear();
+    const month = pad(date.getMonth() + 1);
+    const day = pad(date.getDate());
+    const hours = pad(date.getHours());
+    const minutes = pad(date.getMinutes());
+    const seconds = pad(date.getSeconds());
+
+    return `${year}-${month}-${day}\n${hours}:${minutes}:${seconds}`;
 };
 
 // **點擊搜尋按鈕時調用 `fetchFilteredProducts` 並發送事件**
@@ -221,14 +276,7 @@ const applyFilter = async () => {
     }
 };
 
-// 根據 `categoryId` 找出對應的 `categoryName`
-const getCategoryName = (categoryId) => {
-  const category = categoryStore.categories.find(category => category.categoryId === categoryId);
-  return category ? category.categoryName : "無分類";
-};
-
-// ✅ 新增商品
-//  打開 Modal 彈窗並重置表單內容
+// ✅ 新增商品: 打開 ProductFormModal 彈窗
 const productFormRef = ref(null);
 
 // 打開 Modal
@@ -245,12 +293,37 @@ const isSelected = (product, option) => {
 
 /** 切換標籤選擇狀態 */
 const toggleTag = (product, option) => {
+    if (!Array.isArray(product.tags)) {
+        product.tags = []; // 確保是陣列，避免 undefined 錯誤
+    }
+
     const index = product.tags.findIndex(tag => tag.tagId === option.tagId);
     if (index === -1) {
         product.tags.push(option); // ✅ 如果沒選，就加入
     } else {
         product.tags.splice(index, 1); // ✅ 如果已選，就移除
     }
+};
+
+//  ✅ 修改商品圖片
+const handleImageUpload = (event, product, index) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        // 取得 base64 預覽圖，先更新畫面
+        if (index < product.imageUrls.length) {
+            product.imageUrls[index] = e.target.result;
+        } else {
+            product.imageUrls.push(e.target.result);
+        }
+
+        // 存儲要上傳的圖片
+        if (!product.selectedImages) product.selectedImages = [];
+        product.selectedImages.push({ file, index });
+    };
+    reader.readAsDataURL(file);
 };
 
 // ✅ 修改商品: 每個欄位開放調整，備份一份原始數據供"取消"操作時恢復資料 */
@@ -283,7 +356,6 @@ const cancelEdit = (productId) => {
 const saveProduct = async (product) => {
     console.log("🔄 儲存商品:", product);
 
-  // 獲取修改後的商品數據
     const updatedData = {
         productName: product.productName,
         categoryId: product.categoryId,
@@ -294,27 +366,50 @@ const saveProduct = async (product) => {
         stockQuantity: product.stockQuantity,
         unit: product.unit,
         description: product.description,
-        status: product.status
+        status: product.status,
     };
 
-  // 獲取新的圖片（這裡假設前端有一個 `selectedImages` 存放新上傳的圖片）
-    const productImages = product.selectedImages || [];
+    let updateSuccess = true;
 
-  // 調用 `store` 發送請求
-    const success = await productStore.modifyProduct(product.productId, updatedData, productImages);
+    try {
+        // ✅ 先判斷是否要更新商品資訊
+        if (Object.keys(updatedData).length > 0) {
+            const productUpdateSuccess = await productStore.modifyProduct(product.productId, updatedData);
+            if (!productUpdateSuccess) {
+                updateSuccess = false;
+            }
+        }
 
-    if (success) {
-        Swal.fire({
-        title: "修改成功!",
-        text: "成功修改商品資訊。",
-        icon: "success",
-        timer: 2000,
-        showConfirmButton: false,
-        timerProgressBar: true
-        });
+         // ✅ 再上傳圖片
+        if (product.selectedImages && product.selectedImages.length > 0) {
+            const formData = new FormData();
+            product.selectedImages.forEach(({ file, index }) => {
+                formData.append(`image_${index}`, file);
+            });
 
-    editMode.value[product.productId] = false; // 關閉編輯模式
-    } else {
+            const imageUpdateSuccess = await productStore.updateImages(product.productId, formData);
+            if (!imageUpdateSuccess) {
+                updateSuccess = false;
+            }
+        }
+
+        // ✅ 結果處理
+        if (updateSuccess) {
+            Swal.fire({
+                title: "修改成功!",
+                text: "成功修改商品資訊。",
+                icon: "success",
+                timer: 2000,
+                showConfirmButton: false,
+                timerProgressBar: true
+            });
+
+            editMode.value[product.productId] = false; // 關閉編輯模式
+        } else {
+            throw new Error("部分更新失敗");
+        }
+    } catch (error) {
+        console.error("🔴 商品修改失敗:", error);
         Swal.fire({
             title: "修改失敗!",
             text: "發生錯誤，請稍後再試。",
@@ -324,49 +419,55 @@ const saveProduct = async (product) => {
 };
 
 // ✅ 刪除商品: 跳出提醒訊息
-const deleteProduct = (id) => {
-    Swal.fire({
+const deleteProduct = async (id) => {
+    const result = await Swal.fire({
         title: "確定刪除此筆商品嗎?",
-        text: "若還想保留商品交易資訊，請取消此操作；將商品狀態變更為 `下架`",
+        text: "若還想保留商品交易資訊，請取消此操作",
         icon: "warning",
         showCancelButton: true,
         confirmButtonText: "確認刪除",
         cancelButtonText: "取消",
         reverseButtons: true,
         customClass: {
-        confirmButton: "btn btn-success",
-        cancelButton: "btn btn-danger",
-        actions: "swal-buttons-container" // 🔹 這裡設置自定義 class
+            confirmButton: "btn btn-success",
+            cancelButton: "btn btn-danger",
+            actions: "swal-buttons-container"
         },
         buttonsStyling: false
-    }).then((result) => {
-        if (result.isConfirmed) {
-        // ✅ 確保 `productStore.deleteProduct(id)` 被正確執行
-        productStore.deleteProduct(id).then(() => {
-            Swal.fire({
-            title: "刪除成功!",
-            text: "商品已成功刪除。",
-            icon: "success",
-            timer: 2000,
-            showConfirmButton: false,
-            timerProgressBar: true
+    });
+
+    if (result.isConfirmed) {
+        try {
+            const response = await productStore.deleteProduct(id); // ✅ 執行刪除請求
+            if (response && response.success) {
+                await productStore.fetchProducts(); // ✅ 確保 UI 及時更新
+                
+                await Swal.fire({
+                    title: "刪除成功!",
+                    text: response.message || "商品刪除成功",
+                    icon: "success",
+                    timer: 2000,
+                    showConfirmButton: false,
+                    timerProgressBar: true
+                });
+            } else {
+                throw new Error(response?.message || "刪除失敗，請稍後再試。");
+            }
+        } catch (error) {
+            console.error("刪除商品失敗:", error);
+            await Swal.fire({
+                title: "刪除失敗!",
+                text: error.message || "發生錯誤，請稍後再試。",
+                icon: "error"
             });
-        }).catch(() => {
-            Swal.fire({
-            title: "刪除失敗!",
-            text: "發生錯誤，請稍後再試。",
-            icon: "error"
-            });
-        });
-        } else if (result.dismiss === Swal.DismissReason.cancel) {
-        // ✅ 修正取消按鈕的提示內容
-        Swal.fire({
+        }
+    } else {
+        await Swal.fire({
             title: "取消刪除",
             text: "商品仍然保留。",
             icon: "info"
         });
-        }
-    });
+    }
 };
 
 onMounted(() => {
@@ -412,9 +513,9 @@ body::-webkit-scrollbar {
 .table{
     width: 100%;
     border-radius: 20px; /* 讓邊框成為橢圓形 */
-    table-layout: fixed; /* 讓表格維持固定大小 */
+    table-layout: auto; /* 允許表格根據內容調整寬度 */
     /* overflow: hidden; 防止內容溢出 */
-    overflow: visible; /* ✅ 允許內容超出 `table` 顯示 */
+    /* overflow: visible; 允許內容超出 `table` 顯示 */
 }
 
 /* 固定表格首欄的寬度 */
@@ -435,20 +536,20 @@ body::-webkit-scrollbar {
 th:nth-child(1), td:nth-child(1) { width: 50px; }  /* 商品編號 */
 th:nth-child(2), td:nth-child(2) { width: 180px; } /* 商品圖片 */
 th:nth-child(3), td:nth-child(3) { width: 120px; } /* 名稱 */
-th:nth-child(4), td:nth-child(4) { width: 150px; } /* 類別 */
-th:nth-child(5), td:nth-child(5) { width: 150px; } /* 標籤 */
+th:nth-child(4), td:nth-child(4) { width: 100px; } /* 分類 */
+th:nth-child(5), td:nth-child(5) { width: 100px; } /* 標籤 */
 th:nth-child(6), td:nth-child(6) { width: 90px; } /* 原價 */
 th:nth-child(7), td:nth-child(7) { width: 90px; } /* 售價 */
 th:nth-child(8), td:nth-child(8) { width: 90px; } /* 庫存數量 */
 th:nth-child(9), td:nth-child(9) { width: 60px; } /* 單位 */
-th:nth-child(10), td:nth-child(10) { width: 250px; } /* 描述 */
+th:nth-child(10), td:nth-child(10) { width: 200px; } /* 描述 */
 th:nth-child(11), td:nth-child(11) { width: 130px; } /* 到期日 */
-th:nth-child(12), td:nth-child(12) { width: 130px; } /* 建立時間 */
-th:nth-child(13), td:nth-child(13) { width: 130px; } /* 更新時間 */
-th:nth-child(14), td:nth-child(14) { width: 100px; } /* 狀態 */
+th:nth-child(12), td:nth-child(12) { width: 100px; } /* 建立時間 */
+th:nth-child(13), td:nth-child(13) { width: 100px; } /* 更新時間 */
+th:nth-child(14), td:nth-child(14) { width: 80px; } /* 狀態 */
 th:nth-child(15), td:nth-child(15) { width: 150px; } /* 操作按鈕 */
 
-/* 單選類別 */
+/* 下拉選單通用: 類別、標籤、狀態 */
 td .form-select,
 td .multiselect {
     position: relative; /* ✅ 讓 Multiselect 內容不會被 `td` 限制 */
@@ -468,10 +569,56 @@ td .form-select:focus {
     max-width: 200px; /* ✅ 限制最大寬度 */
 }
 
+/* ✅ 修正 `focus` 時可能導致的超出 */
+.custom-select:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+/* ✅ 避免 select 被表格內容擠壓 */
+td.editable-cell .custom-select {
+    display: block;
+    width: 100%;
+}
+
+/* ✅ 確保 `td` 內的 select 不會超出範圍 */
+td.editable-cell {
+    position: relative; /* 讓 select 保持在 td 內 */
+    overflow: hidden; /* 防止超出 */
+    white-space: nowrap; /* 避免文字換行 */
+    padding: 5px; /* 內邊距 */
+}
+
+/* ✅ 設置包裹 select 的 div */
+.select-wrapper {
+    width: 100%; /* 讓 div 佔滿 td */
+    display: flex; /* 讓 select 不超出 */
+    align-items: center; /* 保持垂直對齊 */
+}
+
+/* ✅ 自訂 select 樣式，確保與 td 對齊 */
+.custom-select {
+    width: 100%; /* 讓 select 填滿 td */
+    min-width: 80px; /* 避免 select 太小 */
+    max-width: 100%; /* 不讓 select 超出 td */
+    height: 30px; /* 控制高度 */
+    font-size: 14px;
+    border-radius: 5px;
+    box-sizing: border-box;
+    overflow: hidden; /* ✅ 確保 select 不會溢出 */
+}
+
+/* ✅ 確保標籤欄位的 `td` 允許內容顯示 */
+td.tag-cell {
+    position: relative; /* 讓 Multiselect 能正確渲染 */
+    overflow: visible !important; /* 確保選單不會被 `td` 裁切 */
+    white-space: normal; /* 允許內容換行 */
+}
+
 /* ✅ 讓 Multiselect (多選標籤)本身的輸入框填滿 `td` */
 .custom-multiselect {
     position: relative;  /* ✅ 讓 `Multiselect` 定位不影響表格 */
-    z-index: 9999;
+    z-index: 9999; /* 讓下拉選單出現在最上層 */
     width: 100%;
     min-width: 120px;
     max-width: 100%;
@@ -548,6 +695,13 @@ td .form-select:focus {
     padding: 5px 10px;
     border-radius: 4px;
     font-size: 14px;
+}
+
+/* 讓建立時間、更新時間的 td 內容允許換行 */
+td.date-time-cell {
+    font-size: small;
+    white-space: pre-line; /* ✅ 允許換行 */
+    text-align: center; /* ✅ 置中對齊 */
 }
 
 /* 其他欄位 */
@@ -668,13 +822,23 @@ td.expire-cell {
     cursor: pointer;
 }
 
+/* 讓上傳圖片的 label 具有點擊效果 */
+.upload-label {
+    cursor: pointer;
+    display: inline-block;
+    position: relative;
+}
 
-/* 空白區塊 (如果沒有足夠圖片) */
+/* 讓預留的空白區塊可點擊上傳 */
 .placeholder {
     width: 100%;
-    height: 15px;
-    background-color: #f0f0f0;
+    height: 50px;
+    background-color: #f9f9f9;
     border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 /* 限制按鈕的 `td` 最小寬度，確保不被壓縮 */
