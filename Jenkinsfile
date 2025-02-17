@@ -3,7 +3,7 @@ pipeline {
     agent any  // 讓 Jenkins 在任意可用節點上執行
 
     environment {
-        FRONTEND_IMAGE = 'leekuanju/Meowfrontend:latest'
+        FRONTEND_IMAGE = 'leekuanju/meowfrontend:latest'
         DOCKER_CREDENTIALS_ID = 'petfinder'    //已於在jenkins中設定可以登入dokcer-hub的帳密和使用id
         AZURE_VM = 'KuanJu@20.2.146.70'    //username@vm公開ip
         IMAGE_VOLUME = "petfinder_images"  // VM 中 Docker Volume 名稱，拿來放冠假資料圖片
@@ -35,7 +35,7 @@ pipeline {
             steps {
                 sh "docker image prune -f"
                 sh '''
-                IMAGES=$(docker images -q leekuanju/Meowfrontend | tail -n +2)
+                IMAGES=$(docker images -q leekuanju/meowfrontend) | xargs -r docker rmi -f '''
                 if [ -n "$IMAGES" ]; then
                     docker rmi -f $IMAGES
                 fi
