@@ -2,7 +2,7 @@ import axios from "axios";
 
 // 所有 API 請求自動帶上 Authorization Token
 const axiosapi = axios.create({
-    baseURL: `${import.meta.env.VITE_API_URL}/api` // 確保 Base URL 包含 /api
+    baseURL: import.meta.env.VITE_API_URL // 確保 API Base URL 來自環境變數
 });
 
   // 請求攔截器 (Request Interceptor)

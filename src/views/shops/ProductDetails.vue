@@ -1,18 +1,21 @@
 <template>
   <div v-if="selectedProduct">
     <h1>{{ selectedProduct.productName }}</h1>
-    <img 
-      v-if="selectedProduct && selectedProduct.images && selectedProduct.images.length > 0" 
-      :src="selectedProduct.images[0]" 
-      alt="商品圖片" 
-    />
+    <!-- <img v-show="selectedProduct?.images?.length > 0" 
+       :src="selectedProduct.images?.[0]" 
+       alt="商品圖片" /> -->
+    <img v-if="selectedProduct && selectedProduct.   images && selectedProduct.images.length > 0"
+    :src="selectedProduct.images[0]" 
+    alt="商品圖片" />
   </div>
   <div v-else>
     <p>正在載入商品資料...</p>
   </div>
 
   <div class="product-detail-container">
+    <!-- 當 selectedProduct.images 存在時才會執行 v-for，避免 Invalid end tag 問題 -->
     <div class="product-images" v-if="selectedProduct && selectedProduct.images && selectedProduct.images.length > 0">
+      <!-- 左側縮圖列表 -->
       <div class="thumbnail-list">
         <img 
           v-for="(image, index) in selectedProduct.images" 
@@ -23,6 +26,8 @@
           @click="selectedImage = image"
         />
       </div>
+
+      <!-- 主要商品圖片 -->
       <div class="main-image">
         <img :src="selectedImage" alt="商品主圖片" />
       </div>
@@ -45,12 +50,14 @@
         </div>
       </div>
 
-      <button @click="addToCart" class="add-to-cart">加入購物車</button>
-      <button @click="goToShopDetail" class="add-to-cart">前往交易清單</button>
+      <button @click="addToCart(selectedProduct)" class="add-to-cart">加入購物車</button>
+      <button @click="goToShopDetail(selectedProduct)" class="add-to-cart">前往結帳</button>
     </div>
 
+    <!-- 商品卡片 -->
     <ProductCard :product="selectedProduct" displayMode="all" />
 
+    <!-- 商品詳情區塊 -->
     <div class="product-details">
       <nav class="tabs">
         <span @click="activeTab = 'description'" :class="{ active: activeTab === 'description' }">商品描述</span>
@@ -72,68 +79,64 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import axiosapi from "@/plugins/axios.js";
+import { ref, computed,onMounted,watch } from "vue";
+import { useRoute,useRouter } from "vue-router";
 import useProductStore from "@/stores/productStore";
-import useCartStore from "@/stores/cartStore"; // 使用 Pinia 管理購物車
 
 const route = useRoute();
 const router = useRouter();
-const productStore = useProductStore();
-const cartStore = useCartStore();
 
 const activeTab = ref("description");
-const productId = computed(() => Number(route.params.id));
+const productStore = useProductStore();
+const productId = computed(() => Number(route.params.id)); // 確保為數字型別
 
 const selectedProduct = computed(() => 
   productStore.products.find((product) => product.productId === productId.value) || null
 );
 
+// 測試可刪
+// ✅ 監聽 `productStore.products`，確保 `selectedProduct` 正確更新
 watch(() => productStore.products, (newProducts) => {
   selectedProduct.value = newProducts.find(
     (product) => product.productId === Number(route.params.id)
   ) || null;
+  
+  console.log("更新 selectedProduct:", selectedProduct.value); // ✅ 這裡可以看到 `selectedProduct` 變更
 }, { immediate: true });
 
-// 預設圖片
+console.log("組件加載時 selectedProduct:", selectedProduct.value); // ✅ 這裡可以檢查初始化時的 `selectedProduct`
+
+
+
+// 找到對應的商品:使用 computed()，當 productId 改變時，selectedProduct 會自動更新
+// const selectedProduct = computed(() => 
+//   productStore.products.find((product) => product.productId === productId.value) || { productName: "未知商品", images: [] }
+// );
+
+// **預設 `selectedImage` 為 `selectedProduct.images[0]`，但確保 images 不為空**
 const selectedImage = computed(() => 
   selectedProduct.value && selectedProduct.value.images && selectedProduct.value.images.length > 0
     ? selectedProduct.value.images[0]
     : new URL("@/assets/petLogo.png", import.meta.url).href
 );
 
-const addToCart = async () => {
-  if (!selectedProduct.value) return;
 
-  try {
-    const memberId = localStorage.getItem("memberId") || 1; // 先從 localStorage 讀取會員 ID，若無則使用固定 ID
-    const productId = selectedProduct.value.productId;
-    const quantity = 1;
-
-    // 發送請求到後端，將會員 ID、商品 ID 和數量發送過去
-    await axiosapi.post('/pages/cart/add', {
-      memberId,
-      productId,
-      quantity,
-    });
-
-    // 將商品加入到購物車 store
-    cartStore.addToCart({ ...selectedProduct.value, quantity });
-    alert("商品已成功加入購物車");
-  } catch (error) {
-    console.error("加入購物車失敗:", error);
-    alert("加入購物車失敗，請稍後重試");
+// **加入購物車功能**
+const addToCart = () => {
+  if (selectedProduct.value) {
+    cartStore.addToCart(selectedProduct.value);
+    console.log(`加入購物車: ${selectedProduct.value.productName}`);
+    alert("商品已加入購物車");
   }
 };
 
-// **跳轉到交易清單**
+// **跳轉到結帳頁面**
 const goToShopDetail = () => {
-  router.push(`/shop/details?cart`);
+  router.push(`/details/${productId.value}?cart`);
 };
 
 // 組件掛載時加載數據
-onMounted(() => {
+onMounted(()=>{
   productStore.fetchProducts();
 });
 </script>

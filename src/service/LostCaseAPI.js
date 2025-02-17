@@ -1,16 +1,13 @@
 import axiosapi from "@/plugins/axios.js";
 
+
 export default {
     /**
-     * 取得會員發布的遺失案件
+     * 取得特定會員的遺失案件列表
      * @param {Number} memberId 會員 ID
      * @returns {Promise} API 回應
      */
     getLostCases(memberId) {
-        if (!memberId || isNaN(memberId)) {
-            console.error("❌ API 錯誤: `memberId` 無效", memberId);
-            return Promise.reject("memberId 無效");
-        }
         return axiosapi.get(`/lostcases/member/${memberId}`);
     },
 
@@ -40,15 +37,6 @@ export default {
      */
     updateLostCase(lostCaseId, updateData) {
         return axiosapi.put(`/lostcases/${lostCaseId}`, updateData);
-    },
-
-    /**
-     * 根據 ID 刪除遺失案件，並刪除對應的 Banner
-     * @param {Number} lostCaseId 遺失案件 ID
-     * @returns {Promise} API 回應
-     */
-    deleteLostCase(lostCaseId) {
-        return axiosapi.delete(`/lostcases/${lostCaseId}`);
     },
 
     /**

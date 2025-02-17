@@ -65,7 +65,7 @@
 <script>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import axiosapi from "@/plugins/axios.js";
+import axios from 'axios';
 
 export default {
   setup() {
@@ -115,8 +115,8 @@ const submitForm = () => {
         };
 
         // 登入 API 請求
-        axiosApi.post('login', this.loginData)
-        .then(loginResponse => {
+        axios.post('http://localhost:8080/ajax/secure/login', loginData)
+          .then(loginResponse => {
             console.log('Login response:', loginResponse.data);  // 调试打印返回数据
             const { token, user } = loginResponse.data;
 

@@ -1,9 +1,5 @@
 <template>
-        <!-- 舉報按鈕 -->
-        <div>
-        <Reportbtn />
-        </div>
-
+    <h3>首頁 {{ userStore.email }}</h3>
     <!-- 導覽按鈕 -->
     <div class="main-link-box">
         <ul class="list-unstyled">
@@ -24,7 +20,10 @@
     <div>
         <Banner />
     </div>
-
+    <!-- 舉報按鈕 -->
+    <div>
+        <Reportbtn />
+    </div>
 </template>
 
 <script setup>

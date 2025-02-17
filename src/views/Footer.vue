@@ -32,22 +32,7 @@
 </template>
 
 <style scoped>
-/* 🚀 確保頁面高度填滿畫面，讓 footer 保持底部 */
-html, body {
-    height: 100%;
-    margin: 0;
-    padding: 0;
-}
-
-/* 📌 讓內容區塊填滿視窗，確保 footer 黏底 */
-.main-content {
-    display: flex;
-    flex-direction: column;
-    min-height: 50vh; /* 🔥 減去 header + footer 的高度 */
-    flex: 1; /* 讓內容填滿 */
-}
-
-/* 🚀 讓 footer 固定於頁面底部 */
+/* 整個頁尾 */
 .site-footer {
     background: #C6BC77;
     color: white;

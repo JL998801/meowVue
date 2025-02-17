@@ -26,8 +26,10 @@
 <script setup>
 import { computed } from "vue";
 import { useOrderStore } from "@/stores/order"; // Import Pinia store
-import axiosapi from "@/plugins/axios.js";
+import axios from "axios";
 
+// Get API URL from environment variables
+const apiUrl = import.meta.env.VITE_API_URL;
 
 // Pinia store to manage selected order
 const orderStore = useOrderStore();
@@ -64,7 +66,8 @@ const sendPayment = () => {
   formData.append("desc", paymentData.desc);
 
   // Use x-www-form-urlencoded to send the data
-  axiosapi.post(`/pages/ecpay/send`, formData, {
+  axios
+    .post(`${apiUrl}/pages/ecpay/send`, formData, {
       headers: {
         "Content-Type": "application/x-www-form-urlencoded" // Ensure the content type is x-www-form-urlencoded
       }

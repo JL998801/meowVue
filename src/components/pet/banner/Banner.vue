@@ -3,7 +3,10 @@
         <div v-for="category in caseCategories" :key="category.type" class="carousel-section">
             <div class="carousel-header">
                 <div class="title-container">
+                    <!-- <font-awesome-icon :icon="['fas', 'paw']" size="xl" style="color: #c6bc77;" /> -->
                     <h3>🐾 {{ category.title }} </h3>
+                    <!-- <p>🏷️ 類別: {{ category.type }}</p>
+                    <p>📊 資料筆數: {{ displayedCases[category.type]?.length || 0 }}</p> -->
                 </div>
                 <router-link :to="category.moreLink" class="more-button">查看更多</router-link>
             </div>
@@ -14,7 +17,7 @@
                     <template v-if="displayedCases[category.type] && displayedCases[category.type].length > 0">
                         <div
                             v-for="caseItem in displayedCases[category.type]"
-                            :key="caseItem.bannerId"
+                            :key="caseItem.id"
                             class="carousel-item"
                             @click="goToCaseDetail(caseItem)"
                             style="cursor: pointer;"
@@ -37,7 +40,7 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import axiosapi from "@/plugins/axios.js";
+import axios from "axios";
 
 // **案件分類**
 const caseCategories = ref([
@@ -76,13 +79,10 @@ const fetchBannerData = async () => {
 
         // 轉換資料格式，確保 `imageUrl` 存在
         const processBanner = (banner) => ({
-            bannerId: banner.bannerId, // ✅ `bannerId` 作為唯一標識
-            caseTitle: banner.caseTitle || "未知標題", 
+            id: banner.bannerId,  // ✅ 使用 `bannerId` 作為唯一 ID
+            caseTitle: banner.caseTitle || "未知標題",  // 確保正確讀取
             imageUrl: banner.pictureUrl || "/images/default.png", // ✅ 確保圖片可用
-            type: banner.bannerType,
-            lostCaseId: banner.lostCaseId || null,
-            rescueCaseId: banner.rescueCaseId || null,
-            adoptionCaseId: banner.adoptionCaseId || null
+            type: banner.bannerType
         });
 
         // **分類案件**
@@ -102,41 +102,12 @@ const fetchBannerData = async () => {
 };
 
 // **點擊 Banner，導向對應的案件詳情頁**
-const goToCaseDetail = (banner) => {
-    if (!banner) {
-        console.warn("⚠️ Banner 數據為空，無法跳轉");
+const goToCaseDetail = (caseItem) => {
+    if (!caseItem.id || !caseItem.type) {
+        console.warn("⚠️ 缺少案件 ID 或類型，無法跳轉:", caseItem);
         return;
     }
-
-    let targetUrl = "";
-
-    if (banner.type === "LOST") {
-        if (banner.lostCaseId) {
-            targetUrl = `/pet/lostCase/${banner.lostCaseId}`;
-        } else {
-            alert("⚠️ 這則遺失協尋沒有對應的案件 ID");
-            return;
-        }
-    } else if (banner.type === "RESCUE") {
-        if (banner.rescueCaseId) {
-            targetUrl = `/pet/rescueCase/${banner.rescueCaseId}`;
-        } else {
-            alert("⚠️ 這則流浪救援沒有對應的案件 ID");
-            return;
-        }
-    } else if (banner.type === "ADOPT") {
-        if (banner.adoptionCaseId) {
-            targetUrl = `/pet/adoptCase/${banner.adoptionCaseId}`;
-        } else {
-            alert("⚠️ 這則動物認養沒有對應的案件 ID");
-            return;
-        }
-    } else {
-        console.warn("⚠️ 無對應的案件類型", banner);
-        return;
-    }
-
-    window.location.href = targetUrl;
+    window.location.href = `/cases/${caseItem.type.toLowerCase()}/${caseItem.id}`;
 };
 
 // **自動輪播**
@@ -166,7 +137,7 @@ const prevSlide = (type) => {
 
 // **頁面載入時執行**
 onMounted(async () => {
-    console.log("⏩ 自動輪播觸發");
+    console.log("⏩ 自動輪播觸發")
     await fetchBannerData(); // ✅ 獲取最新案件
     startAutoSlide(); // ✅ 開啟自動輪播
 });

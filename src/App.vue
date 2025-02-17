@@ -57,9 +57,8 @@ const adminRoutes = [
 const isAdminPage = computed(() => adminRoutes.includes(route.path));
 
 // 判斷是否應用 `full-width` 樣式
-const isFullWidth = computed(() => 
-  fullWidthRoutes.includes(route.path) || route.path.startsWith("/shop")
-);
+const isFullWidth = computed(() => fullWidthRoutes.includes(route.path))|| route.path.startsWith("/shop");
+
 
 </script>
 

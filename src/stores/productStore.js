@@ -5,7 +5,6 @@ import Swal from "sweetalert2";
 
 const useProductStore = defineStore("shop", () => {
     // ✅ 定義響應式狀態 (ref)
-    const error = ref(null);
     const products = ref([]); // ✅ 產品列表
     // const filteredProducts = ref([]); // ✅ 過濾後的產品
     const totalPages = ref(0); // ✅ 總頁數
@@ -73,53 +72,7 @@ const useProductStore = defineStore("shop", () => {
         }
     }
 
-    // ✅ 添加商品
-    async function addProduct(newProduct) {
-        loading.value = true;
-        error.value = null;
-        try {
-        const data = await ProductService.addProducts(newProduct);
-        products.value.push(data); // 添加到本地列表
-        } catch (err) {
-        error.value = "添加商品失敗：" + err.message;
-        } finally {
-        loading.value = false;
-        }
-    }
-
-    // ✅ 刪除商品
-    async function deleteProduct(id) {
-        loading.value = true;
-        error.value = null;
-        try {
-        await ProductService.deleteProducts(id);
-        products.value = products.value.filter(product => product.productId !== id); // 從本地列表移除
-        } catch (err) {
-        error.value = "刪除商品失敗：" + err.message;
-        } finally {
-        loading.value = false;
-        }
-    }
-
-    // ✅ 修改商品
-    async function modifyProduct(id, updatedData) {
-        loading.value = true;
-        error.value = null;
-        try {
-        const updatedProduct = await ProductService.modifyProducts(id, updatedData);
-        const index = products.value.findIndex(product => product.productId === id);
-        if (index !== -1) {
-            products.value[index] = updatedProduct; // 更新本地數據
-        }
-        } catch (err) {
-        error.value = "修改商品失敗：" + err.message;
-        } finally {
-        loading.value = false;
-        }
-    }
-
     return {
-        error,
         products,
         // filteredProducts,
         totalPages,
@@ -130,10 +83,7 @@ const useProductStore = defineStore("shop", () => {
         selectedFilter,
         fetchProducts,
         fetchPagedProducts,
-        fetchFilteredProducts,
-        addProduct,
-        deleteProduct,
-        modifyProduct,
+        fetchFilteredProducts
     };
 });
 

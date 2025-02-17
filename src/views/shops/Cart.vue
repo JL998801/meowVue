@@ -67,9 +67,10 @@
 import { computed, onMounted, ref } from 'vue';
 import { useCartStore } from '@/stores/cartStore'; // 使用 Pinia Store
 import { useRouter } from 'vue-router';
-import axiosapi from "@/plugins/axios.js";
+import axios from 'axios';
 
 // 初始化 API URL 和 Pinia Store
+const apiUrl = import.meta.env.VITE_API_URL;
 const cartStore = useCartStore();
 const router = useRouter();
 
@@ -97,7 +98,7 @@ const getProductImage = async (productId) => {
     return productImages.value[productId]; // 如果已經有圖片 URL，直接返回
   }
   try {
-    const response = await axiosapi.get(`/product/images/${productId}`);
+    const response = await axios.get(`${apiUrl}/product/images/${productId}`);
     const primaryImage = response.data.find(image => image.isPrimary);
     if (primaryImage) {
       productImages.value[productId] = primaryImage.imageUrl; // 存儲圖片 URL
@@ -117,9 +118,9 @@ const syncQuantityWithDatabase = async (item) => {
       item.editQuantity = 0;
       return;
     }
-    const memberId = localStorage.getItem('memberId') || sessionStorage.getItem('memberId'); // 獲取會員 ID
+    const memberId = cartStore.memberId;
     const cartId = cartStore.cartId; // 使用動態 cartId
-    await axiosapi.post(`/pages/cart/add`, {
+    await axios.post(`${apiUrl}/pages/cart/add`, {
       memberId: memberId,
       productId: item.product.productId,
       quantity: item.editQuantity,
@@ -137,9 +138,9 @@ const syncQuantityWithDatabase = async (item) => {
 const clearCart = async () => {
   if (confirm('確定要清空購物車嗎？')) {
     try {
-      const memberId = localStorage.getItem('memberId') || sessionStorage.getItem('memberId'); // 獲取會員 ID
+      const memberId = cartStore.memberId;
       const cartId = cartStore.cartId; // 使用動態 cartId
-      await axiosapi.delete(`/pages/cart/clear/${memberId}`);
+      await axios.delete(`${apiUrl}/pages/cart/clear/${memberId}/${cartId}`);
       cartStore.clearCart();
       await cartStore.fetchCartDataFromServer();
     } catch (error) {
@@ -153,7 +154,7 @@ const clearCart = async () => {
 const removeItem = async (cartItemId) => {
   if (cartItemId && confirm('確定要刪除此商品嗎？')) {
     try {
-      await axiosapi.delete(`/pages/cart/delete/${cartItemId}`);
+      await axios.delete(`${apiUrl}/pages/cart/delete/${cartItemId}`);
       cartStore.removeFromCart(cartItemId);
       await cartStore.fetchCartDataFromServer();
     } catch (error) {
@@ -163,42 +164,46 @@ const removeItem = async (cartItemId) => {
   }
 };
 
+// 前往交易明細
 const goToPayment = async () => {
   try {
-    // 從 localStorage 或 sessionStorage 中獲取 memberId
-    const memberId = localStorage.getItem('memberId') || sessionStorage.getItem('memberId');
+    const memberId = cartStore.memberId;
     const selectedCartItems = cart.value.filter(item => selectedItems.value.includes(item.cartItemId));
 
     if (selectedCartItems.length === 0) {
-      alert('請至少勾選一個商品進行結帳');
+      alert('請選擇至少一個商品進行結帳');
       return;
     }
 
-    // 從後端或本地存儲中獲取 cartId (可能是購物車的 ID)
-    const cartId = localStorage.getItem('cartId') || sessionStorage.getItem('cartId') || 1;  // 若無 cartId，則使用默認值
-
     const orderData = {
-      cartId: cartId, // 確保 cartId 為從本地存儲獲得的動態值
-      memberId: memberId, // 使用 memberId 來替代 member
+      cartId: 1, // Fix the cartId to be consistent
+      member: memberId,
       creditCard: creditCard.value,
       shippingAddress: shippingAddress.value,
       selectedItems: selectedCartItems.map(item => ({
         productId: item.product.productId,
         quantity: item.quantity,
-        cartId: cartId, // 確保 cartId 保持一致
+        cartId: 1, // Ensure the cartId remains the same for all items
       })),
     };
 
     console.log("發送的訂單資訊:", orderData);
 
-    // 發送請求到後端提交訂單
-    await axiosapi.post(`/api/orders/submit`, orderData); // 使用 axios 發送請求
+    await axios.post(`${apiUrl}/orders/submit`, orderData);
 
     alert('訂單提交成功！');
     router.push('/shop/details');
   } catch (error) {
     console.error('提交訂單失敗:', error);
     alert('提交訂單失敗，請稍後重試！');
+  }
+};
+
+// 驗證輸入數量
+const validateInput = (item) => {
+  if (item.editQuantity < 0 || isNaN(item.editQuantity)) {
+    alert('請輸入正確的商品數量');
+    item.editQuantity = 0;
   }
 };
 
@@ -236,6 +241,7 @@ onMounted(async () => {
   align-items: center;
   text-align: center;
 }
+
 
 .product-image {
   width: 100px;
