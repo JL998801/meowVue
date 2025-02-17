@@ -68,7 +68,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import Swal from 'sweetalert2';
-import axios from 'axios';
+import { axiosapi } from '@/plugins/axios';
 
 const baseUrl = import.meta.env.VITE_API_URL;
 const members = ref([]);  // 存儲會員資料
@@ -76,8 +76,8 @@ const searchQuery = ref('');  // 搜索關鍵字
 
 
 // 設定axios的基本URL
-const axiosInstance = axios.create({
-  baseURL: baseUrl,  // 使用環境變數設置 baseURL
+const axiosInstance = axiosapi.create({
+
   headers: {
     'Content-Type': 'application/json',
   },
@@ -86,7 +86,7 @@ const axiosInstance = axios.create({
 // 獲取所有會員資料
 const fetchmembers = async () => {
   try {
-    const response = await axiosInstance.get('/api/members');
+    const response = await axiosInstance.get('/members');
     console.log("Fetched members:", response.data); // 確認資料結構
     members.value = response.data; // 設定 Vue 的 members 陣列
   } catch (error) {
@@ -105,7 +105,7 @@ const editMember = async (memberId) => {
     }
 
     // 獲取會員的詳細資料
-    const response = await axiosInstance.get(`/api/members/${memberId}`); 
+    const response = await axiosInstance.get(`/members/${memberId}`); 
     const member = response.data;
 
     // 顯示編輯表單，並回填會員資料
@@ -155,7 +155,7 @@ const updateMember = async (memberId, updatedData) => {
       address: updatedData.address
     };
 
-    const response = await axiosInstance.put(`/api/members/${memberId}`, memberData);
+    const response = await axiosInstance.put(`/members/${memberId}`, memberData);
 
     Swal.fire('修改成功！', '會員資料已成功更新。', 'success');
     fetchmembers(); // 重新載入會員列表
@@ -169,7 +169,7 @@ const updateMember = async (memberId, updatedData) => {
 const searchmembers = async () => {
   if (searchQuery.value) {
     try {
-      const response = await axiosInstance.get('/api/members', {
+      const response = await axiosInstance.get('/members', {
         params: { search: searchQuery.value }
       });
       members.value = response.data;
@@ -246,7 +246,7 @@ const addMember = async (newMemberData) => {
         birthday: newMemberData.birthday
       };
 
-      const response = await axiosInstance.post(`/api/members`, memberData);  
+      const response = await axiosInstance.post(`/members`, memberData);  
 
       Swal.fire('新增成功！', '會員已成功新增。', 'success');
       fetchmembers(); // 重新載入會員列表
@@ -277,7 +277,7 @@ const deleteMember = async (memberId) => {
     });
 
     if (result.isConfirmed) {
-      await axiosInstance.delete(`/api/members/${memberId}`);  
+      await axiosInstance.delete(`/members/${memberId}`);  
       Swal.fire('刪除成功！', '會員已被刪除。', 'success');
       fetchmembers(); // 重新獲取會員列表
     }

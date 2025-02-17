@@ -44,7 +44,7 @@ import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import useUserStore from '@/stores/user.js';
 import Swal from 'sweetalert2';
-import axiosapi from '@/plugins/axios.js';
+import {axiosapi }from '@/plugins/axios.js';
 import { loadGoogleAuth } from '@/plugins/googleAuth.js'; // 引入 Google Auth 加載函數
 
 const username = ref('');
@@ -54,7 +54,7 @@ const isLoggingIn = ref(false);
 const router = useRouter();
 const userStore = useUserStore();
 
-const baseUrl = import.meta.env.VITE_API_URL;
+
 const googleClientId = '687382637987-mac1n2c8aakto95j4o56keqblhst1j1u.apps.googleusercontent.com';
 
 onMounted(async () => {
@@ -153,7 +153,7 @@ async function submitForm() {
   };
 
   try {
-    const response = await axiosapi.post(`${import.meta.env.VITE_API_URL}/ajax/secure/login`, body);
+    const response = await axiosapi.post(`/ajax/secure/login`, body);
     if (response.data.success) {
       await Swal.fire({
         title: response.data.message,

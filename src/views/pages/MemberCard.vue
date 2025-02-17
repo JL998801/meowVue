@@ -4,8 +4,11 @@
       <div class="profile">
         <input type="text" v-model="nickName" class="input-field" />
       </div>
-      <form @submit.prevent="submitForm">
+     
+      
+       <form @submit.prevent="submitForm">
         <label>姓名</label>
+      
         <input type="name" v-model="name" class="input-field" readonly />
         
         <label>電子郵件</label>
@@ -44,6 +47,7 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import SidebarMenu from "@/component/SidebarMenu.vue";
+import { axiosapi } from '@/plugins/axios';
 import Swal from 'sweetalert2'; // 引入 SweetAlert2
 
 const router = useRouter();
@@ -57,21 +61,19 @@ const address = ref('');
 const phone = ref('');
 const notifyExchange = ref('啟用');
 const notifyEvent = ref('啟用');
-const baseUrl = import.meta.env.VITE_API_URL;
+
 // Fetch member data
 const fetchMemberData = async () => {
   const memberId = localStorage.getItem('memberId');
   
   if (memberId) {
     try {
-      const response = await fetch(`${baseUrl}/api/members/${memberId}`); 
+      const response = await axiosapi.get(`/members/${memberId}`); // 用 axios 發送 GET 請求
       
-      if (!response.ok) {
-        throw new Error('無法載入資料');
-      }
-      const data = await response.json();
+      const data = response.data; // axios 回應是 data 屬性
 
       if (data) {
+        // 設定資料
         nickName.value = data.nickName || '未設定';
         name.value = data.name || '未設定';
         email.value = data.email || '未設定';
@@ -85,6 +87,7 @@ const fetchMemberData = async () => {
         console.error('資料載入失敗');
       }
     } catch (error) {
+      // 錯誤處理
       console.error('發生錯誤:', error);
       alert('資料載入失敗，請稍後再試');
     }
@@ -92,6 +95,9 @@ const fetchMemberData = async () => {
     console.log('未找到 memberId');
   }
 };
+
+
+
 
 // On component mount, fetch member data
 onMounted(() => {
@@ -134,15 +140,15 @@ const submitForm = async () => {
   console.log(updatedMember);  // Check the data being sent
 
   try {
-    const response = await fetch(`${baseUrl}/api/members/${memberId}`,  {
-      method: 'PUT',
+    // 發送 PUT 請求更新資料
+    const response = await axiosapi.put(`/members/${memberId}`, updatedMember, {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(updatedMember),
     });
 
-    if (response.ok) {
+    // 如果更新成功
+    if (response.status === 200) {
       // 使用 SweetAlert2 顯示成功訊息
       Swal.fire({
         icon: 'success',
@@ -154,13 +160,11 @@ const submitForm = async () => {
           router.push('/pages/MemberCenter');
         }
       });
-      
     } else {
-      const errorData = await response.text();
       Swal.fire({
         icon: 'error',
         title: '更新失敗',
-        text: `更新失敗: ${errorData}`,
+        text: `更新失敗: ${response.data.message || '未知錯誤'}`,
       });
     }
   } catch (error) {
@@ -172,9 +176,13 @@ const submitForm = async () => {
     });
   }
 };
+
+
+
 </script>
 
 <style scoped>
+
   /* 基础全局样式 */
   .fixed-sidebar {
   position: fixed;
@@ -190,6 +198,11 @@ const submitForm = async () => {
 .aa{
   margin-bottom: 25px;
 }
+
+
+
+
+
   body {
             font-family: Arial, sans-serif;
             background-color: #f8f8f8;

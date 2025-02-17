@@ -60,7 +60,7 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import axios from 'axios';
+import { axiosapi } from '@/plugins/axios';
 
 // Reactive state variables
 const nickName = ref('');
@@ -71,7 +71,7 @@ const name = ref('');
 const phone = ref('');
 const birthday = ref('');
 const address = ref('');
-const baseUrl = import.meta.env.VITE_API_URL;
+
 
 const router = useRouter();
 
@@ -95,7 +95,7 @@ const submitForm = () => {
   };
 
   // 註冊 API 請求
-  axios.post(`${baseUrl}/api/register`, memberData)
+  axiosapi.post(`/register`, memberData)
     .then(response => {
       alert('註冊成功！');
 
@@ -107,7 +107,7 @@ const submitForm = () => {
         };
 
         // 登入 API 請求
-        axios.post(`${baseUrl}/ajax/secure/login`, loginData)
+        axiosapi.post(`/ajax/secure/login`, loginData)
           .then(loginResponse => {
             const { token, user } = loginResponse.data;
             const { memberId, email, nickname } = user;

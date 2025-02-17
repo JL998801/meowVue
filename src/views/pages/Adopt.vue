@@ -1,32 +1,6 @@
-
 <template>
   <div>
     <!-- Header Section -->
-    <header class="header">
-      <nav class="menu">
-        <a href="#">首頁</a>
-        <select>
-          <option>通報案件</option>
-          <option>選項 1</option>
-          <option>選項 2</option>
-        </select>
-        <select>
-          <option>最新消息</option>
-          <option>選項 1</option>
-          <option>選項 2</option>
-        </select>
-        <select>
-          <option>近期活動</option>
-          <option>選項 1</option>
-          <option>選項 2</option>
-        </select>
-        <a href="#">違規查詢</a>
-        <a href="#">精選商店</a>
-        <a href="#">會員中心</a>
-      </nav>
-    </header>
-
-    <!-- Title Section -->
     <div class="title">
       <h2>動物認養</h2>
       <div class="dots">
@@ -38,8 +12,8 @@
 
     <!-- Ad Section -->
     <div class="ad">
-    <button type="button" @click="goToFormAdopt">新增送養通報</button>
-  </div>
+      <button type="button" @click="goToFormAdopt">新增送養通報</button>
+    </div>
 
     <!-- Search Form -->
     <form @submit.prevent="searchCases">
@@ -58,23 +32,22 @@
             </select>
 
             <div>
-                <!-- 只有當 cities 加載完成後，選單才會啟用 -->
-                <select v-model="cityId" @change="fetchDistricts" :disabled="cities.length === 0">
-                  <option value="" disabled selected hidden>縣市</option>
-                  <option v-for="city in cities" :key="city.cityId" :value="city.cityId">
-                    {{ city.city }}
-                  </option>
-                </select>
-              </div>
+              <select v-model="cityId" @change="fetchDistricts" :disabled="cities.length === 0">
+                <option value="" disabled selected hidden>縣市</option>
+                <option v-for="city in cities" :key="city.cityId" :value="city.cityId">
+                  {{ city.city }}
+                </option>
+              </select>
+            </div>
 
-                        <div>
-            <select v-model="district">
-              <option value="" disabled hidden>鄉鎮區</option>
-              <option v-for="district in districts" :key="district.districtAreaId" :value="district.districtAreaName">
-                {{ district.districtAreaName }}
-              </option>
-            </select>
-          </div>
+            <div>
+              <select v-model="district">
+                <option value="" disabled hidden>鄉鎮區</option>
+                <option v-for="district in districts" :key="district.districtAreaId" :value="district.districtAreaName">
+                  {{ district.districtAreaName }}
+                </option>
+              </select>
+            </div>
           </div>
 
           <!-- Filters (Checkboxes) -->
@@ -112,27 +85,31 @@
       </div>
 
       <!-- Search Result Section -->
-      <div class="result" v-if="searchResult">
-        <img :src="'/images/222.jpg'" alt="失物照片" />
-        <div class="result-details">
-          <div class="info22">
-            <p class="info2"><strong>案件編號：</strong>{{ searchResult.caseId }}</p>
-          </div>
-          <p class="info2">建立日期：2025-01-31</p>
+      <div class="result" v-for="searchResult in searchResults" :key="searchResult.adoptionCaseId">
+  <!-- Displaying dynamic image for each search result -->
+  <img :src="imageTempUrls.imageUrl" alt="失物照片" />
+  
+          <div class="result-details">
+            <div class="info22">
+              <p class="info2"><strong>案件編號：</strong>{{ searchResult.adoptionCaseId }}</p>
+            </div>
 
-          <div class="info3">
-            <h5>{{ searchResult.title }}</h5>
-          </div>
+            <p class="info2">建立日期：{{ searchResult.publicationTime }}</p>
 
-          <div class="info33">
-            <p><strong>動物種類：</strong>{{ searchResult.type }}</p>
-            <p><strong>動物名稱：</strong>{{ searchResult.name }}</p>
-            <p><strong>動物性別：</strong>{{ searchResult.gender }}</p>
-            <p><strong>有剪耳：</strong>{{ searchResult.earTipped }}</p>
-            <p><strong>可送養地點：</strong>{{ searchResult.location }}</p>
+            <div class="info3">
+              <h5 @click="goToAdoptTwo">{{ searchResult.caseTitle }}</h5>
+            </div>
+
+            <div class="info33">
+              <p><strong>動物種類：</strong>{{ searchResult.species ? searchResult.species.species : '未知' }}</p> <!-- Ensure species exists -->
+              <p><strong>動物名稱：</strong>{{ searchResult.name }}</p>
+              <p><strong>動物性別：</strong>{{ searchResult.gender }}</p>
+              <p><strong>有剪耳：</strong>{{ searchResult.sterilization }}</p>
+              <p><strong>可送養地點：</strong>{{ searchResult.TAG }}</p>
+            </div>
           </div>
         </div>
-      </div>
+
     </form>
   </div>
 </template>
@@ -140,11 +117,14 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import axios from 'axios';
+import { axiosapi } from '@/plugins/axios';
 
 const router = useRouter();
-const baseUrl = import.meta.env.VITE_API_URL;
+
+
 // 状态数据
+const imageTempUrls = ref(''); // 用來存儲圖片的 URL
+const searchResults = ref([]);
 const selectedCaseStatement = ref('');
 const caseStatements = ref([]);
 const cityId = ref('');
@@ -160,22 +140,44 @@ const filters = ref({
   female: false,
   neutered: false,
 });
-const searchResult = ref({
-  title: "[台南市]三花小貓待送養",
-  image: "cat-example.jpg",
-  caseId: "S17352765407",
-  type: "貓",
-  name: "澎澎",
-  gender: "男",
-  earTipped: "是",
-  location: "新北市樹林區",
-});
+// 假設你會從後端獲取所有的認養案件資料
+const fetchSearchResults = async () => {
+  try {
+    const response = await axiosapi.get('/adoptionsearch'); // 修改为正确的 API 路径
+    console.log("Response data:", response.data); // 查看返回的结果
+    searchResults.value = response.data; // 假设 API 返回的数据包含多个案件
+  } catch (error) {
+    console.error("Error fetching search results:", error);
+  }
+};
 
+// 获取存储的图片 URL
+onMounted(() => {
+  const storedImageUrl = localStorage.getItem('imageTempUrls'); // 从 localStorage 获取图片 URL
+  if (storedImageUrl) {
+    try {
+      // 如果存儲的是 JSON 字符串，則解析它
+      const parsedImageUrls = JSON.parse(storedImageUrl);
+      imageTempUrls.value = parsedImageUrls.length > 0 ? parsedImageUrls[0] : ''; // 取第一張圖片
+    } catch (e) {
+      // 如果解析失敗，直接使用原始字符串
+      imageTempUrls.value = storedImageUrl;
+    }
+  } else {
+    imageTempUrls.value = '/images/222.jpg'; // 如果没有找到图片 URL，使用默认图片
+  }
+
+
+  // 触发其他数据的获取
+  fetchCaseStatements();
+  fetchCities();
+  fetchSearchResults();
+});
 
 // 获取案件状态
 const fetchCaseStatements = async () => {
   try {
-    const response = await axios.get(`${baseUrl}/api/casestatement`);  
+    const response = await axiosapi.get(`/casestatement`);  
     caseStatements.value = response.data;
   } catch (error) {
     console.error("Error fetching case statements:", error);
@@ -185,21 +187,19 @@ const fetchCaseStatements = async () => {
 // 获取城市数据
 const fetchCities = async () => {
   try {
-    const response = await fetch(`${baseUrl}/pet/allCity`);  
-    const data = await response.json();
-    cities.value = data;
+    const response = await axiosapi.get(`/pet/allCity`);
+    cities.value = response.data;
   } catch (error) {
     console.error("Error fetching cities:", error);
   }
 };
 
-// 根据城市 ID 获取鄉鎮区
+// 根据城市 ID 获取乡镇区
 const fetchDistricts = async () => {
   if (cityId.value) {
     try {
-      const response = await fetch(`${baseUrl}/pet/districtAreasByCity/${cityId.value}`); 
-      const data = await response.json();
-      districts.value = data;
+      const response = await axiosapi.get(`/pet/districtAreasByCity/${cityId.value}`);
+      districts.value = response.data;
     } catch (error) {
       console.error("Error fetching districts:", error);
     }
@@ -218,15 +218,23 @@ const reloadPage = () => {
   location.reload();
 };
 
-// 生命周期钩子
-onMounted(() => {
-  fetchCaseStatements();
-  fetchCities();
-});
+// 跳转到认养页面
+const goToAdoptTwo = () => {
+  router.push('/pages/AdoptTwo');
+};
 </script>
+
 
   
   <style scoped>
+
+
+.info3:hover {
+    /* hover 的樣式，可以加上顏色、底線或其他效果 */
+    color: #958418;  /* 這邊可以根據需要改變顏色 */
+    cursor: pointer;  /* 滑鼠變成手指 */
+    text-decoration: underline; /* 加上底線 */
+  }
 
   .info3{
     margin-top: 20px;
@@ -329,6 +337,7 @@ padding-right: 20px;
     align-items: center;
   }
   .title{
+    margin-top: 50px;
     padding-left: 210px;
   
   }
