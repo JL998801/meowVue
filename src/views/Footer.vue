@@ -6,8 +6,10 @@
 
     <footer class="site-footer">
         <div class="footer-container">
-            <p class="footer-description"> 溫暖每個需要幫助的毛孩之家 </p>
-            
+            <div class="footer-left">
+            <p class="footer-description">溫暖每個需要幫助的毛孩之家</p>
+            </div>
+    
             <div class="footer-links">
                 <a href="/about" class="footer-link">關於我們</a>/
                 <a href="/contact" class="footer-link">聯絡我們</a>/
@@ -55,7 +57,7 @@ body {
   padding: 10px 10px;
 }
 
-/* 📢 Footer 主要內容 */
+/* 主要內容區 */
 .footer-container {
   display: flex;
   flex-direction: column;
@@ -67,7 +69,6 @@ body {
   min-height: 50px; /* 控制 Footer 高度 */
 }
 
-/* 📝 文字說明 */
 .footer-description {
   font-size: 16px;
   font-weight: bold;
@@ -75,7 +76,7 @@ body {
   margin-bottom: 5px;
 }
 
-/* 🔗 連結區（水平排列 & 自適應換行） */
+/* 頁腳連結 */
 .footer-links {
   display: flex;
   flex-wrap: wrap;
@@ -84,7 +85,6 @@ body {
   margin-bottom: 5px;
 }
 
-/* 🎨 連結樣式 */
 .footer-link {
   color: #fffd77;
   text-decoration: none;
@@ -96,7 +96,7 @@ body {
   color: #feba07;
 }
 
-/* 📢 社交媒體圖示 */
+/* 社交媒體圖示 */
 .footer-social {
   display: flex;
   align-items: center;
@@ -105,7 +105,6 @@ body {
   margin-bottom: 5px;
 }
 
-/* 🎨 圖示樣式 */
 .social-icon {
   color: white;
   font-size: 18px;
@@ -116,7 +115,7 @@ body {
   color: #feba07;
 }
 
-/* 🏛️ 版權聲明 */
+/* 底部版權聲明 */
 .footer-bottom {
   font-size: 13px;
   opacity: 0.8;

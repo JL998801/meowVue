@@ -1,37 +1,29 @@
 <template>
-  <!-- 舉報按鈕 -->
-  <div>
-    <Reportbtn />
-  </div>
+    <h3>首頁 {{ userStore.email }}</h3>
+    <!-- 導覽按鈕 -->
+    <div class="main-link-box">
+        <ul class="list-unstyled">
+            <li v-for="(link, index) in navLinks" :key="index" class="list-item fadeInUp">
+                <div class="link-icon">
+                    <i :class="link.iconClass" aria-hidden="true"></i>
+                </div>
+                <div class="link-text">
+                    <h3 class="title">{{ link.title }}</h3>
+                    <span class="sub-text">{{ link.subtitle }}</span>
+                </div>
+                <RouterLink class="wrap-a" :to="link.url" :title="link.title"></RouterLink>
+            </li>
+        </ul>
+    </div>
 
-  <!-- 導覽按鈕 -->
-  <div class="main-link-box">
-    <ul class="list-unstyled">
-      <li
-        v-for="(link, index) in navLinks"
-        :key="index"
-        class="list-item fadeInUp"
-      >
-        <div class="link-icon">
-          <i :class="link.iconClass" aria-hidden="true"></i>
-        </div>
-        <div class="link-text">
-          <h3 class="title">{{ link.title }}</h3>
-          <span class="sub-text">{{ link.subtitle }}</span>
-        </div>
-        <RouterLink
-          class="wrap-a"
-          :to="link.url"
-          :title="link.title"
-        ></RouterLink>
-      </li>
-    </ul>
-  </div>
-
-  <!-- 案件廣告牆 -->
-  <div>
-    <Banner />
-  </div>
+    <!-- 案件廣告牆 -->
+    <div>
+        <Banner />
+    </div>
+    <!-- 舉報按鈕 -->
+    <div>
+        <Reportbtn />
+    </div>
 </template>
 
 <script setup>
@@ -47,36 +39,11 @@ const userStore = useUserStore();
 
 // 定義 `navLinks` 為 `ref()`，使其成為可響應的變數
 const navLinks = ref([
-  {
-    title: "救援通報",
-    subtitle: "我發現受傷或走失的浪浪",
-    url: "/pet/rescue/add",
-    iconClass: "flo-icon icon-rescue",
-  },
-  {
-    title: "送養計畫",
-    subtitle: "我想幫助浪浪找一個家",
-    url: "/adopt",
-    iconClass: "flo-icon icon-adoption",
-  },
-  {
-    title: "協尋系統",
-    subtitle: "我家的寶寶走失了",
-    url: "/pets/lostform",
-    iconClass: "flo-icon icon-lost",
-  },
-  {
-    title: "寵物商城",
-    subtitle: "想讓我家的寶寶過得更好",
-    url: "/shops/products1",
-    iconClass: "flo-icon icon-about",
-  },
-  {
-    title: "救援活動",
-    subtitle: "浪浪需要你的援手",
-    url: "/pets/products",
-    iconClass: "flo-icon icon-about",
-  },
+    { title: "救援通報", subtitle: "我發現受傷或走失的浪浪", url: "/pet/rescue/add", iconClass: "flo-icon icon-rescue" },
+    { title: "送養計畫", subtitle: "我想幫助浪浪找一個家", url: "/adopt", iconClass: "flo-icon icon-adoption" },
+    { title: "協尋系統", subtitle: "我家的寶寶走失了", url: "/pets/lostform", iconClass: "flo-icon icon-lost" },
+    { title: "寵物商城", subtitle: "想讓我家的寶寶過得更好", url: "/shop", iconClass: "flo-icon icon-about" },
+    { title: "救援活動", subtitle: "浪浪需要你的援手", url: "/pets/products", iconClass: "flo-icon icon-about" }
 ]);
 console.log("Home.vue 加載成功");
 </script>
