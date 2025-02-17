@@ -1,55 +1,55 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
-import axios from "axios";
+import {axiosapi2} from "@/plugins/axios.js";
 
 const useUserStore = defineStore("user", () => {
     const token = ref("");
     const email = ref("");
     const isTokenValid = ref(true); // 標記 token 是否有效
-     
+
     // 設置 Email
     function setEmail(data) {
         email.value = data;
     }
 
-     // 設置 Token，於用戶成功登入後調用
-     function setToken(data) {
+    // 設置 Token，於用戶成功登入後調用
+    function setToken(data) {
         token.value = data;
-      }
+    }
 
-      // 清除用戶信息（登出）
+    // 清除用戶信息（登出）
     function logout() {
         email.value = "";
         token.value = "";
         isTokenValid.value = false;
-      }
+    }
 
-      // 從後端驗證 token 是否有效
+    // 從後端驗證 token 是否有效
     async function validateToken() {
         if (!token.value) {
-        isTokenValid.value = false;
-        console.log("檢查token不存在");
-        return false;
+            isTokenValid.value = false;
+            console.log("檢查token不存在");
+            return false;
         }
 
         try {
-        const response = await axios.post(
-            "http://localhost:8080/validateToken",
-            {},
-            {
-            headers: {
-                Authorization: `Bearer ${token.value}`,
-            },
-            }
-        );
+            const response = await axiosapi2.post(
+                "/validateToken",
+                {},
+                {
+                    headers: {
+                        Authorization: `Bearer ${token.value}`,
+                    },
+                }
+            );
 
-        // 根據後端返回的結果更新有效性
-        isTokenValid.value = response.data.valid;
-        return response.data.valid;
+            // 根據後端返回的結果更新有效性
+            isTokenValid.value = response.data.valid;
+            return response.data.valid;
         } catch (error) {
-        console.error("Token validation failed:", error);
-        isTokenValid.value = false;
-        return false;
+            console.error("Token validation failed:", error);
+            isTokenValid.value = false;
+            return false;
         }
     }
 
@@ -59,18 +59,18 @@ const useUserStore = defineStore("user", () => {
             console.log("❌ Token 不存在");
             return null;
         }
-    
+
         try {
             const payload = JSON.parse(atob(token.value.split('.')[1])); // 解析 JWT payload
             console.log("✅ 解析出的 Token Payload:", payload);
-    
+
             // `sub` 是 JSON 字串，需要再解析一次  sub : "{\"email\":\"alice@lab.com\",\"memberId\":3}"
             if (payload.sub) {
                 const subData = JSON.parse(payload.sub); // 解析 `sub` 內的 JSON
                 console.log("🔍 解析出的 subData:", subData);
                 return subData.memberId || null; // 提取 memberId
             }
-    
+
             return null;
         } catch (error) {
             console.error("❌ 解析 token 失敗:", error);
@@ -96,9 +96,9 @@ const useUserStore = defineStore("user", () => {
         memberId,
     }
 },
-    { 
+    {
         persist: { //預設存到 localStorage，整個 Store 會被持久化，當頁面刷新，這些數據會自動從 localStorage 讀取
-            storage: localStorage, paths: ["email","token" ]    // 當 email 或 token 被更新時會自動存入 localStorage
+            storage: localStorage, paths: ["email", "token"]    // 當 email 或 token 被更新時會自動存入 localStorage
         }
     });
 export default useUserStore;    

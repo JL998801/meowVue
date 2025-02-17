@@ -281,10 +281,9 @@ const fetchAdoptionCases = async () => {
   left: 0;
 }
   .fixed-sidebar {
-    font-family: 'Noto Sans KR', sans-serif;
   position: fixed;
   top: 200px;
-  right: 200px;
+  right: 20px;
   width: 250px;
   background-color: #f4f4f4;
   padding: 20px;
@@ -324,9 +323,6 @@ const fetchAdoptionCases = async () => {
 
   /* 会员中心 */
   .w-full {
-    font-family: 'Noto Sans KR', sans-serif;
-    margin-top: 50px;
-    margin-left: 100px;
       width: 100%;
   }
 

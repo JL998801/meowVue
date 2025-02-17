@@ -1,12 +1,13 @@
 {
-  "name": "meowvue",
+  "name": "projfinal-front",
   "version": "0.0.0",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:unit": "vitest"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.7.2",
@@ -16,18 +17,27 @@
     "@fortawesome/vue-fontawesome": "^3.0.8",
     "axios": "^1.7.9",
     "bootstrap": "^5.3.3",
+    "chart.js": "^4.4.7",
+    "chartjs-plugin-datalabels": "^2.2.0",
+    "cropperjs": "^1.6.2",
     "entities": "^6.0.0",
     "esbuild": "^0.24.2",
-    "firebase": "^11.3.0",
+    "flatpickr": "^4.6.13",
+    "jwt-decode": "^4.0.0",
     "pinia": "^2.1.4",
     "pinia-plugin-persistedstate": "^4.2.0",
     "sweetalert2": "^11.15.10",
+    "swiper": "^11.2.2",
     "vue": "^3.3.4",
-    "vue-router": "^4.2.4"
+    "vue-flatpickr-component": "^11.0.5",
+    "vue-multiselect": "^3.2.0",
+    "vue-router": "^4.2.4",
+    "vuex": "^4.1.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.2.1",
-    "vite": "^6.0.7",
-    "vite-plugin-vue-devtools": "^7.6.8"
+    "vite": "^6.0.11",
+    "vite-plugin-vue-devtools": "^7.6.8",
+    "vitest": "^3.0.4"
   }
 }

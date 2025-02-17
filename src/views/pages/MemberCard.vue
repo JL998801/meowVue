@@ -50,22 +50,21 @@ import SidebarMenu from "@/component/SidebarMenu.vue";
 import { axiosapi } from '@/plugins/axios';
 import Swal from 'sweetalert2'; // 引入 SweetAlert2
 
-const router = useRouter();
 // State for storing member data
-const profileImage = ref(''); 
-const nickName = ref('');
-const name = ref('');
-const email = ref('');
-const dob = ref('');
-const address = ref('');
-const phone = ref('');
-const notifyExchange = ref('啟用');
-const notifyEvent = ref('啟用');
+const profileImage = ref("");
+const nickName = ref("");
+const name = ref("");
+const email = ref("");
+const dob = ref("");
+const address = ref("");
+const phone = ref("");
+const notifyExchange = ref("啟用");
+const notifyEvent = ref("啟用");
 
 // Fetch member data
 const fetchMemberData = async () => {
-  const memberId = localStorage.getItem('memberId');
-  
+  const memberId = localStorage.getItem("memberId");
+
   if (memberId) {
     try {
       const response = await axiosapi.get(`/members/${memberId}`); // 用 axios 發送 GET 請求
@@ -84,7 +83,7 @@ const fetchMemberData = async () => {
         notifyExchange.value = data.notifyExchange || '啟用';
         notifyEvent.value = data.notifyEvent || '啟用';
       } else {
-        console.error('資料載入失敗');
+        console.error("資料載入失敗");
       }
     } catch (error) {
       // 錯誤處理
@@ -92,7 +91,7 @@ const fetchMemberData = async () => {
       alert('資料載入失敗，請稍後再試');
     }
   } else {
-    console.log('未找到 memberId');
+    console.log("未找到 memberId");
   }
 };
 
@@ -108,14 +107,14 @@ onMounted(() => {
 const formatDateForBackend = (dateString) => {
   const date = new Date(dateString);
   const year = date.getFullYear();
-  const month = (date.getMonth() + 1).toString().padStart(2, '0');
-  const day = date.getDate().toString().padStart(2, '0');
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  const day = date.getDate().toString().padStart(2, "0");
   return `${year}-${month}-${day}`;
 };
 
 // Submit form handler
 const submitForm = async () => {
-  const memberId = localStorage.getItem('memberId');
+  const memberId = localStorage.getItem("memberId");
 
   if (!memberId) {
     alert("無效的會員 ID");
@@ -123,21 +122,23 @@ const submitForm = async () => {
   }
 
   // Format the birthdate if needed
-  const formattedDob = dob.value ? formatDateForBackend(dob.value) : '1990-01-01'; 
+  const formattedDob = dob.value
+    ? formatDateForBackend(dob.value)
+    : "1990-01-01";
 
   // Prepare the updated member data
   const updatedMember = {
     nickName: nickName.value,
-    name: name.value,  // Added name
-    birthday: formattedDob,  
+    name: name.value, // Added name
+    birthday: formattedDob,
     address: address.value,
     phone: phone.value,
-    email: email.value,  // Include email
+    email: email.value, // Include email
     notifyExchange: notifyExchange.value,
     notifyEvent: notifyEvent.value,
   };
 
-  console.log(updatedMember);  // Check the data being sent
+  console.log(updatedMember); // Check the data being sent
 
   try {
     // 發送 PUT 請求更新資料
@@ -151,13 +152,13 @@ const submitForm = async () => {
     if (response.status === 200) {
       // 使用 SweetAlert2 顯示成功訊息
       Swal.fire({
-        icon: 'success',
-        title: '資料更新成功',
-        text: '您的資料已成功更新。',
+        icon: "success",
+        title: "資料更新成功",
+        text: "您的資料已成功更新。",
       }).then((result) => {
         if (result.isConfirmed) {
           // 點擊確認後跳轉到會員中心頁面
-          router.push('/pages/MemberCenter');
+          router.push("/pages/MemberCenter");
         }
       });
     } else {
@@ -168,11 +169,11 @@ const submitForm = async () => {
       });
     }
   } catch (error) {
-    console.error('發生錯誤:', error);
+    console.error("發生錯誤:", error);
     Swal.fire({
-      icon: 'error',
-      title: '發生錯誤',
-      text: '請稍後再試',
+      icon: "error",
+      title: "發生錯誤",
+      text: "請稍後再試",
     });
   }
 };
@@ -187,7 +188,7 @@ const submitForm = async () => {
   .fixed-sidebar {
   position: fixed;
   top: 200px;
-  right: 200px;
+  right: 20px;
   width: 250px;
   background-color: #f4f4f4;
   padding: 20px;
@@ -195,7 +196,7 @@ const submitForm = async () => {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   z-index: 1000;
 }
-.aa{
+.aa {
   margin-bottom: 25px;
 }
 

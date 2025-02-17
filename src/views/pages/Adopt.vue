@@ -226,7 +226,7 @@ const goToAdoptTwo = () => {
 
 
   
-  <style scoped>
+<style scoped>
 
 
 .info3:hover {
@@ -259,7 +259,6 @@ const goToAdoptTwo = () => {
   }
 
 .separator {
- 
   padding-bottom: 20px;
   border-top: 2px solid #000; /* 加粗線 */
   width: 100%; /* 設定線條長度，這裡是 80% */
@@ -313,6 +312,7 @@ padding-right: 20px;
 .dot-pink {
   background-color: #FEBA07;
 }
+
   body {
     font-family: Arial, sans-serif;
     background-color: #f9f9f9;

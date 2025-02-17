@@ -1,0 +1,56 @@
+/* ::-webkit-scrollbar {
+    display: none; /* ✅ Chrome、Safari 隱藏 */
+/*} */
+  
+:root {
+    --font-stack: 'Noto Sans TC', apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, , sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}
+/* 冠 */
+/* "Microsoft JhengHei"微軟正原體 */
+/* -apple-system 和 BlinkMacSystemFont： 對應 Apple 系統（macOS 和 iOS）的默認字體 San Francisco */
+/* Segoe UI：Windows 系統的默認字體 */
+/* Roboto 和 Helvetica Neue： Android 和其他設備常用的無襯線字體 */
+/* Noto Sans：支持多語言的 Google 字體。 */
+/*其他字體（Arial 和 sans-serif）： 作為最後的保險字體，選擇系統默認的無襯線字體。 */
+
+
+* {
+    padding: 0;
+    margin: 0;
+    letter-spacing: 0.5px;
+}
+
+body {
+    background-image: url('@/assets/背景圖2.png');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* 確保 html 也使用全局字體 (冠) */
+html {
+    font-family: var(--font-stack);
+}
+
+
+/* 讓 `input`、`textarea`、`button` 也使用全局字體 (冠) */
+input,
+textarea,
+button {
+    font-family: inherit;
+}
+
+
+/* 單獨設置管理員後台的頁面 (冠) */
+body.admin-page {
+    background-image: none !important;
+    background-color: #ffffff !important;
+}
+
+/* 只對繁體中文設定 Noto Sans TC (冠)*/ 
+:lang(zh-TW) {
+    font-family: "Noto Sans TC", sans-serif !important;;
+  }
