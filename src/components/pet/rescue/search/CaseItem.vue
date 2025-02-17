@@ -11,6 +11,8 @@
       />
     </div>
     <div class="post-details">
+      <!-- 🔹 新增疑似走失判斷 -->
+      <div v-if="caseItem.suspLost" class="suspected-lost">⚠️ 疑似走失</div>
       <div class="info">
         <div class="post-id">救援案件編號 : {{ caseItem.rescueCaseId }}</div>
         <div class="case-status" :class="statusClass(caseItem.caseState)">
@@ -261,5 +263,12 @@ a {
   display: flex;
   justify-content: space-between;
   font-size: 14px;
+}
+
+.suspected-lost {
+  color: red;
+  font-weight: bold;
+  font-size: 16px;
+  margin-bottom: 8px;
 }
 </style>
