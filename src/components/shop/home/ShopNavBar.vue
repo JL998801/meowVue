@@ -3,12 +3,14 @@
   <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container-fluid">
       <RouterLink class="navbar-brand" aria-current="page" to="/">
-        <img :src="petLogo" alt="Logo圖示" width="80" title="首頁">壁爐之家
+        <img :src="petLogo" alt="Logo圖示" width="80" title="首頁" />壁爐之家
       </RouterLink>
 
       <ul class="navbar-nav ms-auto">
         <li class="nav-item">
-          <RouterLink class="navbar-brand" aria-current="page" to="/shop">商城首頁</RouterLink>
+          <RouterLink class="navbar-brand" aria-current="page" to="/shop"
+            >商城首頁</RouterLink
+          >
         </li>
 
         <!-- 使用 BadgeCounter 顯示購物車圖示 -->
@@ -41,7 +43,9 @@
           <button class="btn btn-danger" @click="handleLogout">登出</button>
         </li>
         <li class="nav-item" v-else>
-          <RouterLink class="btn btn-danger" to="/secure/login">登入</RouterLink>
+          <RouterLink class="btn btn-danger" to="/secure/login"
+            >登入</RouterLink
+          >
         </li>
       </ul>
     </div>
@@ -49,18 +53,27 @@
 
   <!-- 當顯示購物車內容時顯示 -->
   <div v-if="showCart && isUserLoggedIn" class="cart-content">
-    <button class="close-btn" @click="toggleCart">X</button> <!-- Close button -->
+    <button class="close-btn" @click="toggleCart">X</button>
+    <!-- Close button -->
     <div v-if="cartStore.cart.length === 0">
       <p>購物車是空的！</p>
     </div>
     <div v-else>
-      <div v-for="item in cartStore.cart" :key="item.cartItemId" class="cart-item">
+      <div
+        v-for="item in cartStore.cart"
+        :key="item.cartItemId"
+        class="cart-item"
+      >
         <!-- 顯示商品縮圖 -->
-        <img v-if="item.product?.imageUrl" :src="item.product.imageUrl" alt="Product Image"
-          class="product-image" />
+        <img
+          v-if="item.product?.imageUrl"
+          :src="item.product.imageUrl"
+          alt="Product Image"
+          class="product-image"
+        />
         <p>
-          {{ item.product?.productName || '已經加入商品 前往購物車確認' }} - 單價:
-          {{ item.product?.salePrice || '???' }}元 ×
+          {{ item.product?.productName || "已經加入商品 前往購物車確認" }} -
+          單價: {{ item.product?.salePrice || "???" }}元 ×
           <span>{{ item.quantity }}</span>
         </p>
       </div>
@@ -72,12 +85,22 @@
   </div>
 
   <!-- 🔹 Modal - 願望清單 -->
-  <div v-show="isUserLoggedIn" class="modal fade" id="wishlistModal" tabindex="-1" aria-hidden="true">
+  <div
+    v-show="isUserLoggedIn"
+    class="modal fade"
+    id="wishlistModal"
+    tabindex="-1"
+    aria-hidden="true"
+  >
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">願望清單</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+          ></button>
         </div>
         <div class="modal-body">
           <WishList />
@@ -87,12 +110,22 @@
   </div>
 
   <!-- 🔹 Modal - 訊息通知 -->
-  <div v-show="isUserLoggedIn" class="modal fade" id="notificationModal" tabindex="-1" aria-hidden="true">
+  <div
+    v-show="isUserLoggedIn"
+    class="modal fade"
+    id="notificationModal"
+    tabindex="-1"
+    aria-hidden="true"
+  >
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">通知中心</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+          ></button>
         </div>
         <div class="modal-body">
           <Notifications />
@@ -103,23 +136,23 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue';
-import { useRouter } from 'vue-router';
-import Swal from 'sweetalert2';
-import petLogo from '@/assets/petLogo.png'; // Logo 圖示
+import { computed, ref } from "vue";
+import { useRouter } from "vue-router";
+import Swal from "sweetalert2";
+import petLogo from "@/assets/petLogo.png"; // Logo 圖示
 
 import useUserStore from "@/stores/user";
 import { storeToRefs } from "pinia";
 import useCartStore from "@/stores/cartStore";
-import useWishListStore from "@/stores/wishlistStore";
-import useNotificationStore from "@/stores/wishlistStore";
-import BadgeCounter from '@/components/BadgeCounter.vue'; // 確保引入 BadgeCounter 組件
+import useWishListStore from "@/stores/wishListStore";
+import useNotificationStore from "@/stores/wishListStore";
+import BadgeCounter from "@/components/BadgeCounter.vue"; // 確保引入 BadgeCounter 組件
 
 // ✅ 接收來自 `ShopLayout.vue` 的 `props`
 const props = defineProps({
   isUserLoggedIn: Boolean,
-  cartCount: Number,       // 購物車數量
-  wishlistCount: Number,   // 願望清單數量
+  cartCount: Number, // 購物車數量
+  wishlistCount: Number, // 願望清單數量
   notificationCount: Number, // 通知數量
 });
 
@@ -132,7 +165,11 @@ const wishListStore = useWishListStore();
 const notificationStore = useNotificationStore();
 
 // ✅ 確保 cartCount 是響應式的，當購物車內容變更時，Vue 會自動更新 BadgeCounter 的 count
-const { cartCount, wishlistCount, notificationCount } = storeToRefs(cartStore, wishListStore, notificationStore);
+const { cartCount, wishlistCount, notificationCount } = storeToRefs(
+  cartStore,
+  wishListStore,
+  notificationStore
+);
 
 // 用來控制購物車顯示與隱藏
 const showCart = ref(false);
@@ -161,7 +198,7 @@ const cartQuantity = computed(() => {
 
 // 前往購物車頁面
 const goToCart = () => {
-  router.push('/shop/cart'); // 確保路由正確
+  router.push("/shop/cart"); // 確保路由正確
 };
 
 // ✅ 登出確認
