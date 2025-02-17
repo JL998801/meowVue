@@ -33,6 +33,9 @@
         <p>絕育狀態：{{ caseData.sterilization || '未知' }}</p>
         <p>晶片號碼：{{ caseData.microChipNumber || "無" }}</p>
         <p>地點: {{ caseData.city?.city || '未知城市' }}{{ caseData.districtArea?.districtAreaName || '' }}{{ caseData.street || '' }}</p>
+        <p>走失經過：{{caseData.lostExperience}}</p>
+        <p>特徵描述:{{caseData.featureDescription}} </p>
+        <p>聯絡資訊: {{caseData.contactInformation}}</p>
       </div>
     </div>
   </div>

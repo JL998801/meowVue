@@ -42,6 +42,8 @@ import AdminManagement from '../views/AdminManagement.vue';
 //冠
 import RescueManagement from '@/views/admin/kuan/RescueManagement.vue';
 import RescueAnalysis from '@/views/admin/kuan/RescueAnalysis.vue';
+//林
+import LostAdmin from '@/views/admin/joylin/LostAdmin.vue';
 
 
 const routes = [
@@ -63,8 +65,8 @@ const routes = [
   { path: "/pet/lost/search", component: AllLostCase, name: "pet-lostCase-link", props: true },
 
   //冠頁面
-   { path: "/pet/rescue/search", component: RescueSearch, name: "pet-rescueSearch-link" },
-   { path: "/pet/rescueCase/:id", component: RescueCase, name: "pet-rescueCase-link", props: true },  // 使用 props 傳遞參數產生動態路由(新增案件)
+  { path: "/pet/rescue/search", component: RescueSearch, name: "pet-rescueSearch-link" },
+  { path: "/pet/rescueCase/:id", component: RescueCase, name: "pet-rescueCase-link", props: true },  // 使用 props 傳遞參數產生動態路由(新增案件)
   // { path: "/pet/rescueCase/edit/:id", component: EditRescueCase, name: "pet-rescueCase-edit-link", props: true },  // 使用 props 傳遞參數產生動態路由(編輯案件)
   { path: "/advanced-settings", component: LineMessage, name: "advanced-settings-link" },
   // { path: "/pet/rescue/add", component: NewRescueCase, name: "newRescueCase-link" },
@@ -74,6 +76,7 @@ const routes = [
 
   //會員中心功能
   { path: "/pages/Register", component: Register, name: "register-link" },
+  //林
   { path: "/pet/lost/member", component: LostMember, name: "pets-LostMember-link" },
   //冠
   { path: "/member-center/followCase", component: FollowCase, name: "followCase-link" },
@@ -86,6 +89,7 @@ const routes = [
     path: "/admin", component: AdminManagement, name: "adminManagement-link", meta: { hideNavbar: true }, children: [
       { path: "rescueCase", component: RescueManagement },
       { path: "rescueAnalysis", component: RescueAnalysis },
+      { path: "lostCase", component: LostAdmin },
 
     ],
   },
