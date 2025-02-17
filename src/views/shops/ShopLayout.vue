@@ -40,7 +40,7 @@ import useCartStore from "@/stores/cartStore";
 import useWishListStore from "@/stores/wishListStore";
 import useNotificationStore from "@/stores/wishListStore";
 import ShopNavBar from "@/components/shop/home/ShopNavBar.vue"; // 導覽列
-import ShopSideBar from "@/components/shop/home/ShopSideBar.vue"; //左側搜尋欄
+import ShopSideBar from "@/components/shop/home/ShopSidebar.vue"; //左側搜尋欄
 
 // 獲取當前路由
 const route = useRoute();
