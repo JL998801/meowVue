@@ -93,6 +93,7 @@ import { ref, computed, onMounted, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { axiosapi } from '@/plugins/axios.js';
 import useProductStore from "@/stores/productStore";
+import useCartStore from "@/stores/cartStore"; // 使用 Pinia 管理購物車
 
 const route = useRoute();
 const router = useRouter();
@@ -100,6 +101,7 @@ const router = useRouter();
 const activeTab = ref("description");
 const productStore = useProductStore();
 const productId = computed(() => Number(route.params.id)); // 取得 URL 參數中的 `productId`
+const cartStore = useCartStore();
 
 // 取得 `selectedProduct`，如果 `productStore.products` 內找不到，則用 `route.query.productData`
 const selectedProduct = ref(null);
@@ -109,7 +111,6 @@ const selectedImage = computed(() =>
   selectedProduct.value?.imageUrls?.[0] || "/assets/no-image.png"
 );
 
-// **加入購物車功能**
 const addToCart = async () => {
   if (!selectedProduct.value) return;
 
@@ -134,11 +135,10 @@ const addToCart = async () => {
   }
 };
 
-// **跳轉到結帳頁面**
+// **跳轉到交易清單**
 const goToShopDetail = () => {
-  router.push(`/details/${productId.value}?cart`);
+  router.push(`/shop/details?cart`);
 };
-
 // 優化顯示速度
 watch(() => productId.value, async (newId) => {
   if (!newId) return;
