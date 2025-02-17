@@ -143,22 +143,10 @@
 <script setup>
 import { ref, onMounted, watch } from "vue";
 import { axiosapi } from "@/plugins/axios.js";
-import { useRouter } from "vue-router";
+// import { useRouter } from "vue-router";
 import ImageUpload from "./ImageUpload.vue";
-
-// const router = useRouter();
-
-// **檢查是否已登入**
-// const checkLogin = () => {
-//     const storedMemberId = localStorage.getItem("memberId");
-//     if (!storedMemberId) {
-//         alert("請先登入會員！");
-//         router.push("/secure/login"); // 跳轉登入頁面
-//         return false;
-//     }
-//     form.value.memberId = storedMemberId;
-//     return true;
-// };
+import useUserStore from "@/stores/user.js";
+import { storeToRefs } from "pinia";
 
 // **表單數據**
 const form = ref({
@@ -170,7 +158,7 @@ const form = ref({
   gender: "",
   sterilization: "",
   age: null,
-  microChipNumber: "",
+  microChipNumber: "", // ✅ 確保 microChipNumber 是字串
   cityId: "",
   districtAreaId: "",
   street: "",
@@ -181,6 +169,10 @@ const form = ref({
   memberId: "", // 會員 ID
   images: [],
 });
+
+// **取得用戶 Store**
+const userStore = useUserStore();
+const { memberId, token } = storeToRefs(userStore); // ✅ 直接取得 `memberId` 和 `token`
 
 // **存放後端數據**
 const speciesList = ref([]);
@@ -193,14 +185,13 @@ const caseStateList = ref([]);
 // **獲取後端資料**
 const fetchData = async () => {
   try {
-    const [speciesRes, breedRes, colorRes, cityRes, caseStateRes] =
-      await Promise.all([
-        axiosapi.get(`/pet/allSpecies`),
-        axiosapi.get(`/pet/allBreed`),
-        axiosapi.get(`/pet/allFurColor`),
-        axiosapi.get(`/pet/allCity`),
-        axiosapi.get(`/pet/allCaseState`),
-      ]);
+    const [speciesRes, breedRes, colorRes, cityRes, caseStateRes] = await Promise.all([
+      axiosapi.get(`/pet/allSpecies`),
+      axiosapi.get(`/pet/allBreed`),
+      axiosapi.get(`/pet/allFurColor`),
+      axiosapi.get(`/pet/allCity`),
+      axiosapi.get(`/pet/allCaseState`),
+    ]);
 
     speciesList.value = speciesRes.data;
     breedList.value = breedRes.data;
@@ -223,9 +214,7 @@ const fetchDistrictAreas = async () => {
   if (!form.value.cityId) return; // 確保 `cityId` 有選擇
 
   try {
-    const response = await axiosapi.get(
-      `/pet/districtAreasByCity/${form.value.cityId}`
-    );
+    const response = await axiosapi.get(`/pet/districtAreasByCity/${form.value.cityId}`);
     districtAreaList.value = response.data;
     console.log("✅ 獲取區域成功:", districtAreaList.value);
   } catch (error) {
@@ -245,52 +234,56 @@ watch(
   }
 );
 
-//晶片長度檢測
+// **晶片號碼長度檢測**
 const validateMicroChipNumber = () => {
-  // 確保 microChipNumber 只能是 10 位數字
-  if (form.microChipNumber) {
-    form.microChipNumber = parseInt(form.microChipNumber.toString().replace(/\D/g, "").slice(0, 10), 10);
+  if (form.value.microChipNumber) {
+    form.value.microChipNumber = form.value.microChipNumber.replace(/\D/g, "").slice(0, 10);
   }
 };
 
-// **圖片預覽**
-// const previewImages = ref([]);
-
-// // **處理圖片上傳**
-// const handleFileUpload = (event) => {
-//     const files = Array.from(event.target.files);
-//     if (files.length > 3) {
-//         alert("最多只能上傳 3 張圖片！");
-//         return;
-//     }
-
-//     form.value.images = files; // 儲存圖片數據
-//     previewImages.value = files.map((file) => URL.createObjectURL(file));
-// };
-
-// 監聽圖片上傳事件
+// **監聽圖片上傳事件**
 const ImageUploaded = (backTmpUrl) => {
   form.value.images.push(backTmpUrl);
 };
 
 // **提交表單**
 const submitForm = async () => {
-  // if (!checkLogin()) return; // **確保使用者登入**
-
   // **確保所有必要欄位填寫**
   if (
     !form.value.caseTitle ||
     !form.value.speciesId ||
     !form.value.cityId ||
-    !form.value.districtAreaId
+    !form.value.districtAreaId ||
+    !form.value.lostExperience ||
+    !form.value.featureDescription
   ) {
     alert("請確保所有必填項目都有填寫！");
     return;
   }
 
+  // **確保 `memberId` 存在**
+  if (!memberId.value) {
+    alert("無法獲取會員 ID，請重新登入！");
+    return;
+  }
+
+  // **確保 `memberId` 是數字**
+  form.value.memberId = Number(memberId.value);
+
+  // **確保 `microChipNumber` 正確**
+  if (form.value.microChipNumber && form.value.microChipNumber.length !== 10) {
+    alert("晶片號碼必須是 10 位數字！");
+    return;
+  }
+
+  console.log("📌 送出前的 form 資料：", form.value);
+
   try {
     const response = await axiosapi.post(`/lostcases/create`, form.value, {
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token.value}`, // ✅ 加入 JWT Token
+      },
     });
 
     alert("案件已成功提交！");
@@ -301,16 +294,16 @@ const submitForm = async () => {
       "❌ 提交表單失敗：",
       error.response ? error.response.data : error.message
     );
-    alert("提交失敗，請檢查資料是否完整！");
+    alert(`提交失敗，請檢查資料是否完整！\n錯誤訊息：${error.response?.data?.message || error.message}`);
   }
 };
 
 // **頁面載入時執行**
 onMounted(() => {
-  // checkLogin();
   fetchData();
 });
 </script>
+
 <style scoped>
 .container {
   max-width: 600px;
