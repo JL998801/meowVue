@@ -192,7 +192,7 @@ const goToPayment = async () => {
     console.log("發送的訂單資訊:", orderData);
 
     // 發送請求到後端提交訂單
-    await axiosapi.post(`/api/orders/submit`, orderData); // 使用 axios 發送請求
+    await axiosapi.post(`/orders/submit`, orderData); // 使用 axios 發送請求
 
     alert('訂單提交成功！');
     router.push('/shop/details');

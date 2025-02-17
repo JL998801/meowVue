@@ -1,110 +1,141 @@
 import { defineStore } from "pinia";
-import { axiosapi } from "@/plugins/axios.js"; // Ensure axiosapi is imported correctly
+import { axiosapi } from "@/plugins/axios.js"; // 確保 axiosapi 正確導入
 
 export const useCartStore = defineStore("cart", {
   state: () => {
-    // Retrieve cart data from localStorage (if available)
+    // 從 localStorage 獲取購物車資料（如果可用）
     const cartData = localStorage.getItem("cart");
+    const memberId = localStorage.getItem('memberId') || null; // 從 localStorage 獲取會員 ID
+    // 若 cartId 为空，設定為 1
+    const cartId = localStorage.getItem('cartId') || sessionStorage.getItem('cartId') || 1;
+
     return {
       cart: cartData && cartData !== "undefined" ? JSON.parse(cartData) : [],
-      memberId: localStorage.getItem('memberId') || 1, // Retrieve memberId from localStorage, fallback to 1
-      creditCard: "4311-9511-1111-1111", // Example credit card (use real data handling in production)
-      shippingAddress: "123 Main St", // Example shipping address (use real address handling in production)
+      memberId,
+      cartId, // 新增 cartId
+      creditCard: "4311-9511-1111-1111", // 測試信用卡（正式環境應移除）
+      shippingAddress: "123 Main St", // 測試地址（正式環境應移除）
       selectedOrder: null,
-      ecpayUrl: import.meta.env.VITE_ECPAY_URL, // Use environment variable for ECPay URL
-      detailUrl: import.meta.env.VITE_DETAIL_URL, // Use environment variable for detail URL
+      ecpayUrl: import.meta.env.VITE_ECPAY_URL, // ECPay 付款 URL
+      detailUrl: import.meta.env.VITE_DETAIL_URL, // 訂單詳情 URL
     };
   },
 
   actions: {
-    // Add a product to the cart
+    // **生成唯一的 cartId**
+    generateCartId() {
+      // 如果有 memberId，則 cartId 就等於 memberId，否則設為 1
+      const memberId = this.memberId || 1;
+      const validCartId = isNaN(memberId) ? 1 : memberId; // 確保 cartId 是數字
+      localStorage.setItem('cartId', validCartId); // 存入 localStorage
+      return validCartId;
+    },
+
+    // **登出時清除 localStorage 資料**
+    logout() {
+      localStorage.removeItem('cart'); // 清除購物車資料
+      localStorage.removeItem('memberId'); // 清除會員 ID
+      localStorage.removeItem('cartId'); // 清除 cartId
+      this.cart = []; // 清空購物車狀態
+      this.memberId = null; // 清空會員 ID
+      this.cartId = 1; // 重設為預設 cartId
+      alert("您已成功登出！");
+    },
+
+    // **登入後自動載入購物車**
+    async loginAndFetchCart(memberId) {
+      this.memberId = memberId; // 設定會員 ID
+      localStorage.setItem("memberId", memberId); // 存入 localStorage
+      await this.fetchCartDataFromServer(); // 登入後同步購物車
+    },
+
+    // **添加商品至購物車**
     addToCart(product) {
-      const found = this.cart.find((item) => item.productId === product.productId);
+      const cartId = this.generateCartId(); // 確保每個會員有唯一的 cartId
+
+      // 檢查該商品是否已存在於購物車中，且 cartId 是否匹配
+      const found = this.cart.find((item) => item.productId === product.productId && item.cartId === cartId);
+
       if (found) {
-        found.quantity += product.quantity || 1; // Increase quantity if already exists
+        // 如果商品已存在，更新商品的數量
+        found.quantity += product.quantity || 1;
       } else {
+        // 如果商品不存在，新增商品到購物車
         this.cart.push({
           ...product,
           quantity: product.quantity || 1,
           selected: false,
-          cartId: Date.now(), // Unique cart ID based on timestamp
-          productName: product.productName, // Store product name
+          cartId: cartId, // 確保 cartId 是有效的
+          productName: product.productName,
         });
       }
-      localStorage.setItem("cart", JSON.stringify(this.cart)); // Save to localStorage
-      this.syncCartWithServer(); // Sync with server
+      this.setCart(this.cart); // 更新購物車並同步狀態
     },
 
-    // Remove a product from the cart
+    // **移除購物車商品**
     removeFromCart(cartId) {
-      this.cart = this.cart.filter((item) => item.cartId !== cartId); // Filter out the item by cartId
-      localStorage.setItem("cart", JSON.stringify(this.cart)); // Save to localStorage
-      this.syncCartWithServer(); // Sync with server
+      this.cart = this.cart.filter((item) => item.cartId !== cartId);
+      this.setCart(this.cart);
     },
 
-    // Update the quantity of an item in the cart
+    // **更新數量**
     updateQuantity({ cartId, quantity }) {
       const item = this.cart.find((item) => item.cartId === cartId);
       if (item) {
-        item.quantity = quantity; // Update the quantity
-        localStorage.setItem("cart", JSON.stringify(this.cart)); // Save to localStorage
-        this.syncCartWithServer(); // Sync with server
+        item.quantity = quantity;
+        this.setCart(this.cart);
       }
     },
 
-    // Clear all items from the cart
+    // **清空購物車**
     clearCart() {
       this.cart = [];
-      localStorage.setItem("cart", JSON.stringify(this.cart)); // Clear localStorage
-      this.syncCartWithServer(); // Sync with server
+      this.setCart(this.cart);
     },
 
-    // Set cart data from the server (or localStorage)
+    // **設置購物車數據並同步至 localStorage**
     setCart(cartData) {
       this.cart = cartData;
-      localStorage.setItem("cart", JSON.stringify(this.cart)); // Save cart data to localStorage
+      localStorage.setItem("cart", JSON.stringify(this.cart));
+      this.syncCartWithServer(); // 立即同步至伺服器
     },
 
-    // Set the selection status of a cart item
+    // **選擇商品**
     setSelected({ cartId, selected }) {
       const item = this.cart.find((item) => item.cartId === cartId);
       if (item) {
-        item.selected = selected; // Update selection status
-        localStorage.setItem("cart", JSON.stringify(this.cart)); // Save to localStorage
+        item.selected = selected;
+        this.setCart(this.cart);
       }
     },
 
-    // Set the selected order details
-    setSelectedOrder(order) {
-      this.selectedOrder = order; // Set the selected order
-    },
-
-    // Sync cart data with the server
+    // **同步購物車到伺服器**
     async syncCartWithServer() {
       try {
         if (this.cart.length > 0 && this.memberId) {
           const cartData = this.cart.map((item) => ({
-            cartId: item.cartId,
             quantity: item.quantity,
             selected: item.selected,
             productId: item.productId,
             productName: item.productName,
           }));
-          await axiosapi.put(`/pages/cart/update/${this.memberId}`, cartData); // Sync with member-specific cart
+          await axiosapi.put(`/pages/cart/update/${this.memberId}`, cartData);
         }
       } catch (error) {
-        console.error("Failed to sync cart with server:", error); // Handle sync error
+        console.error("購物車同步失敗:", error);
       }
     },
 
-    // Fetch cart data from the server (use memberId to fetch personalized cart)
+    // **從伺服器獲取購物車數據**
     async fetchCartDataFromServer() {
       try {
+        if (!this.memberId) return; // 沒有登入則不請求數據
+
         const response = await axiosapi.get(`/pages/cart/list/${this.memberId}`);
         if (response.data) {
           const updatedCart = response.data.map((item) => ({
             ...item,
-            cartId: item.cartId || item.id, // 確保 cartId 來自伺服器
+            cartId: item.cartId || item.id,
             productName: item.productName || (item.product ? item.product.name : "未知商品"),
           }));
           this.setCart(updatedCart);
@@ -112,17 +143,16 @@ export const useCartStore = defineStore("cart", {
           this.clearCart();
         }
       } catch (error) {
-        console.error("Failed to fetch cart data from server:", error);
+        console.error("獲取購物車數據失敗:", error);
         this.clearCart();
       }
-    
     },
 
-    // Submit the order to the server (checkout process)
+    // **提交訂單**
     async submitOrder() {
       try {
         const selectedItems = this.cart
-          .filter((item) => item.selected) // Filter selected items for checkout
+          .filter((item) => item.selected)
           .map((item) => ({
             productId: item.productId,
             quantity: item.quantity,
@@ -130,7 +160,7 @@ export const useCartStore = defineStore("cart", {
           }));
 
         if (selectedItems.length === 0) {
-          alert("請至少勾選一個商品進行結帳"); // Prompt if no items selected
+          alert("請至少勾選一個商品進行結帳");
           return;
         }
 
@@ -143,28 +173,27 @@ export const useCartStore = defineStore("cart", {
 
         const response = await axiosapi.post(`/pages/order/create`, orderData);
         if (response.data.success) {
-          alert("訂單提交成功！"); // Success alert
-          this.setSelectedOrder(response.data.order); // Set selected order details
+          alert("訂單提交成功！");
+          this.setSelectedOrder(response.data.order);
+          this.clearCart(); // 清空購物車
         } else {
-          alert("訂單提交失敗，請稍後再試！"); // Failure alert
+          alert("訂單提交失敗，請稍後再試！");
         }
       } catch (error) {
-        console.error("Failed to submit order:", error); // Log error
-        alert("提交訂單失敗，請稍後再試！"); // Alert if error occurs
+        console.error("訂單提交失敗:", error);
+        alert("提交訂單失敗，請稍後再試！");
       }
     },
   },
 
   getters: {
-    // Get selected cart items (those marked for checkout)
     selectedCartItems(state) {
       return state.cart.filter((item) => item.selected).map((item) => ({
         ...item,
-        productName: item.productName || "未知商品", // Default product name if not available
+        productName: item.productName || "未知商品",
       }));
     },
 
-    // Calculate the total price of selected items in the cart
     totalCartPrice(state) {
       return state.cart.reduce(
         (total, item) => total + (item.product.salePrice * item.quantity),
@@ -172,7 +201,6 @@ export const useCartStore = defineStore("cart", {
       );
     },
 
-    // Get selected order details
     selectedOrder(state) {
       return state.selectedOrder;
     },
