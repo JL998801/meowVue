@@ -157,6 +157,7 @@ const shareOnLine = () => {
 };
 
 onMounted(async () => {
+  window.scrollTo(0, 0); // 強制滾動回到頂部
   fetchRescueProgress(); //向後端拿救援案件進度
   const caseId = route.params.id;
   try {
