@@ -175,7 +175,7 @@ router.beforeEach(async (to, from, next) => {
 
   // 需要驗證的路由，startsWith會包括上述路由所有/**`，some() 會逐個檢查 publicPages 陣列中的每個元素，確保 只要前綴匹配就視為公開頁面
   // const authRequired = !publicPages.includes(to.path) && !isRescueCaseDetail && !isLostCaseDetail;
-  const authRequired = !publicPages && !isRescueCaseDetail;
+  const authRequired = !isPublicPage && !isRescueCaseDetail;
 
   if (authRequired) {
     const isValid = await userStore.validateToken();    //自定義方法檢查Token是否有效

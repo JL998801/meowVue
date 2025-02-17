@@ -37,7 +37,7 @@
 </template>
 
 <script setup>
-import { axiosapi } from "@/plugins/axios"; // 使用 default 匯
+import { axiosapi2 } from "@/plugins/axios"; // 使用 default 匯
 import Swal from "sweetalert2";
 import { ref } from "vue";
 import { useRouter } from "vue-router";
@@ -68,7 +68,7 @@ async function login() {
   userStore.setEmail("");
 
   try {
-    const response = await axiosapi.post(`/secure/loginadmin`, body);
+    const response = await axiosapi2.post(`/secure/loginadmin`, body);
     console.log("response", response);
 
     if (response.data.success) {
