@@ -1,6 +1,6 @@
 import { jsonRequest } from "@/plugins/axios";
 
-const API_URL = "/api/payment/create";
+const API_URL = "/payment/create";
 
 export default {
   async initiatePayment(amount) {

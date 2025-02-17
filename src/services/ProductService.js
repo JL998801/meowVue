@@ -1,7 +1,7 @@
 import { jsonRequest } from "@/plugins/axios";
-import axiosapi from "@/plugins/axios";
+import { axiosapi } from "@/plugins/axios";
 
-const API_URL = "/api/products";
+const API_URL = "/products";
 
 export const ProductService = {
   /**

@@ -91,6 +91,7 @@
 <script setup>
 import { ref, computed, onMounted, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { axiosapi } from '@/plugins/axios.js';
 import useProductStore from "@/stores/productStore";
 
 const route = useRoute();
@@ -109,11 +110,27 @@ const selectedImage = computed(() =>
 );
 
 // **加入購物車功能**
-const addToCart = () => {
-  if (selectedProduct.value) {
-    cartStore.addToCart(selectedProduct.value);
-    console.log(`加入購物車: ${selectedProduct.value.productName}`);
-    alert("商品已加入購物車");
+const addToCart = async () => {
+  if (!selectedProduct.value) return;
+
+  try {
+    const memberId = localStorage.getItem("memberId") || 1; // 先從 localStorage 讀取會員 ID，若無則使用固定 ID
+    const productId = selectedProduct.value.productId;
+    const quantity = 1;
+
+    // 發送請求到後端，將會員 ID、商品 ID 和數量發送過去
+    await axiosapi.post('/pages/cart/add', {
+      memberId,
+      productId,
+      quantity,
+    });
+
+    // 將商品加入到購物車 store
+    cartStore.addToCart({ ...selectedProduct.value, quantity });
+    alert("商品已成功加入購物車");
+  } catch (error) {
+    console.error("加入購物車失敗:", error);
+    alert("加入購物車失敗，請稍後重試");
   }
 };
 

@@ -43,7 +43,7 @@
       <p class="product-price">價格: ${{ product.salePrice }}</p>
 
       <!-- 加入購物車按鈕 -->
-      <button class="btn btn-primary" @click="addToCart(product)">加入購物車</button>
+      <button class="btn btn-primary" @click="addToCart(product)">查看商品詳情</button>
 
       <!-- 加入願望清單按鈕 -->
       <button class="btn btn-outline-danger" @click.stop="handleAddToWishlist(product)">加入願望清單</button>
@@ -94,61 +94,90 @@ const addToCart = async (product) => {
 const handleAddToWishlist = async(product) => {
   wishListStore(product.productId);
 };
-
 </script>
 
-<template>
-   <div class="product-card" @click="goToProductDetails">
-    <!-- 根據 displayMode 顯示所有圖片或僅顯示首圖 -->
-    <div v-if="displayMode === 'all'" class="image-gallery">
-      <img
-        v-for="(image, index) in product.imageUrls"
-        :key="index"
-        :src="image || '/assets/lostcat5.png'"
-        :alt="product.productName || '無圖片'"
-        class="product-image"
-      />
-    </div>
-    
-    <div v-else class="single-image">
-      <img
-        :src="product.imageUrls?.[0] || '/assets/lostcat5.png'"
-        :alt="product.productName || '無圖片'"
-        class="product-image"
-      />
-    </div>
-
-    <div class="product-info">
-      <h3>{{ product.productName }}</h3>
-      <p>{{ product.description }}</p>
-      <p>價格: ${{ product.salePrice }}</p>
-
-      <!-- 加入購物車按鈕 -->
-      <button class="btn btn-primary" @click="addToCart(product)">加入購物車</button>
-
-      <!-- 加入願望清單按鈕 -->
-      <button class="btn btn-outline-danger" @click.stop="handleAddToWishlist(product)">加入願望清單</button>
-    </div>
-  </div>
-</template>
-
 <style scoped>
+/* 商品卡片樣式 */
 .product-card {
   border: 1px solid #ddd;
-  padding: 10px;
+  padding: 12px;
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
-  background-color: #ddd;
-  aspect-ratio: 2 / 3
+  background-color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 100%;
+  max-width: 250px; /* 限制最大寬度 */
+  height: 100%;
 }
+
 .product-card:hover {
   transform: scale(1.05);
 }
-.product-image {
-  width: 100%;   /* ✅ 讓圖片自適應容器寬度 */
-  height: 100px; /* ✅ 設定固定高度 */
-  object-fit: cover; /* ✅ 保持比例，裁切超出部分 */
 
-  aspect-ratio: 2 / 3 /* ✅ 自動計算高度，保持 4:3 比例 */
+/* 商品圖片 */
+.product-image {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 8px;
 }
+
+/* 商品資訊 */
+.product-info {
+  padding: 10px;
+  width: 100%;
+}
+
+/* 商品名稱 */
+.product-title {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+/* 類別 */
+.product-category {
+  margin-bottom: 5px;
+}
+
+/* 標籤 */
+.product-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+/* 商品描述 */
+.product-description {
+  font-size: 14px;
+  color: #666;
+  height: 40px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-bottom: 5px;
+}
+
+/* 商品價格 */
+.product-price {
+  font-size: 16px;
+  font-weight: bold;
+  color: #e74c3c;
+  margin-bottom: 10px;
+}
+
+/* 按鈕 */
+.btn {
+  width: 100%;
+  padding: 8px;
+  font-size: 14px;
+  margin-top: 5px;
+}
+
 </style>

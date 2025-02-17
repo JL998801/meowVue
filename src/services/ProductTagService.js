@@ -1,6 +1,6 @@
 import { jsonRequest } from "@/plugins/axios";
 
-const API_URL = "/api/tags";
+const API_URL = "/tags";
 
 export const ProductTagService = {
   async getAllTags() {

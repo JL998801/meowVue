@@ -32,24 +32,23 @@
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useOrderStore } from "@/stores/order"; // 引入 Pinia store
-import axios from "axios";
+import { axiosapi} from "@/plugins/axios.js";
 
 const router = useRouter();
 const orderStore = useOrderStore(); // 使用 Pinia store
-const apiUrl = import.meta.env.VITE_API_URL;
 
 const orderList = ref([]);
 const loading = ref(false);
 const error = ref(null);
 
-// 假設 memberId 已經在 Pinia store 或其他地方獲得，這裡為範例設置 memberId
-const memberId = 1;  // 這可以從 Pinia 或當前用戶上下文中獲取
+// 從 localStorage 或 sessionStorage 取得 memberId
+const memberId = localStorage.getItem("memberId") || 1;  // 設定為 1 作為測試 ID
 
 // 讀取訂單資料
 const fetchOrderData = async () => {
   loading.value = true;
   try {
-    const response = await axios.get(`${apiUrl}/orders/member/${memberId}`);
+    const response = await axiosapi.get(`/orders/member/${memberId}`);
     orderList.value = response.data.map(order => ({
       ...order,
       orderItems: order.orderItems.map(item => ({
@@ -89,7 +88,7 @@ const getStatusClass = (status) => {
 const cancelOrder = async (orderId) => {
   if (confirm("確定要取消該訂單嗎？")) {
     try {
-      const response = await axios.post(`${apiUrl}/orders/cancel`, null, {
+      const response = await axiosapi.post(`/orders/cancel`, null, {
         params: { orderId }
       });
       if (response.status === 200) {
@@ -116,7 +115,7 @@ const goToPayment = async (order) => {
         purchasedPrice: item.purchasedPrice,
       })),
     };
-    const paymentResponse = await axios.post(`${apiUrl}/pages/ecpay/send`, paymentData);
+    const paymentResponse = await axiosapi.post(`/pages/ecpay/send`, paymentData);
     if (paymentResponse.status === 200) {
       router.push("/shop/payment");
     } else {

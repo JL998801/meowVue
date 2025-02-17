@@ -1,6 +1,6 @@
 import { jsonRequest } from "@/plugins/axios";
 
-const API_URL = "/api/notifications";
+const API_URL = "/notifications";
 
 export const NotificationService = {
   async getNotifications(userId, isAdmin = false) {

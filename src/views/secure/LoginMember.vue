@@ -42,7 +42,7 @@ import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import useUserStore from '@/stores/user.js';
 import Swal from 'sweetalert2';
-import axiosapi from '@/plugins/axios.js';
+import { axiosapi } from '@/plugins/axios.js';
 import { loadGoogleAuth } from '@/plugins/googleAuth.js';
 
 const username = ref('');
