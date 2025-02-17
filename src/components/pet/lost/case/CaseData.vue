@@ -1,14 +1,16 @@
-<template lang="">
-    <div class="post">
+<template>
+  <div v-if="isLoading" class="loading">🔄 載入中...</div>
+  <div v-else-if="caseData && Object.keys(caseData).length > 0" class="post">
     <div class="post-image">
-      <img
-        :src="caseData.casePictures?.[0].pictureUrl"
-        :alt="caseData.caseTitle"
+      <img 
+        :src="caseData.casePictures?.[0]?.pictureUrl || '/images/default.png'" 
+        :alt="caseData.caseTitle || '案件圖片'" 
       />
     </div>
+
     <div class="post-details">
       <div class="info">
-        <div class="post-id">遺失案件編號 : {{ caseData.lostCaseId }}</div>
+        <div class="post-id">遺失案件編號 : {{ caseData.lostCaseId || '未知' }}</div>
         <div class="case-status" :class="getStatusClass(caseData.caseState?.caseStateId)">
           {{ caseData.caseState?.caseStatement || "未知狀態" }}
         </div>
@@ -16,78 +18,83 @@
       <div class="info-3">
         建立日期: {{ formatDate(caseData.publicationTime) }}
       </div>
-        <h2 class="case-title">
-          [{{ caseData.cityName }}{{ caseData.districtAreaName }}]
-          {{ caseData.caseTitle }}
-        </h2>
+
+      <h2 class="case-title">
+        [{{ caseData.city?.city || '未知城市' }}{{ caseData.districtArea?.districtAreaName || '' }}]
+        {{ caseData.caseTitle || '未命名案件' }}
+      </h2>
+
       <div class="post-details-p">
-        <p>寵物類別：{{ caseData.species }}</p>
-        <p>寵物名稱：{{ caseData.petName}}</p>
-        <p>寵物名稱：{{ caseData.gender}}</p>
-        <p>寵物品種：{{ caseData.breed }}</p>
-        <p>絕育狀態：{{ caseData.sterilization }}</p>
+        <p>寵物類別：{{ caseData.species?.species || '未知' }}</p>
+        <p>寵物名稱：{{ caseData.name || '未知' }}</p>
+        <p>性別：{{ caseData.gender || '未知' }}</p>
+        <p>品種：{{ caseData.breed?.breed || '未知' }}</p>
+        <p>毛色：{{ caseData.furColor?.furColor || '未知' }}</p>
+        <p>絕育狀態：{{ caseData.sterilization || '未知' }}</p>
         <p>晶片號碼：{{ caseData.microChipNumber || "無" }}</p>
-        <p>地點: {{ caseData.cityName }}{{ caseData.districtAreaName }}{{caseData.street}} </p>
-      </div>
-      <div class="case-footer">
-        <p>
-            <font-awesome-icon icon="fa-solid fa-circle-user"  class="user-icon" />發文者：<span class="author">{{ caseData.memberNickName }}</span>
-        </p>
-        <div class="views-and-follows">
-            <font-awesome-icon icon="fa-solid fa-eye" class="view-icon"/><span>{{ caseData.viewCount || 0 }}</span>
-            <font-awesome-icon icon="fa-solid fa-heart" class="heart-icon" /><span>追蹤 ({{ caseData.follow || 0 }})</span>
-        </div>
+        <p>地點: {{ caseData.city?.city || '未知城市' }}{{ caseData.districtArea?.districtAreaName || '' }}{{ caseData.street || '' }}</p>
+        <p>走失經過：{{caseData.lostExperience}}</p>
+        <p>特徵描述:{{caseData.featureDescription}} </p>
+        <p>聯絡資訊: {{caseData.contactInformation}}</p>
       </div>
     </div>
   </div>
+  <div v-else class="no-data">⚠️ 查無案件資料</div>
 </template>
 
+
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, watchEffect } from "vue";
 import { useRoute } from "vue-router";
 import useLostCases from "@/components/pet/lost/useLostCases.js";
 
-// 獲取路由中的 `lostCaseId`
-const route = useRoute();
-const lostCaseId = route.params.lostCaseId;
-
-// 使用 `useLostCases` 來獲取 API 方法
+// ✅ 取得 `useLostCases` 提供的 API 方法
 const { fetchLostCaseById } = useLostCases();
 
-// 定義 `caseData` 來存放案件詳情
-const caseData = ref({});
+// ✅ 取得當前路由參數
+const route = useRoute();
+const lostCaseId = ref(route.params.id);
 
-// 取得單筆案件資訊
-const fetchCaseDetails = async () => {
-    try {
-        caseData.value = await fetchLostCaseById(lostCaseId);
-        console.log("✅ 取得案件詳情:", caseData.value);
-    } catch (error) {
-        console.error("❌ 取得案件詳情失敗:", error);
+// ✅ 設定 `caseData` 預設為 `null`，確保 Vue 能監聽變化
+const caseData = ref(null);
+
+// ✅ 設定 `isLoading` 來管理請求狀態
+const isLoading = ref(true);
+
+// ✅ 監聽 `lostCaseId` 變化，自動獲取案件資料
+watchEffect(async () => {
+    if (!route.params.id) return;
+
+    lostCaseId.value = route.params.id;
+    console.log("🚀 取得案件 ID:", lostCaseId.value);
+
+    isLoading.value = true; // 🔄 請求前顯示載入狀態
+    const response = await fetchLostCaseById(lostCaseId.value);
+
+    if (response) {
+        caseData.value = { ...response }; // ✅ 確保 Vue 能正確監聽數據變化
+        console.log("✅ 成功載入案件數據:", caseData.value);
+    } else {
+        console.warn("⚠️ 無法獲取案件數據，請檢查 API 是否正常");
+        caseData.value = {}; // ✅ API 失敗時設置為 `{}`，避免 `null`
     }
+    isLoading.value = false; // ✅ API 請求完成，關閉載入狀態
+});
+
+// ✅ 設定案件狀態樣式
+const getStatusClass = (caseStateId) => {
+    return caseStateId === 5 ? "status-pending" : 
+           caseStateId === 6 ? "status-found" : 
+           "status-unknown";
 };
 
-// 設定案件狀態樣式
-const getStatusClass = (caseStateId) => {
-    console.log("🚀 Debug - statusClass:", caseStateId);
-    return caseStateId === 5 ? "status-pending" : 
-            caseStateId === 6 ? "status-found" : 
-            "status-unknown";
-  };
-
-// 格式化日期
+// ✅ 格式化日期
 const formatDate = (dateString) => {
-    console.log("📅 Debug - formatDate:", dateString);
     return dateString ? new Date(dateString).toLocaleDateString() : "未知日期";
 };
-
-// 頁面載入時自動獲取案件資訊
-onMounted(fetchCaseDetails);
 </script>
 
-
 <style scoped>
-
 .user-icon{
     margin-right: 6px;
     color:#dbdddc;

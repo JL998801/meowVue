@@ -80,9 +80,10 @@ const isFullWidth = computed(() => fullWidthRoutes.includes(route.path));
 /* 全域樣式 */
 .container {
   background-color: #ffffff;
-  margin: 30px auto;
-  padding: 10px;
-  border-radius: 20px;
+  margin: 10px auto;
+  width: 90%;  /* 讓白色背景更寬 */
+  max-width: 1200px; /* 設置最大寬度，避免過寬 */
+  padding: 20px; /* 讓內部元素更有間距 */
 }
 
 /* 當 `isFullWidth` 為 true，讓 `.container` 變成全寬而且不要有卷軸 */

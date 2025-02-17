@@ -25,6 +25,7 @@ import LostMember from '@/views/pets/lost/LostMember.vue';
 import LostForm from '@/views/pets/lost/LostForm.vue';
 import ReportForm from '@/views/pets/report/ReportForm.vue';
 import LostCase from '@/views/pets/lost/LostCase.vue';
+import AllLostCase from '@/views/pets/lost/LostSearch.vue';
 
 //冠頁面
 import RescueSearch from '@/views/pages/pet/rescue/RescueSearch.vue';
@@ -41,6 +42,8 @@ import AdminManagement from '../views/AdminManagement.vue';
 //冠
 import RescueManagement from '@/views/admin/kuan/RescueManagement.vue';
 import RescueAnalysis from '@/views/admin/kuan/RescueAnalysis.vue';
+//林
+import LostAdmin from '@/views/admin/joylin/LostAdmin.vue';
 
 
 const routes = [
@@ -58,11 +61,12 @@ const routes = [
   //卓穎頁面
   { path: "/pets/lostform", component: LostForm, name: "pets-LostForm-link" },
   { path: "/pets/reportform", component: ReportForm, name: "pets-ReportForm-link" },
-  { path: "/pet/lostCase", component: LostCase, name: "pet-lostCase-link", props: true },
+  { path: "/pet/lostCase/:id", component: LostCase, name: "pet-lostCase-link", props: true },
+  { path: "/pet/lost/search", component: AllLostCase, name: "pet-lostCase-link", props: true },
 
   //冠頁面
-   { path: "/pet/rescue/search", component: RescueSearch, name: "pet-rescueSearch-link" },
-   { path: "/pet/rescueCase/:id", component: RescueCase, name: "pet-rescueCase-link", props: true },  // 使用 props 傳遞參數產生動態路由(新增案件)
+  { path: "/pet/rescue/search", component: RescueSearch, name: "pet-rescueSearch-link" },
+  { path: "/pet/rescueCase/:id", component: RescueCase, name: "pet-rescueCase-link", props: true },  // 使用 props 傳遞參數產生動態路由(新增案件)
   { path: "/pet/rescueCase/edit/:id", component: EditRescueCase, name: "pet-rescueCase-edit-link", props: true },  // 使用 props 傳遞參數產生動態路由(編輯案件)
   { path: "/advanced-settings", component: LineMessage, name: "advanced-settings-link" },
   { path: "/pet/rescue/add", component: NewRescueCase, name: "newRescueCase-link" },
@@ -72,6 +76,7 @@ const routes = [
 
   //會員中心功能
   { path: "/pages/Register", component: Register, name: "register-link" },
+  //林
   { path: "/pet/lost/member", component: LostMember, name: "pets-LostMember-link" },
   //冠
   { path: "/member-center/followCase", component: FollowCase, name: "followCase-link" },
@@ -84,6 +89,7 @@ const routes = [
     path: "/admin", component: AdminManagement, name: "adminManagement-link", meta: { hideNavbar: true }, children: [
       { path: "rescueCase", component: RescueManagement },
       { path: "rescueAnalysis", component: RescueAnalysis },
+      { path: "lostCase", component: LostAdmin },
 
     ],
   },
@@ -111,9 +117,8 @@ route.beforeEach(async (to, from, next) => {
     "/adopt",
     "/secure/loginadmin",
     '/callback',
+    '/pet/lost/search',
     '/pets/lostform',
-    '/pets/reportform',
-    '/lost',
     '/pet/lost/member',
     "/admin",
 
@@ -122,10 +127,10 @@ route.beforeEach(async (to, from, next) => {
 
   //用來判斷救援案件頁面路徑，需要是公開
   const isRescueCaseDetail = to.path.startsWith("/pet/rescueCase/") && to.path.split("/").length === 4;
-
+  const isLostCaseDetail = to.path.startsWith("/pet/lostCase/") && to.path.split("/").length === 4;
 
   // 需要驗證的路由，startsWith會包括上述路由所有/**`，some() 會逐個檢查 publicPages 陣列中的每個元素，確保 只要前綴匹配就視為公開頁面
-  const authRequired = !publicPages.includes(to.path) && !isRescueCaseDetail;
+  const authRequired = !publicPages.includes(to.path) && !isRescueCaseDetail && !isLostCaseDetail;
 
 
 
