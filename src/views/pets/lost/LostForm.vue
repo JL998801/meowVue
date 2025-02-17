@@ -13,11 +13,7 @@
         <label for="species">*寵物種類：</label>
         <select v-model="form.speciesId">
           <option value="">請選擇</option>
-          <option
-            v-for="species in speciesList"
-            :key="species.speciesId"
-            :value="species.speciesId"
-          >
+          <option v-for="species in speciesList" :key="species.speciesId" :value="species.speciesId">
             {{ species.species }}
           </option>
         </select>
@@ -28,11 +24,7 @@
         <label for="breed">品種：</label>
         <select v-model="form.breedId">
           <option value="">請選擇</option>
-          <option
-            v-for="breed in breedList"
-            :key="breed.breedId"
-            :value="breed.breedId"
-          >
+          <option v-for="breed in breedList" :key="breed.breedId" :value="breed.breedId">
             {{ breed.breed }}
           </option>
         </select>
@@ -43,11 +35,7 @@
         <label for="furColor">毛色：</label>
         <select v-model="form.furColorId">
           <option value="">請選擇</option>
-          <option
-            v-for="fur in furColorList"
-            :key="fur.furColorId"
-            :value="fur.furColorId"
-          >
+          <option v-for="fur in furColorList" :key="fur.furColorId" :value="fur.furColorId">
             {{ fur.furColor }}
           </option>
         </select>
@@ -86,12 +74,7 @@
       <!-- 晶片號碼 -->
       <div class="form-group">
         <label for="microChipNumber">晶片號碼：</label>
-        <input
-          v-model="form.microChipNumber" 
-          @input="validateMicroChipNumber"
-          type="text" 
-          placeholder="請輸入晶片號碼"
-        />
+        <input v-model="form.microChipNumber" @input="validateMicroChipNumber" type="text" placeholder="請輸入晶片號碼" />
         <p v-if="form.microChipNumber && form.microChipNumber.toString().length !== 10" style="color: red">
           晶片號碼必須為 10 位數字
         </p>
@@ -102,11 +85,7 @@
         <label for="city">城市：</label>
         <select v-model="form.cityId" @change="fetchDistrictAreas">
           <option value="">請選擇</option>
-          <option
-            v-for="city in cityList"
-            :key="city.cityId"
-            :value="city.cityId"
-          >
+          <option v-for="city in cityList" :key="city.cityId" :value="city.cityId">
             {{ city.city }}
           </option>
         </select>
@@ -115,11 +94,7 @@
         <label for="district">區域：</label>
         <select v-model="form.districtAreaId">
           <option value="">請選擇</option>
-          <option
-            v-for="district in districtAreaList"
-            :key="district.districtAreaId"
-            :value="district.districtAreaId"
-          >
+          <option v-for="district in districtAreaList" :key="district.districtAreaId" :value="district.districtAreaId">
             {{ district.districtAreaName }}
           </option>
         </select>
@@ -203,7 +178,7 @@ const form = ref({
   featureDescription: "",
   contactInformation: "",
   caseStateId: 5, // 固定為 "待協尋"
-  memberId: 2, // 會員 ID
+  memberId: "", // 會員 ID
   images: [],
 });
 
