@@ -60,4 +60,3 @@ export const uploadFile = (url, formData) => {
         headers: { "Content-Type": "multipart/form-data" }, // 確保 Form-Data 格式
     });
 };
-
