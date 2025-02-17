@@ -52,54 +52,38 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch } from "vue";
-import Swal from "sweetalert2";
-import useLostCases from "@/components/pet/lost/useLostCases.js";
+import { ref, onMounted } from "vue";
 import useUserStore from "@/stores/user.js";
+import { axiosapi } from "@/plugins/axios.js";
 
 const userStore = useUserStore();
+const losts = ref([]);
+const isLoading = ref(true);
 const expandedCases = ref([]);
-const memberId = computed(() => userStore.memberId ? Number(userStore.memberId) : null);
+const currentPage = ref(1);
+const totalPages = ref(1);
 
-const {
-    losts, currentPage, totalPages, fetchLostCases, goToPage, updateLostCase, isLoading
-} = useLostCases(memberId);
-
-watch(memberId, (newId) => {
-    if (newId) fetchLostCases();
-});
+const fetchLostCases = async () => {
+    try {
+        isLoading.value = true;
+        const response = await axiosapi.get("/lostcases/all");
+        losts.value = response.data;
+        totalPages.value = Math.ceil(response.data.length / 10);
+    } catch (error) {
+        console.error("❌ 無法獲取遺失案件:", error);
+    } finally {
+        isLoading.value = false;
+    }
+};
 
 onMounted(() => {
-    if (memberId.value) fetchLostCases();
+    fetchLostCases();
 });
 
-const getStatusClass = (caseStateId) => {
-    return caseStateId === 5 ? "status-pending" : caseStateId === 6 ? "status-found" : "";
-};
-
-const formatDate = (dateString) => {
-    if (!dateString) return "無";
-    return new Date(dateString).toLocaleDateString();
-};
-
-const confirmPetFound = async (lost) => {
-    const result = await Swal.fire({
-        title: "你家的寵物找到了嗎？",
-        text: "如果已找到，請更新案件狀態",
-        icon: "question",
-        showCancelButton: true,
-        confirmButtonText: "是，我找到了！",
-        cancelButtonText: "取消",
-    });
-
-    if (result.isConfirmed) {
-        try {
-            await updateLostCase(lost.lostCaseId, { caseStateId: 6 });
-            Swal.fire("更新成功", "案件狀態已更改為『已尋獲』", "success");
-            fetchLostCases();
-        } catch (error) {
-            Swal.fire("錯誤", "更新案件狀態失敗，請稍後重試", "error");
-        }
+const goToPage = (page) => {
+    if (page >= 1 && page <= totalPages.value) {
+        currentPage.value = page;
+        fetchLostCases();
     }
 };
 
@@ -111,3 +95,4 @@ const toggleExpand = (caseId) => {
     }
 };
 </script>
+
