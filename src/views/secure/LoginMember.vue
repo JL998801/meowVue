@@ -64,7 +64,7 @@ import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import useUserStore from "@/stores/user.js";
 import Swal from "sweetalert2";
-import { axiosapi2 } from "@/plugins/axios.js";
+import { axiosapi } from "@/plugins/axios.js";
 import { loadGoogleAuth } from "@/plugins/googleAuth.js"; // 引入 Google Auth 加載函數
 
 const username = ref("");
@@ -167,7 +167,7 @@ async function submitForm() {
   };
 
   try {
-    const response = await axiosapi2.post(`/ajax/secure/login`, body);
+    const response = await axiosapi.post(`/ajax/secure/login`, body);
     console.log("登入成功", response);
     if (response.data.success) {
       await Swal.fire({
