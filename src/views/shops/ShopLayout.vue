@@ -38,7 +38,7 @@ import useCategoryStore from "@/stores/categoryStore";
 import useProductTagStore from "@/stores/productTagStore";
 import useCartStore from "@/stores/cartStore";
 import useWishListStore from "@/stores/wishListStore";
-import useNotificationStore from "@/stores/wishlistStore";
+import useNotificationStore from "@/stores/wishListStore";
 import ShopNavBar from "@/components/shop/home/ShopNavBar.vue"; // 導覽列
 import ShopSideBar from "@/components/shop/home/ShopSideBar.vue"; //左側搜尋欄
 
