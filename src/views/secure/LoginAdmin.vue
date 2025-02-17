@@ -58,12 +58,12 @@ async function login() {
 
   try {
     const response = await axiosapi.post("/secure/loginadmin", body);
+    const response = await axiosapi.post("/secure/loginadmin", body);
     console.log("response", response);
 
     if (response.data.success) {
       // 存儲 token 到 localStorage
       saveUserInfoToLocalStorage(response.data.token);
-      userStore.setToken(response.data.token);
 
       await Swal.fire({
         title: response.data.message,

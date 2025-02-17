@@ -169,8 +169,8 @@ a {
 }
 
 .case-footer {
-  margin-top: 8px;
-  margin-left: 5px;
+  margin-top: 45px;
+  margin-left: 10px;
   display: flex;
   justify-content: space-between;
   align-items: center;

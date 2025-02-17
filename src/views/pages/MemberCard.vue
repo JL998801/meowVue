@@ -46,7 +46,6 @@ import { useRouter } from "vue-router";
 import SidebarMenu from "@/components/member/SidebarMenu.vue";
 import Swal from "sweetalert2"; // 引入 SweetAlert2
 
-const router = useRouter();
 // State for storing member data
 const profileImage = ref("");
 const nickName = ref("");
@@ -185,7 +184,7 @@ const submitForm = async () => {
 .fixed-sidebar {
   position: fixed;
   top: 200px;
-  right: 200px;
+  right: 20px;
   width: 250px;
   background-color: #f4f4f4;
   padding: 20px;

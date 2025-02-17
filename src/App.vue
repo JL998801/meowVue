@@ -12,6 +12,7 @@ import Footer from "./views/Footer.vue";
 const route = useRoute();
 const router = useRouter();
 const userStore = useUserStore();
+const isShopRoute = computed(() => route.path.startsWith("/shop"));
 
 // //下列程式用來監聽網址列token變化，用於line登入後擷取token並存入Pinia再存入localStorage
 // onMounted(() => {
@@ -43,9 +44,11 @@ watchEffect(() => {
 const fullWidthRoutes = [
   "/",
   "/pages/MemberCenter",
-  "/pet/map",
-  "/advanced-settings",
+  "/pet/map", 
+  "/advanced-settings", 
   "/admin",
+  "/shop",
+  "/shop/product", // 這是動態路徑的前綴，完整路徑為"/shop/product/:id"；使用 some() 來判斷動態路由
 ];
 
 // 定義需要套用 `.admin` 樣式的頁面
@@ -54,6 +57,10 @@ const adminRoutes = [
   "/admin/adopt-case",
   "/admin/lostCase",
   "/admin/rescueAnalysis",
+  "/admin/categories",
+  "/admin/products",
+  "/admin/orders",
+  "/admin/notifications",
   "/admin",
   "/adopt",
 ];
@@ -62,7 +69,9 @@ const adminRoutes = [
 const isAdminPage = computed(() => adminRoutes.includes(route.path));
 
 // 判斷是否應用 `full-width` 樣式
-const isFullWidth = computed(() => fullWidthRoutes.includes(route.path));
+// const isFullWidth = computed(() => fullWidthRoutes.includes(route.path));
+const isFullWidth = computed(() =>   fullWidthRoutes.some(path => route.path.startsWith(path)));
+
 </script>
 
 <template>
