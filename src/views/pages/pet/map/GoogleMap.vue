@@ -3,7 +3,14 @@
     <!-- 左側篩選欄 -->
     <div class="search-form">
       <div class="search-form-container">
-        <p>透過以下條件搜尋:</p>
+        <div class="filter-header">
+          <div class="reset-button-container">
+            <button class="reset-button" @click.prevent="resetFilters">
+              重置
+            </button>
+          </div>
+          <p>透過以下條件搜尋:</p>
+        </div>
         <form>
           <font-awesome-icon
             icon="fa-solid fa-thumbtack"
@@ -332,6 +339,31 @@ const fetchAllCases = async () => {
   } catch (error) {
     console.error("無法獲取所有案件資料:", error);
   }
+};
+
+//重置按鈕
+const resetFilters = () => {
+  console.log("🛑 重置篩選條件並重新載入所有案件！");
+
+  // 重置 **所有篩選條件**
+  city.value = "";
+  district.value = "";
+  selectedBreed.value = "";
+  startDate.value = "";
+  endDate.value = "";
+  suspLost.value = false;
+  selectedcaseStates.value = [];
+  selectedspecies.value = [];
+  selectedFurColors.value = [];
+
+  // 重置 **案件類別**（勾選三種案件）
+  caseTypes.value = ["RescueCase", "lostCase", "adoptCase"];
+
+  // 清除地圖上的標記
+  clearMarkers();
+
+  //重新抓取所有案件（重置地圖標記）
+  fetchAllCases();
 };
 
 //產生送往後端的篩選條件，產生正確的 Query 參數格式（包含單選和多選）
@@ -837,5 +869,47 @@ onMounted(async () => {
   display: flex;
   justify-content: space-between;
   font-size: 14px;
+}
+
+.filter-header {
+  display: flex;
+  justify-content: space-between; /* 左右對齊 */
+  align-items: center; /* 垂直置中 */
+  padding: 10px 0; /* 增加上下間距 */
+}
+
+.filter-header p {
+  margin: 0;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+/* 重置按鈕的容器，讓它靠右對齊 */
+
+.reset-button-container {
+  margin-left: auto; /* 讓按鈕推到最右側 */
+}
+
+/* 美化重置按鈕 */
+.reset-button {
+  background-color: #ff6b6b; /* 紅色 */
+  color: white; /* 文字顏色 */
+  border: none;
+  padding: 8px 15px;
+  font-size: 14px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s ease-in-out, transform 0.2s ease-in-out;
+}
+
+.reset-button:hover {
+  background-color: #ff4f4f; /* 深一點的紅色 */
+  transform: scale(1.05); /* 輕微放大 */
+}
+
+.reset-button:active {
+  background-color: #e63e3e; /* 按下時的顏色 */
+  transform: scale(1);
 }
 </style>
