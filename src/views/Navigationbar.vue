@@ -43,7 +43,7 @@
                 >
               </li>
               <li>
-                <RouterLink class="dropdown-item" to="/pets/products"
+                <RouterLink class="dropdown-item" to="/pet/lost/search"
                   >遺失協尋</RouterLink
                 >
               </li>

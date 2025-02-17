@@ -4,16 +4,16 @@
   <!-- <slot></slot> -->
   <!-- </div> -->
 
-    <footer class="site-footer">
-        <div class="footer-container">
-            <p class="footer-description"> 溫暖每個需要幫助的毛孩之家 </p>
-            
-            <div class="footer-links">
-                <a href="/about" class="footer-link">關於我們</a>/
-                <a href="/contact" class="footer-link">聯絡我們</a>/
-                <a href="/privacy" class="footer-link">隱私政策</a>/
-                <a href="/terms" class="footer-link">使用條款</a>
-            </div>
+  <footer class="site-footer">
+    <div class="footer-container">
+      <p class="footer-description">溫暖每個需要幫助的毛孩之家</p>
+
+      <div class="footer-links">
+        <a href="/about" class="footer-link">關於我們</a>
+        <a href="/contact" class="footer-link">聯絡我們</a>
+        <a href="/privacy" class="footer-link">隱私政策</a>
+        <a href="/terms" class="footer-link">使用條款</a>
+      </div>
 
       <div class="footer-social">
         <font-awesome-icon :icon="['fab', 'facebook']" class="social-icon" />
