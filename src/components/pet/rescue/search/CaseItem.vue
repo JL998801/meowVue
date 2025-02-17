@@ -2,7 +2,11 @@
   <div class="post">
     <div class="post-image">
       <img
-        :src="caseItem.casePictures?.[0].pictureUrl || '/placeholder-image.jpg'"
+        :src="
+          caseItem?.casePictures?.length > 0
+            ? caseItem.casePictures[0].pictureUrl
+            : defaultImage
+        "
         :alt="caseItem.caseTitle"
       />
     </div>
@@ -27,17 +31,26 @@
         <p>動物品種：{{ caseItem.breed }}</p>
         <p>救援需求：{{ caseItem.rescueDemands.join(" ") }}</p>
         <p>通報人可負擔事項：{{ caseItem.canAffords.join("、") }}</p>
- 
       </div>
       <div class="case-footer">
         <p>
-          <font-awesome-icon icon="fa-solid fa-circle-user"  class="user-icon" />發文者：<span class="author">{{ caseItem.memberNickName }}</span>
+          <font-awesome-icon
+            icon="fa-solid fa-circle-user"
+            class="user-icon"
+          />發文者：<span class="author">{{ caseItem.memberNickName }}</span>
         </p>
         <div class="views-and-follows">
-        <div class="viewCount">
-          <font-awesome-icon icon="fa-solid fa-eye" class="view-icon"/><span>{{ caseItem.viewCount || 0 }}</span>
-        </div>
-         <followButton :follow="caseItem.follow" :caseId="caseItem.rescueCaseId" caseType="rescue"/>
+          <div class="viewCount">
+            <font-awesome-icon
+              icon="fa-solid fa-eye"
+              class="view-icon"
+            /><span>{{ caseItem.viewCount || 0 }}</span>
+          </div>
+          <followButton
+            :follow="caseItem.follow"
+            :caseId="caseItem.rescueCaseId"
+            caseType="rescue"
+          />
         </div>
       </div>
     </div>
@@ -147,29 +160,26 @@ a {
   width: 100%; /* 讓 flex 容器填滿可用空間 */
 }
 
-
 .author {
   color: #afa66b;
 }
 
-.user-icon{
-    margin-right: 6px;
-    color:#dbdddc;
-    font-size: 24px;
+.user-icon {
+  margin-right: 6px;
+  color: #dbdddc;
+  font-size: 24px;
 }
 
-
-.view-icon{
-    margin-right:5px;
-    color:#dbdddc;
-    font-size: 20px;
+.view-icon {
+  margin-right: 5px;
+  color: #dbdddc;
+  font-size: 20px;
 }
 
-.heart-icon{
-
-    margin-right: 3px;
-    color:#ed6c6c;
-    font-size: 20px;
+.heart-icon {
+  margin-right: 3px;
+  color: #ed6c6c;
+  font-size: 20px;
 }
 
 .post {
@@ -185,8 +195,8 @@ a {
   color: #333;
 }
 
-.viewCount{
-  margin-right: 10px ;
+.viewCount {
+  margin-right: 10px;
 }
 
 .info {

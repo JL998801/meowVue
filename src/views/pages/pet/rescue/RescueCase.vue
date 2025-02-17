@@ -96,7 +96,8 @@ const frontUrl = import.meta.env.VITE_FRONT_BASE_URL;
 
 const route = useRoute();
 const rescueCase = ref({});
-const userStore = useUserStore(); // 取得 Pinia 狀態
+const userStore = useUserStore();
+const caseId = route.params.caseId; // 從 URL 取得案件 ID
 
 // 保存案件進度數據
 const rescueProgressList = ref([]);
@@ -165,6 +166,19 @@ onMounted(async () => {
     console.log("案件資訊為", response.data);
   } catch (error) {
     console.error("載入案件失敗", error);
+  }
+  try {
+    // 進入頁面時，通知後端「案件被瀏覽」
+    const rescueCaseId = Number(route.params.id); // 轉換為數字
+    console.log("案件id為", rescueCaseId);
+    console.log(typeof rescueCaseId);
+    await axiosapi2.post("/caseView/record", {
+      caseType: "rescue", // 這裡可以改成 "lost" 或 "adoption"
+      caseId: rescueCaseId,
+    });
+    console.log("成功記錄案件瀏覽:", caseId);
+  } catch (error) {
+    console.error("記錄案件瀏覽失敗:", error);
   }
 });
 </script>
