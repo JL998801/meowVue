@@ -34,16 +34,17 @@ pipeline {
         stage('清理舊的 Docker Image') {
             steps {
                 sh "docker image prune -f"
-                sh "docker rmi -f \$(docker images -q leekuanju/Meowfrontend | tail -n +2) || true"
+                sh '''
+                IMAGES=$(docker images -q leekuanju/Meowfrontend | tail -n +2)
+                if [ -n "$IMAGES" ]; then
+                    docker rmi -f $IMAGES
+                fi
+                '''
             }
         }
 
         stage('建構前端 Docker 映像檔') {
             steps {
-                 script {
-                    // 下載 `defalut.conf` 到 `Meowfrontend/`
-                    sh "cp Meowfrontend/default.conf Meowfrontend/default.conf"
-                }
                 sh "docker build -t $FRONTEND_IMAGE ./Meowfrontend"   
                 // 從jenkins容器中讀取dockerfile，並啟動一個暫時的 Build 容器（這個容器會在 docker build 過程中運行）
             }
