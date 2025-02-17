@@ -6,7 +6,6 @@ pipeline {
         FRONTEND_IMAGE = 'leekuanju/meowfrontend:latest'
         DOCKER_CREDENTIALS_ID = 'petfinder'    //已於在jenkins中設定可以登入dokcer-hub的帳密和使用id
         AZURE_VM = 'KuanJu@20.2.146.70'    //username@vm公開ip
-        IMAGE_VOLUME = "petfinder_images"  // VM 中 Docker Volume 名稱，拿來放冠假資料圖片
     }
 
     stages {
@@ -63,28 +62,6 @@ pipeline {
             }
         }
 
-        stage('上傳假資料圖片到 Azure VM') {
-            steps {
-                script {
-                    withCredentials([sshUserPrivateKey(credentialsId: 'petFinder', keyFileVariable: 'SSH_KEY')]) {
-                        sh """
-                        # 上傳本機圖片到 Azure VM 的暫存目錄（只傳輸變更的檔案）
-                        # 要在本機 Jenkins 容器內先安裝 rsync
-                        # -a：保持檔案權限 -v：顯示傳輸進度 -z：壓縮資料，加速上傳 --ignore-existing：只傳輸新檔案不覆蓋舊檔案
-                        rsync -avz -e "ssh -i /var/jenkins_home/.ssh/jenkins_azure_key -o StrictHostKeyChecking=no" --ignore-existing /var/jenkins_home/upload/images/ $AZURE_VM:/tmp/images/
-                        
-                        # SSH 進入 Azure VM，確保只移動新圖片，避免重複上傳
-                        # -r：遞歸複製（確保目錄結構不變）-n：不覆蓋已存在的檔案（確保不會重複塞入相同圖片）
-                        ssh -i /var/jenkins_home/.ssh/jenkins_azure_key -o StrictHostKeyChecking=no $AZURE_VM <<EOF
-                            sudo mkdir -p /var/lib/docker/volumes/$IMAGE_VOLUME/_data/final/pet/images
-                            sudo cp -rn /tmp/images/* /var/lib/docker/volumes/$IMAGE_VOLUME/_data/final/pet/images/
-                            sudo rm -rf /tmp/images
-EOF"""
-                    }
-                }
-            }
-        }
-
         
         stage('部署到 Azure VM') { 
             steps {
@@ -102,9 +79,6 @@ EOF"""
                              #  停止並刪除舊容器
                             docker stop frontend || true
                             docker rm frontend || true
-                           
-                             # 創建放假資料圖的 Docker Volume（如果尚未建立）
-                            docker volume create $IMAGE_VOLUME || true
 
 
                              #  啟動前端 (Nginx)
