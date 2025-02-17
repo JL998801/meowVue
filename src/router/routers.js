@@ -12,12 +12,11 @@ import ReportForm from '@/views/pets/report/ReportForm.vue';
 import Register from '@/views/pets/Register.vue';
 import MemberCenter from '@/views/pets/MemberCenter.vue';
 import MemberCard from '@/views/pets/MemberCard.vue';
-
-//商城相關頁面
 import ShopLayout from '@/views/shops/ShopLayout.vue';
 import { shopRoutes } from './shopRouter'; // 引入商城路由
 import ShopManagement from '@/views/shops/ShopManagement.vue';
 import ProductManagement from '@/views/shops/ProductManagement.vue';
+import Ordersrders from '@/views/shops/Orders.vue';
 import Notifications from '@/views/shops/Notifications.vue';
 // import RescueCase from '@/views/pets/pet/rescue/RescueCase.vue';
 // import EditRescueCase from '../views/pets/pet/rescue/EditRescueCase.vue';
@@ -28,7 +27,7 @@ import Notifications from '@/views/shops/Notifications.vue';
 // import GoogleMap from '@/views/pets/pet/map/GoogleMap.vue';
 
 //會員中心功能
-import LineMessage from '@/views/secure/LineMessage.vue'; 
+import LineMessage from '@/views/secure/LineMessage.vue';
 import FollowCase from '@/views/secure/FollowCase.vue';
 import MemberRescueCase from '../views/secure/MemberRescueCase.vue';
 
@@ -37,6 +36,7 @@ import MemberRescueCase from '../views/secure/MemberRescueCase.vue';
 import AdminManagement from '../views/AdminManagement.vue';
 import RescueManagement from '@/views/admin/kuan/RescueManagement.vue';
 import RescueAnalysis from '@/views/admin/kuan/RescueAnalysis.vue';
+
 
 
 const routes = [
@@ -78,21 +78,23 @@ const routes = [
   //管理員後台頁面
   //加上 meta 標記，表示這頁面不顯示導航列。
   //這樣 /admin/* 下面的所有路由都會套用 AdminManagement.vue，讓 Sidebar 固定存在！
-  { path: "/admin", component: AdminManagement, name: "adminManagement-link", meta: { hideNavbar: true },children: [
-    { path: "rescueCase", component: RescueManagement },
-    { path: "rescueAnalysis", component: RescueAnalysis },
-    { path: "shopManage", component: ShopManagement },
-    { path: "notifications", component: Notifications },
-    { path: "products", component: ProductManagement, },
-  ],},
+  {
+    path: "/admin", component: AdminManagement, name: "adminManagement-link", meta: { hideNavbar: true }, children: [
+      { path: "rescueCase", component: RescueManagement },
+      { path: "rescueAnalysis", component: RescueAnalysis },
+      { path: "shopManage", component: ShopManagement },
+      { path: "products", component: ProductManagement },
+      { path: "notifications", component: Notifications },
+      { path: "orders", component: Ordersrders },
+    ],
+  },
 
   //商城頁面
   {
     path: "/shop",
-    component: ShopLayout,meta: { hideNavbar: true }, // ✅ 隱藏通用導覽列
+    component: ShopLayout, meta: { hideNavbar: true }, // ✅ 隱藏通用導覽列
     children: [...shopRoutes] // ✅ 正確展開商城子路由
   },
-
 ];
 
 const router = createRouter({
@@ -136,7 +138,7 @@ router.beforeEach(async (to, from, next) => {
 
   // 需要驗證的路由，startsWith會包括上述路由所有/**`，some() 會逐個檢查 publicPages 陣列中的每個元素，確保 只要前綴匹配就視為公開頁面
   // const authRequired = !publicPages.includes(to.path) && !isRescueCaseDetail;
-  const authRequired = !isPublicPage && !isRescueCaseDetail; 
+  const authRequired = !isPublicPage && !isRescueCaseDetail;
 
   if (authRequired) {
     const isValid = await userStore.validateToken();    //自定義方法檢查Token是否有效

@@ -5,7 +5,6 @@ import Swal from "sweetalert2";
 
 const useProductStore = defineStore("shop", () => {
     // ✅ 定義響應式狀態 (ref)
-    const error = ref(null);
     const products = ref([]); // ✅ 產品列表
     // const filteredProducts = ref([]); // ✅ 過濾後的產品
     const totalPages = ref(0); // ✅ 總頁數
@@ -125,7 +124,6 @@ const useProductStore = defineStore("shop", () => {
     }
 
     return {
-        error,
         products,
         // filteredProducts,
         totalPages,
@@ -136,10 +134,7 @@ const useProductStore = defineStore("shop", () => {
         selectedFilter,
         fetchProducts,
         fetchPagedProducts,
-        fetchFilteredProducts,
-        addProduct,
-        deleteProduct,
-        modifyProduct,
+        fetchFilteredProducts
     };
 });
 

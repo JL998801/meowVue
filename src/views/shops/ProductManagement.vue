@@ -188,10 +188,7 @@ import ProductFormModal from "@/components/shop/manage/ProductFormModal.vue";
 import useProductStore from "@/stores/productStore";
 import useCategoryStore from "@/stores/categoryStore";
 import useTagStore from "@/stores/productTagStore";
-import Swal from "sweetalert2";
-import Multiselect from 'vue-multiselect';  // 先安裝 npm install vue-multiselect (Vue3才有)
 
-const router = useRouter();
 const productStore = useProductStore();
 const categoryStore = useCategoryStore();
 const tagStore = useTagStore();
@@ -226,8 +223,8 @@ const applyFilter = async () => {
 
 // 根據 `categoryId` 找出對應的 `categoryName`
 const getCategoryName = (categoryId) => {
-    const category = categoryStore.categories.find(category => category.categoryId === categoryId);
-    return category ? category.categoryName : "無分類";
+  const category = categoryStore.categories.find(category => category.categoryId === categoryId);
+  return category ? category.categoryName : "無分類";
 };
 
 // ✅ 新增商品

@@ -149,18 +149,22 @@ onMounted(async () => {
 <style scoped>
 /* ✅ 確保 `shop-layout` 正確填滿畫面 */
 .shop-layout {
-  flex-grow: 1;  
-  overflow-x: hidden; 
+  display: flex;
   flex-direction: column;
   height: 100vh;
   width: 100vw;
-  height: auto;
+  position: relative;
 }
 
 /* ✅ 讓 `shop-container` 正確排列 */
 .shop-container {
-  display: flex; /* ✅ 確保 `aside` 和 `section` 水平排列 */
-  flex-grow: 1;
+  padding: 20px;
+  display: flex;
+  flex: 1;
+  gap: 20px;
+  width: 100%;
+  margin: auto;
+  height: calc(100vh - 80px);
 }
 
 /* ✅ 讓 `.shop-sidebar` 與 `.shop-content` 正確對齊 */
@@ -175,8 +179,11 @@ onMounted(async () => {
 /* ✅ 讓 `.shop-content` 正確滾動 */
 .shop-content {
   flex: 1;
-  width: 100%;
+  min-width: 0;
+  height: 100%;
   overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 .shop-content::-webkit-scrollbar {
   display: none;
