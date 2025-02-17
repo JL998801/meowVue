@@ -1,10 +1,17 @@
 <template lang="">
   <div class="post">
     <div class="post-image">
-      <img
-        :src="caseData.casePictures?.[0].pictureUrl"
-        :alt="caseData.caseTitle"
-      />
+      <img :src="selectedImage" :alt="caseData.caseTitle" class="main-image" />
+      <div class="thumbnail-container">
+        <img
+          v-for="(picture, index) in caseData.casePictures"
+          :key="index"
+          :src="picture.pictureUrl"
+          :alt="`Thumbnail ${index + 1}`"
+          class="thumbnail"
+          @click="selectedImage = picture.pictureUrl"
+        />
+      </div>
     </div>
     <div class="post-details">
       <div class="info">
@@ -30,6 +37,10 @@
         <p>救援需求：{{ caseData.rescueDemands?.join("、") || "無資料" }}</p>
         <p>
           通報人可負擔事項：{{ caseData.canAffords?.join("、") || "無資料" }}
+        </p>
+        <p class="tag">
+          特徵關鍵字：{{ caseData.furColor || "無資料"
+          }}{{ caseData.tag ? `、${caseData.tag}` : "" }}
         </p>
       </div>
       <div class="case-footer">
@@ -58,16 +69,29 @@
 </template>
 
 <script setup>
-import { defineProps, ref, computed } from "vue";
+import { defineProps, ref, watch } from "vue";
 import followButton from "@/components/pet/rescue/follow/followButton.vue";
 
 //從RescueCase父組件傳遞的caseData
-defineProps({
+const props = defineProps({
   caseData: {
     type: Object,
     required: true,
   },
 });
+
+// 選擇的主圖片，默認為第一張圖片
+const selectedImage = ref("");
+// 監聽 caseData 的變化
+watch(
+  () => props.caseData.casePictures,
+  (newPictures) => {
+    if (newPictures?.length) {
+      selectedImage.value = newPictures[0].pictureUrl;
+    }
+  },
+  { immediate: true } // 這樣當 watch 初始化時會馬上執行一次
+);
 
 // 格式化日期函數
 const formatDate = (date) => {
@@ -141,6 +165,7 @@ a {
   letter-spacing: 0.5px;
   font-weight: 700;
   margin-bottom: 8px;
+  margin-top: 50px;
 }
 
 .case-footer {
@@ -224,7 +249,7 @@ a {
 .post-details {
   flex: 1 0 40%;
   width: 250px;
-  padding-left: 50px;
+  padding-left: 30px;
 }
 
 .post-details-p {
@@ -241,5 +266,48 @@ a {
   display: flex;
   justify-content: space-between;
   font-size: 14px;
+}
+
+.main-image {
+  max-width: 100%;
+  width: 325px;
+  height: 325px;
+  border-radius: 8px;
+  object-fit: cover;
+  transition: transform 0.2s ease-in-out;
+  cursor: pointer;
+}
+
+.main-image:hover {
+  transform: scale(1.05);
+}
+
+.thumbnail-container {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.thumbnail-container img {
+  width: 100px;
+  height: 100px;
+  border-radius: 5px;
+  object-fit: cover;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+}
+
+.thumbnail {
+  width: 80px;
+  height: 80px;
+  border-radius: 5px;
+  object-fit: cover;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+}
+
+.thumbnail:hover {
+  transform: scale(1.1);
 }
 </style>

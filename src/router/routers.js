@@ -92,6 +92,9 @@ const routes = [
 const route = createRouter({
   routes: routes,
   history: createWebHistory(),
+  scrollBehavior(to, from, savedPosition) {
+    return { top: 0 }; // 進入新頁面時滾動到頂部
+  },
 });
 // 全域前置守衛，進行用戶token驗證(持有&時效合法)
 route.beforeEach(async (to, from, next) => {
