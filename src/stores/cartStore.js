@@ -5,9 +5,14 @@ export const useCartStore = defineStore("cart", {
   state: () => {
     // 從 localStorage 獲取購物車資料（如果可用）
     const cartData = localStorage.getItem("cart");
+    const memberId = localStorage.getItem('memberId') || null; // 從 localStorage 獲取會員 ID
+    // 若 cartId 为空，設定為 1
+    const cartId = localStorage.getItem('cartId') || sessionStorage.getItem('cartId') || 1;
+
     return {
       cart: cartData && cartData !== "undefined" ? JSON.parse(cartData) : [],
-      memberId: localStorage.getItem('memberId') || null, // 從 localStorage 獲取會員 ID
+      memberId,
+      cartId, // 新增 cartId
       creditCard: "4311-9511-1111-1111", // 測試信用卡（正式環境應移除）
       shippingAddress: "123 Main St", // 測試地址（正式環境應移除）
       selectedOrder: null,
@@ -17,6 +22,26 @@ export const useCartStore = defineStore("cart", {
   },
 
   actions: {
+    // **生成唯一的 cartId**
+    generateCartId() {
+      // 如果有 memberId，則 cartId 就等於 memberId，否則設為 1
+      const memberId = this.memberId || 1;
+      const validCartId = isNaN(memberId) ? 1 : memberId; // 確保 cartId 是數字
+      localStorage.setItem('cartId', validCartId); // 存入 localStorage
+      return validCartId;
+    },
+
+    // **登出時清除 localStorage 資料**
+    logout() {
+      localStorage.removeItem('cart'); // 清除購物車資料
+      localStorage.removeItem('memberId'); // 清除會員 ID
+      localStorage.removeItem('cartId'); // 清除 cartId
+      this.cart = []; // 清空購物車狀態
+      this.memberId = null; // 清空會員 ID
+      this.cartId = 1; // 重設為預設 cartId
+      alert("您已成功登出！");
+    },
+
     // **登入後自動載入購物車**
     async loginAndFetchCart(memberId) {
       this.memberId = memberId; // 設定會員 ID
@@ -26,15 +51,21 @@ export const useCartStore = defineStore("cart", {
 
     // **添加商品至購物車**
     addToCart(product) {
-      const found = this.cart.find((item) => item.productId === product.productId);
+      const cartId = this.generateCartId(); // 確保每個會員有唯一的 cartId
+
+      // 檢查該商品是否已存在於購物車中，且 cartId 是否匹配
+      const found = this.cart.find((item) => item.productId === product.productId && item.cartId === cartId);
+
       if (found) {
+        // 如果商品已存在，更新商品的數量
         found.quantity += product.quantity || 1;
       } else {
+        // 如果商品不存在，新增商品到購物車
         this.cart.push({
           ...product,
           quantity: product.quantity || 1,
           selected: false,
-          cartId: Date.now(),
+          cartId: cartId, // 確保 cartId 是有效的
           productName: product.productName,
         });
       }
@@ -83,7 +114,6 @@ export const useCartStore = defineStore("cart", {
       try {
         if (this.cart.length > 0 && this.memberId) {
           const cartData = this.cart.map((item) => ({
-            cartId: item.cartId,
             quantity: item.quantity,
             selected: item.selected,
             productId: item.productId,
