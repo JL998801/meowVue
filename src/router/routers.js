@@ -51,23 +51,22 @@ import RescueManagement from '@/views/admin/kuan/RescueManagement.vue';
 import RescueAnalysis from '@/views/admin/kuan/RescueAnalysis.vue';
 //林
 import LostAdmin from '@/views/admin/joylin/LostAdmin.vue';
+//朱
 import FormAdopt from '@/views/pages/FormAdopt.vue';
 import AdoptTwo from '@/views/pages/AdoptTwo.vue';
-// import EditRescueCase from '../views/pages/pet/rescue/EditRescueCase.vue';
-// import NewRescueProgress from '../views/pages/pet/rescue/NewRescueProgress.vue';
-// import RescueSearch from '@/views/pages/pet/rescue/RescueSearch.vue';
-// import LineMessage from '@/views/secure/LineMessage.vue';
-// import NewRescueCase from '../views/pages/pet/rescue/NewRescueCase.vue';
-// import GoogleMap from '@/views/pages/pet/map/GoogleMap.vue';
+
 
 
 const routes = [
+
   { path: "/", component: Home, name: "home-link" },
   { path: "/:pathMatch(.*)*", component: NotFound, name: "notfound-link" },
   { path: "/403", component: Forbidden, name: "forbidden-link" },
   { path: '/secure/login', component: LoginMember, name: 'login-link' },
   { path: '/secure/loginadmin', component: LoginAdmin, name: 'login-admin-link' },
   { path: '/pages/Register', component: Register, name: 'register-link' },
+  { path: "/pages/FormAdopt", component: FormAdopt, name: "FormAdopt-link" },
+  { path: "/pages/AdoptTwo", component: AdoptTwo, name: "AdoptTwo-link" },
   // { path: "/pets/lostcase", component: LostCase, name: "pets-LostCase-link" },
   { path: "/pets/lostform", component: LostForm, name: "pets-LostForm-link" },
   { path: "/pets/reportform", component: ReportForm, name: "pets-ReportForm-link" },
@@ -121,19 +120,12 @@ const routes = [
   },
 ];
 
-const router = createRouter({
-  { path: "/pages/FormAdopt", component: FormAdopt, name: "FormAdopt-link" },
-  // { path: "/pet/rescue/search", component: RescueSearch, name: "pet-rescueSearch-link" },
-  { path: "/pages/AdoptTwo", component: AdoptTwo, name: "AdoptTwo-link" },
-  // { path: "/pet/rescueCase/:id", component: RescueCase, name: "pet-rescueCase-link", props: true },  // 使用 props 傳遞參數產生動態路由(新增案件)
-  // { path: "/pet/rescueCase/edit/:id", component: EditRescueCase, name: "pet-rescueCase-edit-link", props: true },  // 使用 props 傳遞參數產生動態路由(編輯案件)
-  // { path: "/advanced-settings", component: LineMessage, name: "advanced-settings-link" },
-  // { path: "/pet/rescue/add", component: NewRescueCase, name: "newRescueCase-link" },
-  // { path: "/pet/map", component: GoogleMap, name: "googleMap-link" },
-  // { path: "/pet/rescueCase/update/:id", component: NewRescueProgress, name: "newRescueProgress-link" }, // 使用 props 傳遞參數產生動態路由(編輯案件)
 
-];
-const route = createRouter({
+
+
+
+
+const router = createRouter({
   routes: routes,
   history: createWebHistory(),
   scrollBehavior(to, from, savedPosition) {

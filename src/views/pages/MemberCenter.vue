@@ -84,7 +84,7 @@
   <script setup>
   import { ref, onMounted } from 'vue';
   import { useRouter } from 'vue-router';
-  import SidebarMenu from "@/component/SidebarMenu.vue";
+  import SidebarMenu from "@/components/SidebarMenu.vue";
   import { axiosapi } from '@/plugins/axios';
   const selectedFiles = ref([null]);  // 儲存選擇的檔案
   const imagePreviews = ref([null]);  // 儲存圖片預覽

@@ -1,77 +1,71 @@
-<template lang="">
-    <div v-if="rescueCase">
-      <div class="rescue-page">
-      <h1>{{rescueCase.caseTitle}}</h1>
-        <div class="second-container">
-          <div class="main-content">
-            <div>
-            <AdoptTwoUnit v-if="rescueCase" :AdoptTwoUnit="rescueCase" />
-            <p v-else>載入中...</p>
-          </div>
-            <div class="edit-button">
-              
-              <div v-if="canEdit && rescueCase" class="member-buttons">
-                <router-link :to="`/pet/rescueCase/edit/${rescueCase.rescueCaseId}`"  class="router-link">
-                    <button @click="editCase">編輯案件</button>
-                </router-link>
-                <router-link :to="`/pet/rescueCase/update/${rescueCase.rescueCaseId}`"  class="router-link">
-                <button @click="updateProgress">進度更新</button>
-              </router-link>
-              </div>
-                <div v-else>
-                  <button>要求共同編輯權限</button>
-                </div>
-            </div>
-            <div class="share-buttons">
-              <a href="#">分享至 Facebook</a>
-              <a href="#">分享至 Line</a>
-            </div>
-            <div class="rescue-details">
-              <div class="rescue-reason">
-                <CaseRescueReason v-if="rescueCase" :rescueReason="rescueCase" />
-                
-              </div>
-              <div class="rescue-progress">
-                <CaseRescueProgress v-if="rescueCase" :rescueProgress="rescueCase" />
-                <!-- 根據進度數據動態生成 ProgressDetail 組件 -->
-                <ProgressDetail
-                  v-for="progress in rescueProgressList"
-                  :key="progress.rescueProgressId"
-                  :progress-detail="progress.progressDetail"    
-                  :create-time="progress.createTime"
-                  :image-url="progress.imageUrl"
-                />
-              </div>
-            </div>
-            <div class="comments-section">
-              <h3>留言區</h3>
-              <textarea placeholder="新增留言..."></textarea>
-              <button>提交留言</button>
-            </div>
-          </div>
-  
-          <div class="sidebar">
-            <div class="support-button">
-              <RouterLink to="/pet/rescue/add" class="button-link">
-                新增救援資訊
-              </RouterLink>
-            </div>
-            <div class="advertisement">
-              <p>工商</p>
-              <!-- <img src="@" alt="廣告圖片" /> -->
-            </div>
-          </div>
-        </div>
-      </div>
+<template lang="html">
+  <div v-if="rescueCase">
+   <div class="rescue-page">
+     <h1>{{ rescueCase.caseTitle }}</h1>
+     <div class="second-container">
+       <div class="main-content">
+         <AdoptTwoUnit />
+         <div class="edit-button">
+           <div v-if="canEdit && rescueCase" class="member-buttons">
+             <router-link :to="`/pet/rescueCase/edit/${rescueCase.rescueCaseId}`" class="router-link">
+               <button @click="editCase">編輯案件</button>
+             </router-link>
+             <router-link :to="`/pet/rescueCase/update/${rescueCase.rescueCaseId}`" class="router-link">
+               <button @click="updateProgress">進度更新</button>
+             </router-link>
+           </div>
+           <div v-else>
+             <button>要求共同編輯權限</button>
+           </div>
+         </div>
+         <div class="share-buttons">
+           <a href="#">分享至 Facebook</a>
+           <a href="#">分享至 Line</a>
+         </div>
+         <div class="rescue-details">
+           <div class="rescue-reason">
+             <CaseRescueReason v-if="rescueCase" :rescueReason="rescueCase" />
+           </div>
+           <div class="rescue-progress">
+             <CaseRescueProgress v-if="rescueCase" :rescueProgress="rescueCase" />
+             <ProgressDetail
+               v-for="progress in rescueProgressList"
+               :key="progress.rescueProgressId"
+               :progress-detail="progress.progressDetail"
+               :create-time="progress.createTime"
+               :image-url="progress.imageUrl"
+             />
+           </div>
+         </div>
+         <div class="comments-section">
+           <h3>留言區</h3>
+           <textarea placeholder="新增留言..."></textarea>
+           <button>提交留言</button>
+         </div>
+       </div>
+       <div class="sidebar">
+         <div class="support-button">
+           <router-link to="/pet/rescue/add" class="button-link">
+             新增救援資訊
+           </router-link>
+         </div>
+         <div class="advertisement">
+           <p>工商</p>
+         </div>
+       </div>
+     </div>
+   </div>
   </div>
   <p v-else>案件資料載入中...</p>
   </template>
+
+
   <script setup> 
   import { ref, onMounted, computed } from 'vue';
   import { useRoute } from 'vue-router';
   import { axiosapi } from '@/plugins/axios';
   import useUserStore from '@/stores/user.js'; // 載入 Pinia 的 user store
-  import AdoptTwoUnit from "@/component/AdoptTwoUnit.vue";
+  import AdoptTwoUnit from "@/components/AdoptTwoUnit.vue";
 
 
   

@@ -76,7 +76,7 @@ async function login() {
       });
       axiosapi.defaults.headers.authorization = "Bearer " + response.data.token;
       userStore.setEmail(response.data.user);
-      router.push({ path: "/admin/management" });
+      router.push({ path: "/admin" });
     } else {
       document.querySelector(".error").innerHTML = response.data.message;
       Swal.fire({

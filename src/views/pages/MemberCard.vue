@@ -46,7 +46,7 @@
   <script setup>
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import SidebarMenu from "@/component/SidebarMenu.vue";
+import SidebarMenu from "@/components/SidebarMenu.vue";
 import { axiosapi } from '@/plugins/axios';
 import Swal from 'sweetalert2'; // 引入 SweetAlert2
 
