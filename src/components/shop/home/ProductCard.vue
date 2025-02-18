@@ -1,5 +1,5 @@
 <template>
-  <div class="product-card" @click="goToProductDetails">
+  <div  v-if="product.status !== '下架'" class="product-card" @click="goToProductDetails">
     <!-- 根據 displayMode 顯示所有圖片或僅顯示首圖 -->
     <div v-if="displayMode === 'all'" class="image-gallery">
       <img
@@ -38,6 +38,9 @@
       <p class="product-description">
         {{ product.description.length > 50 ? product.description.substring(0, 50) + "..." : product.description }}
       </p>
+
+      <!-- 庫存數量 -->
+      <p class="product-stockQuantity">庫存數量: {{ product.stockQuantity }} {{ product.unit }}</p>
 
       <!-- 商品價格 -->
       <p class="product-price">價格: ${{ product.salePrice }}</p>

@@ -2,7 +2,7 @@
   <div class="rescue-page">
     <SearchTitle></SearchTitle>
     <div class="second-container">
-      <div class="main-content">
+      <div class="main-content-rescueSearch">
         <SearchForm @search="handleSearch"></SearchForm>
         <div class="sort-buttons-container">
           <div class="sort-buttons">
@@ -140,7 +140,7 @@ const searchParamsWithSort = computed(() => ({
   align-items: flex-start; /* 元素頂部對齊 */
 }
 
-.main-content {
+.main-content-rescueSearch {
   flex: 18; /* 主內容區域占 3 倍空間 */
   display: flex;
   flex-direction: column; /* 垂直排列 SearchForm 和 CaseList */

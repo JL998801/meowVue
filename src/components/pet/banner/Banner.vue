@@ -3,10 +3,7 @@
         <div v-for="category in caseCategories" :key="category.type" class="carousel-section">
             <div class="carousel-header">
                 <div class="title-container">
-                    <!-- <font-awesome-icon :icon="['fas', 'paw']" size="xl" style="color: #c6bc77;" /> -->
                     <h3>🐾 {{ category.title }} </h3>
-                    <!-- <p>🏷️ 類別: {{ category.type }}</p>
-                    <p>📊 資料筆數: {{ displayedCases[category.type]?.length || 0 }}</p> -->
                 </div>
                 <router-link :to="category.moreLink" class="more-button">查看更多</router-link>
             </div>
@@ -58,7 +55,7 @@ const displayedCases = ref({
 // **獲取 Banner 資料**
 const fetchBannerData = async () => {
     try {
-        const response = await axios.get("http://localhost:8080/banners");
+        const response = await axiosapi.get(`/banners`);
         let banners = response.data;
 
         console.log("✅ 獲取的 banners:", banners);
@@ -69,18 +66,27 @@ const fetchBannerData = async () => {
         // 按 `onlineDate` 降冪排序
         banners.sort((a, b) => new Date(b.onlineDate) - new Date(a.onlineDate));
 
-        // 轉換資料格式，確保 `imageUrl` 存在
-        const processBanner = (banner) => ({
-            bannerId: banner.bannerId, // ✅ `bannerId` 作為唯一標識
-            caseTitle: banner.caseTitle || "未知標題",
-            imageUrl: banner.pictureUrl
-                ? `${axiosapi.defaults.baseURL}${banner.pictureUrl.replace("C:/upload", "/upload")}`
-                : "/images/default.png", // ✅ 確保圖片可用
-            type: banner.bannerType,
-            lostCaseId: banner.lostCaseId || null,
-            rescueCaseId: banner.rescueCaseId || null,
-            adoptionCaseId: banner.adoptionCaseId || null
-        });
+        const processBanner = (banner) => {
+    const baseURL = axiosapi.defaults.baseURL.replace(/\/api$/, "");
+
+    let imageUrl = "/images/default.png"; // 預設圖片
+    if (banner.pictureUrl && banner.pictureUrl.includes("C:/upload/final/")) {
+        imageUrl = `${baseURL}${banner.pictureUrl.replace("C:/upload/final", "/upload/final")}`;
+    }
+
+    return {
+        bannerId: banner.bannerId, 
+        caseTitle: banner.caseTitle || "未知標題",
+        imageUrl: imageUrl, 
+        type: banner.bannerType,
+        lostCaseId: banner.lostCaseId || null,
+        rescueCaseId: banner.rescueCaseId || null,
+        adoptionCaseId: banner.adoptionCaseId || null
+    };
+};
+
+
+
         
 
         // **分類案件**
@@ -163,7 +169,7 @@ const prevSlide = (type) => {
 
 // **頁面載入時執行**
 onMounted(async () => {
-    console.log("⏩ 自動輪播觸發")
+    console.log("⏩ 自動輪播觸發");
     await fetchBannerData(); // ✅ 獲取最新案件
     startAutoSlide(); // ✅ 開啟自動輪播
 });

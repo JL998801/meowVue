@@ -14,15 +14,14 @@
       <!-- ✅ 搜尋表單 -->
       <form @submit.prevent="searchCases">
         <div class="search-inputs">
-          <input type="text" placeholder="請輸入關鍵字" v-model="keyword" />
+          <input type="text" v-model="keyword" placeholder="請輸入關鍵字" />
 
           <div class="filter-section">
-            <input type="number" placeholder="案件編號" v-model="lostCaseId" />
+            <input type="number" v-model="lostCaseId" placeholder="案件編號" />
 
             <select v-model="selectedCaseStatement">
               <option value="" disabled selected>結案狀態</option>
-              <option v-for="caseStatement in caseStatements" :key="caseStatement.caseStateId"
-                :value="caseStatement.caseStateId">
+              <option v-for="caseStatement in caseStatements" :key="caseStatement.caseStateId" :value="caseStatement.caseStateId">
                 {{ caseStatement.caseStatement }}
               </option>
             </select>
@@ -56,27 +55,51 @@
             <span class="highlight">小提醒：</span>如果找不到想要的案件，可以先 <span class="red-text">不要</span> 填寫「縣市鄉鎮區」欄位，這樣可以擴大搜尋範圍喔！
           </div>
 
-          <!-- ✅ 搜尋按鈕 -->
+          <!-- ✅ 搜尋 & 重設 按鈕 -->
           <div class="button-group">
             <button class="btn btn-reset" @click="reloadPage">重設</button>
-            <button type="submit" class="btn btn-confirm">確定搜尋</button>
+            <button class="btn btn-confirm" @click="searchCases">確定搜尋</button>
           </div>
         </div>
       </form>
-
-      <!-- ✅ 新增遺失通報 -->
+            <!-- ✅ 新增遺失通報 -->
       <div class="add-report">
         <Router-link to="/pets/lostform">
           <button class="btn-report">新增遺失通報</button>
       </Router-link>
       </div>
+            
     </div>
+    <!-- ✅ 排序按鈕 -->
+      <div class="sort-buttons-container">
+        <div class="sort-buttons">
+          <button
+            class="sort-button"
+            :class="{ active: sortOrder === 'desc' }"
+            @click="updateSortOrder('desc')"
+          >
+            <font-awesome-icon icon="fa-solid fa-arrow-down-short-wide" class="arrow-icon-wide" />
+            新到舊
+          </button>
+          <button
+            class="sort-button"
+            :class="{ active: sortOrder === 'asc' }"
+            @click="updateSortOrder('asc')"
+          >
+            <font-awesome-icon icon="fa-solid fa-arrow-down-wide-short" />
+            舊到新
+          </button>
+        </div>
+      </div>
+    <!-- ✅ 案件列表 -->
+    <CaseList :searchParams="searchParams" />
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from "vue";
+import { ref, watch, computed, onMounted, watchEffect } from "vue";
 import { axiosapi } from "@/plugins/axios.js";
+import CaseList from "@/components/pet/lost/case/CaseList.vue"; // ✅ 引入 CaseList
 
 // **查詢條件**
 const keyword = ref(""); // 全域模糊查詢
@@ -84,6 +107,7 @@ const lostCaseId = ref(""); // 案件編號查詢
 const selectedCaseStatement = ref(""); // 結案狀態
 const cityId = ref(""); // 選擇的城市 ID
 const district = ref(""); // 選擇的鄉鎮區
+const sortOrder = ref("desc"); // ✅ 預設排序為「新到舊」
 const filters = ref({
   species: "", // 狗或貓
   gender: "", // 男或女
@@ -96,6 +120,55 @@ const cities = ref([]); // 縣市
 const districts = ref([]); // 鄉鎮區
 const lostCases = ref([]); // 查詢結果
 
+// ✅ **初始化 `searchParams`**
+const searchParams = ref({
+  keyword: "",
+  lostCaseId: "",
+  caseStateId: "",
+  cityId: "",
+  districtAreaId: "",
+  speciesId: "",
+  gender: "",
+  sterilization: "",
+  sortOrder: "desc",
+});
+
+// ✅ **計算屬性：當 `searchCases()` 更新時，自動變更 `searchParams`**
+const computedSearchParams = computed(() => ({
+  keyword: keyword.value ? keyword.value.trim() : null, // ✅ `""` 變成 `null`
+  lostCaseId: lostCaseId.value, // ✅ 避免 `0`
+  caseStateId: selectedCaseStatement.value,
+  cityId: cityId.value,
+  districtAreaId: district.value,
+  speciesId: filters.value.species,
+  gender: filters.value.gender,
+  sterilization: filters.value.sterilization ? "已絕育" : "",
+  sortOrder: sortOrder.value,
+}));
+watchEffect(() => {
+  searchParams.value = computedSearchParams.value;
+  console.log("🔄 searchParams 更新:", searchParams.value);
+});
+
+// ✅ **更新排序方式**
+const updateSortOrder = (order) => {
+  if (sortOrder.value === order) return; // ✅ 防止重複點擊觸發請求
+  sortOrder.value = order;
+
+  // ✅ 重新更新 `searchParams`，讓 Vue 重新監聽變更
+  searchParams.value = {
+    ...searchParams.value, // ✅ 保留原本的 `searchParams`
+    sortOrder: order, // ✅ 更新排序方式
+  };
+
+  console.log("🔄 排序變更，更新 searchParams:", searchParams.value);
+};
+
+// ✅ **觸發搜尋**
+const searchCases = () => {
+  searchParams.value = computedSearchParams.value;
+  console.log("🔎 確定搜尋，更新 searchParams:", searchParams.value);
+};
 
 // ✅ 取得案件狀態（5: 待協尋, 6: 已尋獲）
 const fetchCaseStates = async () => {
@@ -137,7 +210,7 @@ const fetchDistricts = async () => {
 // ✅ 當 `cityId` 變更時，自動獲取 `districts`
 watch(cityId, fetchDistricts);
 
-// ✅ 重設查詢條件（確保清空後不影響查詢）
+// ✅ **重設查詢條件**
 const reloadPage = () => {
   keyword.value = "";
   lostCaseId.value = "";
@@ -150,41 +223,20 @@ const reloadPage = () => {
     sterilization: "",
   };
 
-  lostCases.value = []; // 清空查詢結果
-  console.log("🔄 重置查詢條件");
-};
-
-// ✅ 提交查詢請求（支援關鍵字 + ID 查詢）
-const searchCases = async () => {
-  const queryParams = {
-    keyword: keyword.value.trim() || undefined, // ✅ 全域模糊查詢
-    lostCaseId: lostCaseId.value ? Number(lostCaseId.value) : undefined, // ✅ 依照 ID 查詢
-    caseStateId: selectedCaseStatement.value || undefined, // ✅ 案件狀態
-    cityId: cityId.value || undefined, // ✅ 城市
-    districtAreaId: district.value || undefined, // ✅ 鄉鎮區
-    speciesId: filters.value.species || undefined, // ✅ 物種（狗/貓）
-    gender: filters.value.gender || undefined, // ✅ 性別（男/女）
-    sterilization: filters.value.sterilization ? "已絕育" : undefined, // 只篩選填寫過的絕育狀態 
-    start: 0, // 預設從第 0 筆開始
-    rows: 10, // 預設每頁 10 筆
-    sort: "lostCaseId", // 預設排序欄位
-    dir: true, // 預設升序
+  searchParams.value = { // ✅ **確保 `searchParams` 也會被清空**
+    keyword: "",
+    lostCaseId: "",
+    caseStateId: "",
+    cityId: "",
+    districtAreaId: "",
+    speciesId: "",
+    gender: "",
+    sterilization: "",
+    sortOrder: "desc",
   };
 
-  // **刪除 undefined 或空值的 key**
-  Object.keys(queryParams).forEach(
-    key => (queryParams[key] === undefined || queryParams[key] === "") && delete queryParams[key]
-  );
-
-  console.log("🔎 修正後的搜尋條件:", queryParams);
-
-  try {
-    const response = await axiosapi.post("/lostcases/search", queryParams);
-    lostCases.value = response.data.content || [];
-    console.log("✅ 搜尋結果:", lostCases.value);
-  } catch (error) {
-    console.error("❌ 查詢失敗:", error);
-  }
+  lostCases.value = []; // ✅ **清空案件列表**
+  console.log("🔄 重置查詢條件");
 };
 
 // **頁面載入時執行**
@@ -193,25 +245,91 @@ onMounted(() => {
   fetchCities();
 });
 
-// ✅ **使用 `defineExpose()` 讓其他組件可以使用此方法**
-defineExpose({
-  keyword,
-  lostCaseId,
-  selectedCaseStatement,
-  caseStatements,
-  cityId,
-  cities,
-  district,
-  districts,
-  filters,
-  lostCases,
-  fetchDistricts,
-  reloadPage,
-  searchCases,
-});
+// // ✅ 提交查詢請求（支援關鍵字 + ID 查詢）
+// const searchCases = async () => {
+//   const queryParams = {
+//     keyword: keyword.value.trim() || undefined, // ✅ 全域模糊查詢
+//     lostCaseId: lostCaseId.value ? Number(lostCaseId.value) : undefined, // ✅ 依照 ID 查詢
+//     caseStateId: selectedCaseStatement.value || undefined, // ✅ 案件狀態
+//     cityId: cityId.value || undefined, // ✅ 城市
+//     districtAreaId: district.value || undefined, // ✅ 鄉鎮區
+//     speciesId: filters.value.species || undefined, // ✅ 物種（狗/貓）
+//     gender: filters.value.gender || undefined, // ✅ 性別（男/女）
+//     sterilization: filters.value.sterilization ? "已絕育" : undefined, // 只篩選填寫過的絕育狀態 
+//     start: 0, // 預設從第 0 筆開始
+//     rows: 10, // 預設每頁 10 筆
+//     sort: "lostCaseId", // 預設排序欄位
+//     dir: true, // 預設升序
+//   };
+
+//   // **刪除 undefined 或空值的 key**
+//   Object.keys(queryParams).forEach(
+//     key => (queryParams[key] === undefined || queryParams[key] === "") && delete queryParams[key]
+//   );
+
+//   console.log("🔎 修正後的搜尋條件:", queryParams);
+
+//   try {
+//     const response = await axiosapi.post("/lostcases/search", queryParams);
+//     lostCases.value = response.data.content || [];
+//     console.log("✅ 搜尋結果:", lostCases.value);
+//   } catch (error) {
+//     console.error("❌ 查詢失敗:", error);
+//   }
+// };
+// // ✅ **使用 `defineExpose()` 讓其他組件可以使用此方法**
+// defineExpose({
+//   keyword,
+//   lostCaseId,
+//   selectedCaseStatement,
+//   caseStatements,
+//   cityId,
+//   cities,
+//   district,
+//   districts,
+//   filters,
+//   lostCases,
+//   fetchDistricts,
+//   reloadPage,
+//   searchCases,
+// });
 </script>
 
 <style scoped>
+/* ✅ 排序按鈕樣式 */
+.sort-buttons-container {
+  display: flex;
+  justify-content: flex-end; /* 按鈕貼容器右側 */
+  margin-top: 20px;
+  border-bottom: #6a6b6b 2px solid;
+}
+
+.sort-buttons {
+  display: flex;
+  gap: 5px; /* 按鈕間距 */
+}
+
+.sort-button {
+  margin: 0 10px;
+  width: 120px;
+  padding: 6px 7px;
+  border-radius: 5px 5px 0 0;
+  background-color: #f8f8f8;
+  letter-spacing: 1.5px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.sort-button.active {
+  background-color: #6a6b6b;
+  color: white;
+}
+
+.sort-button:hover {
+  background-color: #ffd66f;
+}
+
 .lost-search {
   width: 100%;
   max-width: 800px;

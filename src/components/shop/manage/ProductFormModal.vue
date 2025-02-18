@@ -36,7 +36,21 @@
             <!-- ✅ 標籤 -->
             <div class="mb-3">
                 <label class="form-label">標籤</label>
-                <Multiselect v-model="formData.tags" :options="tagStore.tags" label="tagName" track-by="tagId" multiple placeholder="選擇標籤..." />
+                <div class="checkbox-group">
+                <div v-for="tag in tagStore.tags" :key="tag.tagId" class="form-check form-check-inline">
+                    <input
+                    class="form-check-input"
+                    type="checkbox"
+                    :id="'tag_' + tag.tagId"
+                    :value="tag.tagId"
+                    :checked="isSelected(tag)"
+                    @change="toggleTag(tag)"
+                    />
+                    <label class="form-check-label" :for="'tag_' + tag.tagId">
+                    {{ tag.tagName }}
+                    </label>
+                </div>
+                </div>
             </div>
 
             <!-- ✅ 原價 -->
@@ -106,20 +120,20 @@
 </template>
 
 <script setup>
-import { ref, watch } from "vue";
-import * as bootstrap from "bootstrap";
+import { ref, watch, onMounted, defineExpose } from "vue";
+import { Modal } from "bootstrap";  // bootstrap 透過 main.js 引入時，不會自動為 Vue 組件建立 Modal 實例
 import Swal from "sweetalert2";
-import Multiselect from "vue-multiselect";
 import useProductStore from "@/stores/productStore";
 import useCategoryStore from "@/stores/categoryStore";
 import useTagStore from "@/stores/productTagStore";
 
+const productModal = ref(null);
+let modalInstance = null;
+const previewImages = ref([]); // 存放圖片預覽
+
 const productStore = useProductStore();
 const categoryStore = useCategoryStore();
 const tagStore = useTagStore();
-
-const productModal = ref(null);
-const previewImages = ref([]); // 存放圖片預覽
 
 const formData = ref({
 productId: "",
@@ -140,20 +154,40 @@ const allowNewLine = (event) => {
     event.target.value += "\n";
 };
 
-// ✅ 手動開啟 Modal
-const openModal = () => {
-if (productModal.value) {
-    const modalInstance = new bootstrap.Modal(productModal.value);
-    modalInstance.show();
-}
+// ✅ 檢查標籤是否已選取
+const isSelected = (tag) => {
+    return formData.value.tags.some((selectedTag) => selectedTag.tagId === tag.tagId);
 };
 
-// ✅ 關閉 Modal
+// ✅ 切換標籤選擇狀態
+const toggleTag = (tag) => {
+    const index = formData.value.tags.findIndex((selectedTag) => selectedTag.tagId === tag.tagId);
+    if (index === -1) {
+        formData.value.tags.push(tag); // ✅ 新增標籤
+    } else {
+        formData.value.tags.splice(index, 1); // ✅ 取消選取標籤
+    }
+};
+
+// ✅ 確保 Modal 只初始化一次
+onMounted(() => {
+    if (productModal.value) {
+        modalInstance = new Modal(productModal.value);
+    }
+});
+
+// 開啟 Modal
+const openModal = () => {
+    if (modalInstance) {
+        modalInstance.show();
+    }
+};
+
+// 關閉 Modal
 const closeModal = () => {
-if (productModal.value) {
-    const modalInstance = bootstrap.Modal.getInstance(productModal.value);
-    if (modalInstance) modalInstance.hide();
-}
+    if (modalInstance) {
+        modalInstance.hide();
+    }
 };
 
 // ✅ 處理圖片上傳
@@ -255,9 +289,11 @@ const submitForm = async () => {
     }
 };
 
-defineExpose({ openModal }); // 讓父組件 ProductManagement 可以調用 `openModal`
+// 讓父組件 ProductManagement 可以調用
+defineExpose({ openModal, closeModal });
 
-// ✅ 監聽分類變化，當分類變更時，自動填入 defaultUnit
+
+// 監聽分類變化，當分類變更時，自動填入 defaultUnit
 watch(() => formData.value.categoryId, (newCategoryId) => {
     const selectedCategory = categoryStore.categories.find(cat => cat.categoryId === newCategoryId);
     if (selectedCategory) {
@@ -313,7 +349,7 @@ watch(() => formData.value.categoryId, (newCategoryId) => {
     right: -5px;
     width: 24px;
     height: 24px;
-    background-color: #feba07;
+    background-color: #c6bc77;
     border: none;
     cursor: pointer;
     border-radius: 50%;
@@ -322,5 +358,12 @@ watch(() => formData.value.categoryId, (newCategoryId) => {
     justify-content: center;
     align-items: center;
     z-index: 10; /* 確保在圖片上方 */
+}
+
+/* ✅ 讓 `checkbox` 間距更明顯 */
+.checkbox-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 </style>

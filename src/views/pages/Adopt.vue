@@ -85,30 +85,29 @@
       </div>
 
       <!-- Search Result Section -->
-      <div class="result" v-for="searchResult in searchResults" :key="searchResult.adoptionCaseId">
-  <!-- Displaying dynamic image for each search result -->
-  <img :src="imageTempUrls.imageUrl" alt="失物照片" />
-  
-          <div class="result-details">
-            <div class="info22">
-              <p class="info2"><strong>案件編號：</strong>{{ searchResult.adoptionCaseId }}</p>
-            </div>
+<div class="result" v-for="searchResult in searchResults" :key="searchResult.adoptionCaseId">
+  <img :src="searchResult.imageUrl || imageTempUrls" alt="失物照片" />
 
-            <p class="info2">建立日期：{{ searchResult.publicationTime }}</p>
+  <div class="result-details">
+    <div class="info22">
+      <p class="info2"><strong>案件編號：</strong>{{ searchResult.adoptionCaseId }}</p>
+    </div>
 
-            <div class="info3">
-              <h5 @click="goToAdoptTwo">{{ searchResult.caseTitle }}</h5>
-            </div>
+    <p class="info2">建立日期：{{ searchResult.publicationTime }}</p>
 
-            <div class="info33">
-              <p><strong>動物種類：</strong>{{ searchResult.species ? searchResult.species.species : '未知' }}</p> <!-- Ensure species exists -->
-              <p><strong>動物名稱：</strong>{{ searchResult.name }}</p>
-              <p><strong>動物性別：</strong>{{ searchResult.gender }}</p>
-              <p><strong>有剪耳：</strong>{{ searchResult.sterilization }}</p>
-              <p><strong>可送養地點：</strong>{{ searchResult.TAG }}</p>
-            </div>
-          </div>
-        </div>
+    <div class="info3">
+      <h5 @click="goToAdoptTwo">{{ searchResult.caseTitle }}</h5>
+    </div>
+
+    <div class="info33">
+      <p><strong>動物種類：</strong>{{ searchResult.species ? searchResult.species.species : '未知' }}</p>
+      <p><strong>動物名稱：</strong>{{ searchResult.name }}</p>
+      <p><strong>動物性別：</strong>{{ searchResult.gender }}</p>
+      <p><strong>有剪耳：</strong>{{ searchResult.sterilization }}</p>
+      <p><strong>可送養地點：</strong>{{ searchResult.TAG }}</p>
+    </div>
+  </div>
+</div>
 
     </form>
   </div>
@@ -120,6 +119,7 @@ import { useRouter } from 'vue-router';
 import { axiosapi } from '@/plugins/axios';
 
 const router = useRouter();
+
 
 
 // 状态数据
@@ -207,6 +207,29 @@ const fetchDistricts = async () => {
     districts.value = [];
   }
 };
+
+// 搜尋案件
+const searchCases = async () => {
+  // 構建搜尋條件
+  const searchParams = {
+    keyword: keyword.value,
+    caseId: caseId.value,
+    selectedCaseStatement: selectedCaseStatement.value,
+    cityId: cityId.value,
+    district: district.value,
+    filters: filters.value // 直接传递整个对象
+  };
+
+  // 調用 API
+  try {
+    const response = await axiosapi.post('/adoptionsearch/search', searchParams);
+    console.log("搜尋結果:", response.data);
+    searchResults.value = response.data;  // 假設 API 返回的資料包含多個案件
+  } catch (error) {
+    console.error("搜尋失敗:", error);
+  }
+};
+
 
 // 跳转到送养表单
 const goToFormAdopt = () => {

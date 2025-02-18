@@ -30,7 +30,7 @@
           </button>
         </div>
 
-        <RouterLink class="nav-link" to="/secure/login">切換</RouterLink>
+     
       </div>
     </div>
   </form>
@@ -64,7 +64,7 @@ async function login() {
     password: password.value,
   };
 
-  axiosapi.defaults.headers.authorization = "";
+  axiosapi2.defaults.headers.authorization = "";
   userStore.setEmail("");
 
   try {
@@ -80,7 +80,7 @@ async function login() {
         title: response.data.message,
         icon: "success",
       });
-      axiosapi.defaults.headers.authorization = "Bearer " + response.data.token;
+      axiosapi2.defaults.headers.authorization = "Bearer " + response.data.token;
       userStore.setEmail(response.data.user);
       router.push({ path: "/admin" });
     } else {

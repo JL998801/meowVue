@@ -4,12 +4,19 @@
     <sidebar v-if="!isProductPage || isSidebarOpen" />
 
     <!-- 🔹 當 Sidebar 隱藏時，顯示展開按鈕 -->
-    <button v-if="isProductPage && !isSidebarOpen" class="sidebar-toggle" @click="toggleSidebar">
+    <button
+      v-if="isProductPage && !isSidebarOpen"
+      class="sidebar-toggle"
+      @click="toggleSidebar"
+    >
       ☰
     </button>
 
     <!-- 🔹 右側內容區域 (根據選單變換) -->
-    <div class="main-content" :class="{ 'full-width': isProductPage && !isSidebarOpen }">
+    <div
+      class="main-content-admin"
+      :class="{ 'full-width': isProductPage && !isSidebarOpen }"
+    >
       <router-view></router-view>
     </div>
   </div>
@@ -17,7 +24,7 @@
 
 <script setup>
 import sidebar from "@/components/admin/sidebar.vue";
-import { ref, computed} from "vue";
+import { ref, computed } from "vue";
 import { useRoute } from "vue-router";
 
 const route = useRoute();
@@ -46,7 +53,7 @@ const toggleSidebar = () => {
   height: 100vh;
 }
 
-.main-content {
+.main-content-admin {
   flex-grow: 1;
   margin-left: 240px; /* Sidebar 寬度一致 */
   padding: 20px;
