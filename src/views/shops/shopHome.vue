@@ -1,7 +1,7 @@
 <script setup>
 import { computed, defineProps, onMounted, ref } from "vue";
 import ProductCard from "@/components/shop/home/ProductCard.vue";
-import Pagination from "@/components/shop/home/Pagination.vue";
+import Pagination from "@/components/shop/home/Pagination11.vue";
 import useProductStore from "@/stores/productStore"
 import useCartStore from "@/stores/cartStore"
 import axios from 'axios';
