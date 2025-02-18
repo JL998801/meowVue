@@ -45,7 +45,7 @@ const isCaseMenuOpen2 = ref(false); // 控制寵物案件分析子選單的開�
 <style scoped>
 /* 🔹 Sidebar 樣式 */
 .back-sidebar {
-  width: 240px;
+  width: 220px;
   background-color: #0d2741;
   color: #fff;
   padding: 20px 10px;
@@ -95,7 +95,4 @@ const isCaseMenuOpen2 = ref(false); // 控制寵物案件分析子選單的開�
   flex-direction: column;
   background-color: #1a456a;
 }
-
-
-
 </style>
