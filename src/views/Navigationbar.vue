@@ -70,7 +70,7 @@
               class="nav-link active"
               aria-current="page"
               to="/pet/map"
-              >地圖
+              >
               <font-awesome-icon
                 :icon="['fas', 'map-location-dot']"
                 size="xl"
