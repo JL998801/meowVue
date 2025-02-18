@@ -3,7 +3,14 @@
     <!-- 左側篩選欄 -->
     <div class="search-form">
       <div class="search-form-container">
-        <p>透過以下條件搜尋:</p>
+        <div class="filter-header">
+          <div class="reset-button-container">
+            <button class="reset-button" @click.prevent="resetFilters">
+              重置
+            </button>
+          </div>
+          <!-- <p>透過以下條件搜尋:</p> -->
+        </div>
         <form>
           <font-awesome-icon
             icon="fa-solid fa-thumbtack"
@@ -94,7 +101,7 @@
           <div class="filters">
             <input
               type="text"
-              v-model="selectedBreed"
+              v-model="selectedBreedName"
               list="breedOptions"
               placeholder="請輸入或選擇品種"
               class="input-field"
@@ -334,6 +341,31 @@ const fetchAllCases = async () => {
   }
 };
 
+//重置按鈕
+const resetFilters = () => {
+  console.log("🛑 重置篩選條件並重新載入所有案件！");
+
+  // 重置 **所有篩選條件**
+  city.value = "";
+  district.value = "";
+  selectedBreed.value = "";
+  startDate.value = "";
+  endDate.value = "";
+  suspLost.value = false;
+  selectedcaseStates.value = [];
+  selectedspecies.value = [];
+  selectedFurColors.value = [];
+
+  // 重置 **案件類別**（勾選三種案件）
+  caseTypes.value = ["RescueCase", "lostCase", "adoptCase"];
+
+  // 清除地圖上的標記
+  clearMarkers();
+
+  //重新抓取所有案件（重置地圖標記）
+  fetchAllCases();
+};
+
 //產生送往後端的篩選條件，產生正確的 Query 參數格式（包含單選和多選）
 const buildQueryParams = () => {
   const queryParams = new URLSearchParams();
@@ -353,6 +385,23 @@ const buildQueryParams = () => {
 
   return queryParams.toString();
 };
+//讓品種條件可以正確被監聽
+watch(selectedBreedId, async () => {
+  console.log("品種變更了，觸發 API 重新請求...");
+  await fetchFilteredCases(); // 重新請求 API
+});
+
+// 用來顯示品種名稱
+const selectedBreedName = computed({
+  get: () => {
+    const breed = breeds.value.find((b) => b.breedId === selectedBreed.value);
+    return breed ? breed.breed : "";
+  },
+  set: (newBreedName) => {
+    const breed = breeds.value.find((b) => b.breed === newBreedName);
+    selectedBreed.value = breed ? breed.breedId : ""; // 這裡仍然是 `id`，以便後端使用
+  },
+});
 
 // 根據篩選條件取得案件
 const fetchFilteredCases = async () => {
@@ -361,7 +410,7 @@ const fetchFilteredCases = async () => {
     await new Promise((resolve) => setTimeout(resolve, 300)); // 確保標記完全清除
 
     if (caseTypes.value.length === 0) {
-      fetchAllCases(); // 若無勾選條件，則顯示所有案件
+      // fetchAllCases(); // 若無勾選條件，則顯示所有案件
       return;
     }
     // axios 在序列化params時，會自動加上[]，導致不符合標準HTTP查詢參數格式，因此手動處理URL參數
@@ -576,6 +625,7 @@ watch(
   ],
   async () => {
     console.log("條件變化了!");
+    console.log(selectedBreed);
     clearMarkers(); // 確保標記真的清除
     await fetchFilteredCases();
   }
@@ -622,7 +672,6 @@ onMounted(async () => {
 
 .search-form-container {
   border-radius: 10px;
-  height: 100%;
   padding: 10px;
   background-color: #f8f6f6;
   border: #ccc 0.5px solid;
@@ -837,5 +886,47 @@ onMounted(async () => {
   display: flex;
   justify-content: space-between;
   font-size: 14px;
+}
+
+.filter-header {
+  display: flex;
+  justify-content: space-between; /* 讓 p 在左，按鈕在右 */
+  align-items: center; /* 垂直置中 */
+  padding: 10px 0; /* 增加上下間距 */
+}
+
+.filter-header p {
+  margin: 0;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+/* 確保重置按鈕靠右 */
+.reset-button-container {
+  display: flex;
+  justify-content: flex-end; /* 讓按鈕靠右 */
+}
+
+/* 美化重置按鈕 */
+.reset-button {
+  background-color: #ff6b6b; /* 紅色 */
+  color: white; /* 文字顏色 */
+  border: none;
+  padding: 8px 15px;
+  font-size: 14px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s ease-in-out, transform 0.2s ease-in-out;
+}
+
+.reset-button:hover {
+  background-color: #ff4f4f; /* 深一點的紅色 */
+  transform: scale(1.05); /* 輕微放大 */
+}
+
+.reset-button:active {
+  background-color: #e63e3e; /* 按下時的顏色 */
+  transform: scale(1);
 }
 </style>

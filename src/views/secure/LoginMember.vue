@@ -1,22 +1,32 @@
 <template>
   <form class="aa" @submit.prevent="submitForm">
     <div class="container">
-      <!-- 註冊表單 -->
       <div class="register-box">
         <h3>會員登入</h3>
 
         <div class="input-group">
-          <label class="jj" for="nickName">使用者暱稱</label>
-          <input type="text" v-model="username" @keyup.enter="login" />
+          <label class="jj" for="nickName">帳號</label>
+          <input
+            type="text"
+            v-model="username"
+            @keyup.enter="login"
+            placeholder="e-mail"
+          />
         </div>
         <span class="error">{{ message }}</span>
 
         <div class="input-group">
           <label for="password">密碼</label>
-          <input type="password" v-model="password" @keyup.enter="login" />
+          <input
+            type="password"
+            v-model="password"
+            @keyup.enter="login"
+            placeholder="Password"
+          />
         </div>
 
         <div class="gg">
+          <!-- Google 登入按鈕 -->
           <div class="google-login-container">
             <button
               class="google-login-btn"
@@ -31,6 +41,8 @@
               登入
             </button>
           </div>
+
+          <!-- 普通登入按鈕 -->
           <div>
             <button type="submit" class="register-btn" :disabled="isLoggingIn">
               登入
@@ -52,8 +64,8 @@ import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import useUserStore from "@/stores/user.js";
 import Swal from "sweetalert2";
-import { axiosapi } from "@/plugins/axios.js";
-import { loadGoogleAuth } from "@/plugins/googleAuth.js";
+import { axiosapi2 } from "@/plugins/axios.js";
+import { loadGoogleAuth } from "@/plugins/googleAuth.js"; // 引入 Google Auth 加載函數
 
 const username = ref("");
 const password = ref("");
@@ -73,6 +85,13 @@ onMounted(async () => {
     await loadGoogleAuth(googleClientId);
     console.log("Google 登入初始化成功");
 
+    // 設定 Google 登入回應處理函數
+    window.google.accounts.id.initialize({
+      client_id: googleClientId,
+      callback: googleLoginSuccess,
+    });
+    console.log("Google 登入回調函數已設定");
+
     // 渲染 Google 登入按鈕
     const googleButton = document.getElementById("google-login-btn");
     if (googleButton) {
@@ -87,10 +106,6 @@ onMounted(async () => {
     } else {
       console.warn("無法找到 Google 登入按鈕元素");
     }
-
-    // 設定 Google 登入回應處理函數
-    window.google.accounts.id.callback = googleLoginSuccess;
-    console.log("Google 登入回調函數已設定");
   } catch (error) {
     console.error("Google 登入初始化失敗:", error);
     Swal.fire({
@@ -102,51 +117,94 @@ onMounted(async () => {
 
 function googleLoginSuccess(response) {
   console.log("googleLoginSuccess", response);
-  const idToken = response.credential;
 
-  console.log("ID Token:", idToken); // 確認 ID Token 是否正常
+  // 從 response 中提取 clientId 和 credential
+  const clientId = response?.clientId || response?.client_id; // 確保提取 clientId
+  const credential = response?.credential; // Google 返回的 ID Token
 
-  // 這是你的 API 請求，將 idToken 發送給後端進行認證
-  console.log("發送 Google 登入請求...");
+  // 檢查資料是否有效
+  if (!clientId || !credential) {
+    console.error("Google 登入資料無效，無法獲取 clientId 或 credential");
+    return;
+  }
 
-  axiosapi
-    .post("/ajax/secure/google-login", { id_token: idToken })
-    .then((response) => {
-      console.log("後端回應:", response); // 確認後端回應
+  // 儲存資料到 localStorage
+  localStorage.setItem("googleClientId", clientId);
+  localStorage.setItem("googleCredential", credential);
 
-      if (response.data.success) {
-        // 儲存用戶資訊到 localStorage 和 Vuex store
-        saveUserInfoToLocalStorage(response.data.user, response.data.token);
+  const memberData = {
+    nickName: "Jude Chu", 
+    password: "1223", 
+    name: "Name",
+    email: "sonicchu1223@hotmail.com", 
+    phone: "0932624161", 
+    address: "新北市板橋區", 
+    birthday: "2000-12-23" 
+  };
 
-        // 設定 authorization header，這樣之後的所有請求會帶上 token
-        axiosapi.defaults.headers.authorization = `Bearer ${response.data.token}`;
-
-        // 跳轉到會員中心
-        router.push({ path: "/pages/MemberCenter" });
-      } else {
-        // 顯示錯誤訊息
-        Swal.fire({
-          title: response.data.message,
-          icon: "warning",
-        });
-      }
-    })
-    .catch((error) => {
-      console.error("Google 登入失敗", error); // 確認錯誤
+  // 註冊 API 請求
+  axiosapi.post(`/register`, memberData)
+    .then(response => {
+      // 使用 SweetAlert 顯示成功註冊訊息
       Swal.fire({
-        title: "登入失敗",
+              title: "登入成功！",
+              icon: "success",
+            });
+
+      setTimeout(() => {
+        // 註冊成功後進行自動登入
+        const loginData = {
+          email: memberData.email,
+          password: memberData.password
+        };
+
+        // 登入 API 請求
+        axiosapi.post(`/ajax/secure/login`, loginData)
+          .then(loginResponse => {
+            const { token, user } = loginResponse.data;
+            const { memberId, email, nickname } = user;
+
+            // 儲存登入資訊到 localStorage
+            localStorage.setItem('memberId', memberId);
+            localStorage.setItem('email', email);
+            localStorage.setItem('token', token);
+            localStorage.setItem('nickname', nickname);
+
+            // 顯示 SweetAlert 登入成功訊息
+          
+
+            // 跳轉或進行其他操作
+            window.location.href = "/pages/MemberCenter"; // 假設會員中心頁面
+          })
+          .catch(loginError => {
+            console.error("登入失敗", loginError);
+            Swal.fire({
+              title: "登入失敗",
+              text: "請檢查帳號和密碼",
+              icon: "error",
+            });
+          });
+      }, 1000); // 註冊後延遲登入
+    })
+    .catch(registerError => {
+      console.error("註冊失敗", registerError);
+      Swal.fire({
+        title: "註冊失敗",
+        text: "請稍後再試",
         icon: "error",
       });
     });
 }
 
-// 儲存用戶資訊到 localStorage
+
+
+// 儲存用戶資訊到 localStorage 和 Vuex
 function saveUserInfoToLocalStorage(user, token) {
   localStorage.setItem("memberId", user.memberId);
   localStorage.setItem("email", user.email);
   localStorage.setItem("token", token);
   localStorage.setItem("nickname", user.nickname);
-  // userStore.setToken(token);
+  userStore.setToken(token);
 }
 
 // 普通登入邏輯
@@ -166,22 +224,17 @@ async function submitForm() {
   };
 
   try {
-    const response = await axiosapi.post("/ajax/secure/login", body);
+    const response = await axiosapi2.post(`/ajax/secure/login`, body);
+    console.log("登入成功", response);
     if (response.data.success) {
+      // 使用 SweetAlert 顯示成功訊息
       await Swal.fire({
         title: response.data.message,
         icon: "success",
       });
 
-      // 儲存登入資訊到 localStorage，同時儲存到pinia中(原檔案邏輯)
       saveUserInfoToLocalStorage(response.data.user, response.data.token);
-
-      userStore.setToken(response.data.token);
-
-      // 設定 authorization header
-      axiosapi.defaults.headers.authorization = `Bearer ${response.data.token}`;
-
-      // 跳轉到會員中心
+      axiosapi2.defaults.headers.authorization = `Bearer ${response.data.token}`;
       router.push({ path: "/pages/MemberCenter" });
     } else {
       message.value = response.data.message;
@@ -200,6 +253,7 @@ async function submitForm() {
     isLoggingIn.value = false; // 解除防止重複提交
   }
 }
+
 </script>
 
 <style scoped>

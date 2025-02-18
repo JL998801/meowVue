@@ -1,10 +1,12 @@
+import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import { createApp } from 'vue'
 import App from './App.vue'
 import routes from './router/routers.js'
 import { createPinia } from 'pinia'
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import FontAwesomeIcon from './plugins/fontawesome.js'
-import "@/assets/petmain.css"; //全局樣式表
+import "@/assets/petmain.css";
 
 const pinia = createPinia();
 pinia.use(piniaPluginPersistedstate)

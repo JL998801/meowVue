@@ -12,6 +12,7 @@ import Footer from "./views/Footer.vue";
 const route = useRoute();
 const router = useRouter();
 const userStore = useUserStore();
+const isShopRoute = computed(() => route.path.startsWith("/shop"));
 
 // //下列程式用來監聽網址列token變化，用於line登入後擷取token並存入Pinia再存入localStorage
 // onMounted(() => {
@@ -41,11 +42,12 @@ watchEffect(() => {
 
 // 定義需要全螢幕顯示的路徑
 const fullWidthRoutes = [
-  "/",
   "/pages/MemberCenter",
   "/pet/map",
   "/advanced-settings",
   "/admin",
+  "/shop",
+  "/shop/product", // 這是動態路徑的前綴，完整路徑為"/shop/product/:id"；使用 some() 來判斷動態路由
 ];
 
 // 定義需要套用 `.admin` 樣式的頁面
@@ -54,6 +56,10 @@ const adminRoutes = [
   "/admin/adopt-case",
   "/admin/lostCase",
   "/admin/rescueAnalysis",
+  "/admin/categories",
+  "/admin/products",
+  "/admin/orders",
+  "/admin/notifications",
   "/admin",
   "/adopt",
 ];
@@ -62,7 +68,10 @@ const adminRoutes = [
 const isAdminPage = computed(() => adminRoutes.includes(route.path));
 
 // 判斷是否應用 `full-width` 樣式
-const isFullWidth = computed(() => fullWidthRoutes.includes(route.path));
+// const isFullWidth = computed(() => fullWidthRoutes.includes(route.path));
+const isFullWidth = computed(() =>
+  fullWidthRoutes.some((path) => route.path.startsWith(path))
+);
 </script>
 
 <template>
@@ -80,10 +89,11 @@ const isFullWidth = computed(() => fullWidthRoutes.includes(route.path));
 /* 全域樣式 */
 .container {
   background-color: #ffffff;
-  margin: 10px auto;
-  width: 90%;  /* 讓白色背景更寬 */
+  margin: 30px auto;
+  width: 90%; /* 讓白色背景更寬 */
   max-width: 1200px; /* 設置最大寬度，避免過寬 */
   padding: 20px; /* 讓內部元素更有間距 */
+  border-radius: 30px;
 }
 
 /* 當 `isFullWidth` 為 true，讓 `.container` 變成全寬而且不要有卷軸 */

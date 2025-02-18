@@ -38,7 +38,7 @@
                 >
               </li>
               <li>
-                <RouterLink class="dropdown-item" to="/adopt"
+                <RouterLink class="dropdown-item" to="/pages/Adopt"
                   >動物認養</RouterLink
                 >
               </li>
@@ -53,7 +53,7 @@
             <RouterLink
               class="nav-link active"
               aria-current="page"
-              to="/shops/products1"
+              to="/shop"
               >寵物商城</RouterLink
             >
           </li>
