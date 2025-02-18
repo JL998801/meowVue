@@ -27,11 +27,11 @@ const menuItems = [
   { label: "會員基本資料", link: "/pages/MemberCard" },
   { label: "追蹤通知設定", link: "/advanced-settings" },
   { label: "流浪救援管理", link: "/member-center/rescueCase" },
-  { label: "動物送養管理", link: "/adoption-management" },
-  { label: "動物領養管理", link: "/foster-management" },
+  // { label: "動物送養管理", link: "/adoption-management" },
+  // { label: "動物領養管理", link: "/foster-management" },
   { label: "遺失協尋管理", link: "/pet/lost/member" },
   { label: "追蹤案件管理", link: "/member-center/followCase" },
-  { label: "違規通報管理", link: "/violation-management" },
+  // { label: "違規通報管理", link: "/violation-management" },
 ];
 
 const logout = () => {

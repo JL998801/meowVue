@@ -136,7 +136,6 @@ import { useRouter } from "vue-router";
 import Swal from "sweetalert2";
 import petLogo from "@/assets/petLogo.png"; // Logo 圖示
 import useProductStore from "@/stores/productStore";
-	const productStore = useProductStore();
 import useUserStore from "@/stores/user";
 import { storeToRefs } from "pinia";
 import useCartStore from "@/stores/cartStore";
@@ -156,6 +155,7 @@ const router = useRouter();
 const cartStore = useCartStore();
 
 // 初始化: Store、空陣列
+const productStore = useProductStore();
 const userStore = useUserStore();
 const wishListStore = useWishListStore();
 const notificationStore = useNotificationStore();
