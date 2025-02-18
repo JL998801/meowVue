@@ -168,6 +168,7 @@ async function submitForm() {
 
   try {
     const response = await axiosapi.post(`/ajax/secure/login`, body);
+    console.log("登入成功", response);
     if (response.data.success) {
       await Swal.fire({
         title: response.data.message,

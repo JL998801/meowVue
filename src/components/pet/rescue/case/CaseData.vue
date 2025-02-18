@@ -2,13 +2,13 @@
   <div class="post">
     <div class="post-image">
       <img :src="selectedImage" :alt="caseData.caseTitle" class="main-image" />
-      <div class="thumbnail-container">
+      <div class="thumbnail-container-pet">
         <img
           v-for="(picture, index) in caseData.casePictures"
           :key="index"
           :src="picture.pictureUrl"
           :alt="`Thumbnail ${index + 1}`"
-          class="thumbnail"
+          class="thumbnail-pet"
           @click="selectedImage = picture.pictureUrl"
         />
       </div>
@@ -282,14 +282,14 @@ a {
   transform: scale(1.05);
 }
 
-.thumbnail-container {
+.thumbnail-container-pet {
   margin-top: 20px;
   display: flex;
   justify-content: center;
   gap: 10px;
 }
 
-.thumbnail-container img {
+.thumbnail-container-pet img {
   width: 100px;
   height: 100px;
   border-radius: 5px;
@@ -298,7 +298,7 @@ a {
   transition: transform 0.2s ease-in-out;
 }
 
-.thumbnail {
+.thumbnail-pet {
   width: 80px;
   height: 80px;
   border-radius: 5px;
@@ -307,7 +307,7 @@ a {
   transition: transform 0.2s ease-in-out;
 }
 
-.thumbnail:hover {
+.thumbnail-pet:hover {
   transform: scale(1.1);
 }
 </style>
