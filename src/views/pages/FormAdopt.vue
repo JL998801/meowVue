@@ -246,7 +246,7 @@ const submitForm = async () => {
         });
 
         // 成功後跳轉
-        router.push("/adopt");
+        router.push("/pages/Adopt");
       } else {
         // 處理錯誤情況
         Swal.fire({
@@ -256,7 +256,7 @@ const submitForm = async () => {
         });
 
         // 成功後跳轉
-        router.push("/adopt");
+        router.push("/pages/Adopt");
       }
     } else {
       Swal.fire({

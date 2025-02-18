@@ -68,6 +68,7 @@ const routes = [
   { path: '/pages/Register', component: Register, name: 'register-link' },
   { path: "/pages/FormAdopt", component: FormAdopt, name: "FormAdopt-link" },
   { path: "/pages/AdoptTwo", component: AdoptTwo, name: "AdoptTwo-link" },
+  { path: "/pages/Adopt", component: Adopt, name: "Adopt-link" },
   // { path: "/pets/lostcase", component: LostCase, name: "pets-LostCase-link" },
   { path: "/pets/lostform", component: LostForm, name: "pets-LostForm-link" },
   { path: "/pets/reportform", component: ReportForm, name: "pets-ReportForm-link" },
