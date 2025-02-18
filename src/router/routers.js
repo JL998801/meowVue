@@ -164,7 +164,7 @@ router.beforeEach(async (to, from, next) => {
   console.log("userStore", userStore);
   console.log("to.path", to.path);
   
-  // const isPublicPage = publicPages.includes(to.path) || to.path.startsWith("/shop");
+
   const isPublicPage = publicPages.includes(to.path) || to.path.startsWith("/shop");
   console.log("isPublicPage", isPublicPage);
  
@@ -196,6 +196,11 @@ router.beforeEach(async (to, from, next) => {
     }
   }
 
+  // 限制 /admin 頁面，只有管理員可以進入
+  if (to.path.startsWith("/admin") && !userStore.isAdmin()) {
+    return next("/403");  // 轉到「無權限」頁面
+  }
+  
   next(); // 驗證成功則繼續跳轉
 });
 
