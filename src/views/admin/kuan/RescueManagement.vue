@@ -75,7 +75,6 @@ onMounted(fetchAllCases);
 
 <style scoped>
 .admin-case-management {
-  padding: 20px;
 }
 .map-container {
   height: 400px;

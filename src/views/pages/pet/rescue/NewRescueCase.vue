@@ -2,7 +2,7 @@
   <div class="rescue-page">
     <NewCaseTitle></NewCaseTitle>
     <div class="second-container">
-      <div class="main-content">
+      <div class="main-content-new">
         <NewCaseForm></NewCaseForm>
       </div>
       <div class="sidebar">
@@ -85,7 +85,7 @@ import NewCaseForm from "@/components/pet/rescue/newCase/NewCaseForm.vue";
   align-items: flex-start; /* 元素頂部對齊 */
 }
 
-.main-content {
+.main-content-new {
   flex: 18; /* 主內容區域占 3 倍空間 */
   display: flex;
   flex-direction: column; /* 垂直排列 SearchForm 和 CaseList */

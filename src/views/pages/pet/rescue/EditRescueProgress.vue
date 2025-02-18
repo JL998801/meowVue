@@ -2,7 +2,7 @@
   <div class="rescue-page">
     <EditProgressTitle></EditProgressTitle>
     <div class="second-container">
-      <div class="main-content">
+      <div class="main-content-edit">
         <EditProgressForm></EditProgressForm>
       </div>
       <div class="sidebar">
@@ -87,7 +87,7 @@ import EditProgressForm from "@/components/pet/rescue/editRescueProgress/EditPro
   align-items: flex-start; /* 元素頂部對齊 */
 }
 
-.main-content {
+.main-content-edit {
   flex: 18; /* 主內容區域占 3 倍空間 */
   display: flex;
   flex-direction: column; /* 垂直排列 SearchForm 和 CaseList */
