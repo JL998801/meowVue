@@ -70,8 +70,8 @@ const routes = [
   { path: "/pages/AdoptTwo", component: AdoptTwo, name: "AdoptTwo-link" },
   { path: "/pages/Adopt", component: Adopt, name: "Adopt-link" },
   // { path: "/pets/lostcase", component: LostCase, name: "pets-LostCase-link" },
-  { path: "/pets/lostform", component: LostForm, name: "pets-LostForm-link" },
-  { path: "/pets/reportform", component: ReportForm, name: "pets-ReportForm-link" },
+  // { path: "/pets/lostform", component: LostForm, name: "pets-LostForm-link" },
+  // { path: "/pets/reportform", component: ReportForm, name: "pets-ReportForm-link" },
   { path: "/pages/MemberCenter", component: MemberCenter, name: "MemberCenter-link" },
   { path: "/pages/MemberCard", component: MemberCard, name: "MemberCard-link" },
 
