@@ -66,18 +66,27 @@ const fetchBannerData = async () => {
         // 按 `onlineDate` 降冪排序
         banners.sort((a, b) => new Date(b.onlineDate) - new Date(a.onlineDate));
 
-        // 轉換資料格式，確保 `imageUrl` 存在
-        const processBanner = (banner) => ({
-            bannerId: banner.bannerId, // ✅ `bannerId` 作為唯一標識
-            caseTitle: banner.caseTitle || "未知標題",
-            imageUrl: banner.pictureUrl
-                ? `${axiosapi.defaults.baseURL}${banner.pictureUrl.replace("C:/upload", "/upload")}`
-                : "/images/default.png", // ✅ 確保圖片可用
-            type: banner.bannerType,
-            lostCaseId: banner.lostCaseId || null,
-            rescueCaseId: banner.rescueCaseId || null,
-            adoptionCaseId: banner.adoptionCaseId || null
-        });
+        const processBanner = (banner) => {
+    const baseURL = axiosapi.defaults.baseURL.replace(/\/api$/, "");
+
+    let imageUrl = "/images/default.png"; // 預設圖片
+    if (banner.pictureUrl && banner.pictureUrl.includes("C:/upload/final/")) {
+        imageUrl = `${baseURL}${banner.pictureUrl.replace("C:/upload/final", "/upload/final")}`;
+    }
+
+    return {
+        bannerId: banner.bannerId, 
+        caseTitle: banner.caseTitle || "未知標題",
+        imageUrl: imageUrl, 
+        type: banner.bannerType,
+        lostCaseId: banner.lostCaseId || null,
+        rescueCaseId: banner.rescueCaseId || null,
+        adoptionCaseId: banner.adoptionCaseId || null
+    };
+};
+
+
+
         
 
         // **分類案件**

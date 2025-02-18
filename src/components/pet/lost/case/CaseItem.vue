@@ -58,11 +58,11 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted, watch } from "vue";
 import followButton from "@/components/pet/rescue/follow/followButton.vue";
 
 // 父組件傳遞的案件資訊
-defineProps({
+const props = defineProps({
   caseItem: {
     type: Object,
     required: true,
@@ -71,9 +71,37 @@ defineProps({
 
 // 預設圖片
 const defaultImage = "/images/default-image.jpg";
+
+// 響應式變數，儲存圖片 URL 陣列
 const pictureUrls = ref([]);
-//向後端請求對應案件的圖片(會獲得後端路徑，要在此改為前端路徑)
-const getCasePictures = () => {};
+
+// 向後端請求對應案件的圖片
+const getCasePictures = () => {
+  if (!props.caseItem.casePictures || props.caseItem.casePictures.length === 0) {
+    pictureUrls.value = [defaultImage]; // 沒有圖片則使用預設圖片
+    return;
+  }
+
+  // 確保 `axiosapi.defaults.baseURL` 沒有多餘的 `/api/`
+  const baseURL = axiosapi.defaults.baseURL.replace(/\/api$/, "");
+
+  // 處理圖片路徑
+  pictureUrls.value = props.caseItem.casePictures.map((picture) => {
+    return picture.pictureUrl && picture.pictureUrl.includes("C:/upload/final/")
+      ? `${baseURL}${picture.pictureUrl.replace("C:/upload/final/", "/upload/")}`
+      : defaultImage; // 如果圖片路徑有錯誤，使用預設圖片
+  });
+};
+
+// **當元件掛載時，自動獲取圖片**
+onMounted(() => {
+  getCasePictures();
+});
+
+// **當 `caseItem` 改變時，重新獲取圖片**
+watch(() => props.caseItem, () => {
+  getCasePictures();
+}, { deep: true });
 
 // 格式化日期函數
 const formatDate = (date) => {
@@ -94,6 +122,7 @@ const statusClass = (caseState) => {
   }
 };
 </script>
+
 
 <style scoped>
 a {

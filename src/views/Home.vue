@@ -21,9 +21,9 @@
         <Banner />
     </div>
     <!-- 舉報按鈕 -->
-    <div>
+    <!-- <div>
         <Reportbtn />
-    </div>
+    </div> -->
 </template>
 
 <script setup>
@@ -32,7 +32,7 @@ import "@/assets/petmain.css";
 import { RouterLink } from "vue-router";
 // import GoogleMap from "@/components/GoogleMap.vue";
 import Banner from "@/components/pet/banner/Banner.vue";
-import Reportbtn from "@/views/pets/report/ReportButton.vue";
+// import Reportbtn from "@/views/pets/report/ReportButton.vue";
 import useUserStore from "@/stores/user.js";
 
 const userStore = useUserStore();
