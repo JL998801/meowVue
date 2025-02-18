@@ -53,7 +53,7 @@
             <RouterLink
               class="nav-link active"
               aria-current="page"
-              to="/shops/products1"
+              to="/shop"
               >寵物商城</RouterLink
             >
           </li>
