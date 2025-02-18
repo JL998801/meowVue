@@ -71,7 +71,7 @@ const routes = [
   { path: "/pages/Adopt", component: Adopt, name: "Adopt-link" },
   // { path: "/pets/lostcase", component: LostCase, name: "pets-LostCase-link" },
   { path: "/pets/lostform", component: LostForm, name: "pets-LostForm-link" },
-  { path: "/pets/reportform", component: ReportForm, name: "pets-ReportForm-link" },
+  // { path: "/pets/reportform", component: ReportForm, name: "pets-ReportForm-link" },
   { path: "/pages/MemberCenter", component: MemberCenter, name: "MemberCenter-link" },
   { path: "/pages/MemberCard", component: MemberCard, name: "MemberCard-link" },
 
@@ -157,6 +157,7 @@ router.beforeEach(async (to, from, next) => {
     "/admin",
     '/pages/FormAdopt',
     '/pages/AdoptTwo',
+    '/advanced-settings',
 
 
   ];  // 不需要驗證的路由

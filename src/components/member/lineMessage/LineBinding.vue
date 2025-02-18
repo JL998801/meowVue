@@ -27,7 +27,7 @@
 import { axiosapi2 } from "@/plugins/axios.js";
 import Swal from "sweetalert2";
 import LineLogin from "@/components/member/login/LineLogin.vue";
-import { ref, onMounted, watch } from "vue";
+import { ref, onMounted, watch, watchEffect, nextTick } from "vue";
 import { useRouter } from "vue-router";
 
 // 狀態
@@ -37,22 +37,18 @@ const userToken = ref(""); // 用戶的 Token
 const memberId = ref("");
 const router = useRouter();
 
-onMounted(async () => {
-  //這邊要先確認有無持有memberId，表示註冊過，已將此驗證邏輯放在route.js中做全局攔截
-  initializeUser();
-  if (memberId.value) {
-    await checkBindingStatus(); //從member資料表，對應此memberId有無綁定的lineid，用於決定顯示line登入按鈕或是line加好友按鈕
-    await checkFollowStatus(); //檢查商家line追蹤狀態，從member資料表，對應此memberId的followed欄位是否為true，是則顯示連動成功
-  }
+onMounted(() => {
+  setTimeout(() => initializeUser(), 500); // **延遲 500ms 再執行**
 });
 
-// 初始化用戶資訊(驗證有無攜帶token，有的話提取memberid)
-function initializeUser() {
+// 初始化用戶memberid資訊(驗證有無攜帶token，有的話提取memberid)
+function initializeUser(retryCount = 3) {
   const user = localStorage.getItem("user");
   if (!user) {
-    Swal.fire("錯誤", "請重新登入", "error").then(() => {
-      router.push("/login");
-    });
+    if (retryCount > 0) {
+      // **延遲 500ms 再次嘗試讀取 LocalStorage**
+      setTimeout(() => initializeUser(retryCount - 1), 500);
+    }
     return;
   }
 
@@ -64,11 +60,9 @@ function initializeUser() {
     const payload = JSON.parse(atob(userToken.value.split(".")[1])); // 解碼 Base64 Payload
     const subject = JSON.parse(payload.sub); // 提取 subject 並解析為 JSON
     memberId.value = subject.memberId;
+    console.log("解析用戶成功:", memberId.value);
   } catch (error) {
-    console.error("無法解析 Token: ", error);
-    Swal.fire("錯誤", "請重新登入", "error").then(() => {
-      router.push("/login");
-    });
+    console.error("初始化用戶失敗:", error);
   }
 }
 
@@ -98,6 +92,19 @@ async function checkFollowStatus() {
     followStatus.value = false;
   }
 }
+
+// **監聽 `userToken` 和 `memberId`，當它們變化時執行 API 請求**
+watchEffect(async () => {
+  if (!userToken.value || !memberId.value) return;
+
+  try {
+    await nextTick(); // 確保 DOM 已更新後再發送請求
+    await checkBindingStatus();
+    await checkFollowStatus();
+  } catch (error) {
+    console.error("初始化追蹤狀態失敗:", error);
+  }
+});
 
 // 監聽 followStatus，當變更時輸出 log 或進行其他操作
 watch(followStatus, (newVal) => {
