@@ -4,16 +4,25 @@
       <div class="register-box">
         <h3>會員登入</h3>
 
-
         <div class="input-group">
           <label class="jj" for="nickName">帳號</label>
-          <input type="text" v-model="username" @keyup.enter="login" placeholder="e-mail">
+          <input
+            type="text"
+            v-model="username"
+            @keyup.enter="login"
+            placeholder="e-mail"
+          />
         </div>
         <span class="error">{{ message }}</span>
 
         <div class="input-group">
           <label for="password">密碼</label>
-          <input type="password" v-model="password" @keyup.enter="login"placeholder="Password">
+          <input
+            type="password"
+            v-model="password"
+            @keyup.enter="login"
+            placeholder="Password"
+          />
         </div>
 
         <div class="gg">
@@ -51,12 +60,12 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import useUserStore from '@/stores/user.js';
-import Swal from 'sweetalert2';
-import {axiosapi }from '@/plugins/axios.js';
-import { loadGoogleAuth } from '@/plugins/googleAuth.js'; // 引入 Google Auth 加載函數
+import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import useUserStore from "@/stores/user.js";
+import Swal from "sweetalert2";
+import { axiosapi } from "@/plugins/axios.js";
+import { loadGoogleAuth } from "@/plugins/googleAuth.js"; // 引入 Google Auth 加載函數
 
 const username = ref("");
 const password = ref("");
@@ -65,8 +74,8 @@ const isLoggingIn = ref(false);
 const router = useRouter();
 const userStore = useUserStore();
 
-
-const googleClientId = '687382637987-mac1n2c8aakto95j4o56keqblhst1j1u.apps.googleusercontent.com';
+const googleClientId =
+  "687382637987-mac1n2c8aakto95j4o56keqblhst1j1u.apps.googleusercontent.com";
 
 onMounted(async () => {
   try {
@@ -74,14 +83,14 @@ onMounted(async () => {
 
     // 載入新版的 Google 登入 API
     await loadGoogleAuth(googleClientId);
-    console.log('Google 登入初始化成功');
+    console.log("Google 登入初始化成功");
 
     // 設定 Google 登入回應處理函數
     window.google.accounts.id.initialize({
       client_id: googleClientId,
-      callback: googleLoginSuccess
+      callback: googleLoginSuccess,
     });
-    console.log('Google 登入回調函數已設定');
+    console.log("Google 登入回調函數已設定");
 
     // 渲染 Google 登入按鈕
     const googleButton = document.getElementById("google-login-btn");
@@ -97,7 +106,6 @@ onMounted(async () => {
     } else {
       console.warn("無法找到 Google 登入按鈕元素");
     }
-    
   } catch (error) {
     console.error("Google 登入初始化失敗:", error);
     Swal.fire({
@@ -112,8 +120,8 @@ function googleLoginSuccess(response) {
   console.log("googleLoginSuccess", response);
 
   // 從 response 中提取 clientId 和 credential
-  const clientId = response?.clientId || response?.client_id;  // 確保提取 clientId
-  const credential = response?.credential;  // Google 返回的 ID Token
+  const clientId = response?.clientId || response?.client_id; // 確保提取 clientId
+  const credential = response?.credential; // Google 返回的 ID Token
 
   // 檢查資料是否有效
   if (!clientId || !credential) {
@@ -126,14 +134,12 @@ function googleLoginSuccess(response) {
   console.log("Credential:", credential);
 
   // 儲存資料到 localStorage
-  localStorage.setItem('googleClientId', clientId);
-  localStorage.setItem('googleCredential', credential);
+  localStorage.setItem("googleClientId", clientId);
+  localStorage.setItem("googleCredential", credential);
 
   // 跳轉到會員中心頁面
-  router.push({ path: '/pages/MemberCenter' });
+  router.push({ path: "/pages/MemberCenter" });
 }
-
-
 
 // 儲存用戶資訊到 localStorage 和 Vuex
 function saveUserInfoToLocalStorage(user, token) {
@@ -141,7 +147,7 @@ function saveUserInfoToLocalStorage(user, token) {
   localStorage.setItem("email", user.email);
   localStorage.setItem("token", token);
   localStorage.setItem("nickname", user.nickname);
-  // userStore.setToken(token);
+  userStore.setToken(token);
 }
 
 // 普通登入邏輯
@@ -162,6 +168,7 @@ async function submitForm() {
 
   try {
     const response = await axiosapi.post(`/ajax/secure/login`, body);
+    console.log("登入成功", response);
     if (response.data.success) {
       await Swal.fire({
         title: response.data.message,

@@ -1,23 +1,20 @@
 <template>
   <!-- shopLayout.vue 是最頂層的組件，它負責接收 shopHome 傳遞的事件 -->
   <div class="shop-layout">
-
     <!-- 🔹 商城導覽列 -->
-      <ShopNavBar
-        :isUserLoggedIn="isUserLoggedIn"
-        :cartCount="cartCount" 
-        :wishlistCount="wishListCount"
-        :notificationCount="notificationCount"
-      />
-    
+    <ShopNavBar
+      :isUserLoggedIn="isUserLoggedIn"
+      :cartCount="cartCount"
+      :wishlistCount="wishListCount"
+      :notificationCount="notificationCount"
+    />
+
     <!-- 🔹 商城主要內容區域 -->
     <main class="shop-container">
       <!-- 🔹 商品篩選側邊欄 (左側) -->
       <aside clase="shop-sidebar" v-if="!isProductDetailPage">
-       <!-- 🔹 接收 `update-filter` 事件，更新 `filter` -->
-        <ShopSideBar
-          @update-filter="updateFilter"
-        />
+        <!-- 🔹 接收 `update-filter` 事件，更新 `filter` -->
+        <ShopSideBar @update-filter="updateFilter" />
       </aside>
 
       <!-- 🔹 商品顯示區域 (右側) -->
@@ -33,23 +30,25 @@
 
 <script setup>
 // 負責商城的全局狀態管理，類似首頁 App.vue的作用
-import { ref, computed, onMounted,watch } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useRoute } from "vue-router";
 import useUserStore from "@/stores/user";
 import useProductStore from "@/stores/productStore";
-import useCategoryStore from "@/stores/categoryStore"
+import useCategoryStore from "@/stores/categoryStore";
 import useProductTagStore from "@/stores/productTagStore";
 import useCartStore from "@/stores/cartStore";
-import useWishListStore from "@/stores/wishlistStore";
-import useNotificationStore from "@/stores/wishlistStore";
-import ShopNavBar from '@/components/shop/home/ShopNavBar.vue';  // 導覽列
-import ShopSideBar from "@/components/shop/home/ShopSideBar.vue"; //左側搜尋欄
+import useWishListStore from "@/stores/wishListStore";
+import useNotificationStore from "@/stores/wishListStore";
+import ShopNavBar from "@/components/shop/home/ShopNavBar.vue"; // 導覽列
+import ShopSideBar from "@/components/shop/home/ShopSidebar.vue"; //左側搜尋欄
 
 // 獲取當前路由
 const route = useRoute();
 
 // **當路由是 `/shop/product/:id` 時，隱藏 ShopSideBar**
-const isProductDetailPage = computed(() => route.path.startsWith("/shop/product/"));
+const isProductDetailPage = computed(() =>
+  route.path.startsWith("/shop/product/")
+);
 
 // 初始化: Store、空陣列
 const userStore = useUserStore();
@@ -72,7 +71,9 @@ const currentPage = computed(() => productStore.currentPage);
 
 const cartCount = computed(() => cartStore.cartItems?.length || 0);
 const wishListCount = computed(() => wishListStore.wishListItems?.length || 0);
-const notificationCount = computed(() => notificationStore.notifications?.length || 0);
+const notificationCount = computed(
+  () => notificationStore.notifications?.length || 0
+);
 
 // **接收 `sideBar.vue` 發送的 `update-filter` 事件**
 const filter = ref({}); // 存儲篩選條件
@@ -85,23 +86,28 @@ const isFiltering = computed(() => {
   return filter.value && Object.keys(filter.value).length > 0;
 });
 
-
 // **根據 `filter` 來篩選商品**
 const filteredProducts = computed(() => {
   return isFiltering.value
-    ? productStore.products.filter(p => 
-        (!filter.value.categoryId || p.categoryId === filter.value.categoryId) &&
-        (!filter.value.minPrice || p.price >= filter.value.minPrice) &&
-        (!filter.value.maxPrice || p.price <= filter.value.maxPrice) &&
-        (!filter.value.tagIds || filter.value.tagIds.every(tagId => p.tags.includes(tagId)))
+    ? productStore.products.filter(
+        (p) =>
+          (!filter.value.categoryId ||
+            p.categoryId === filter.value.categoryId) &&
+          (!filter.value.minPrice || p.price >= filter.value.minPrice) &&
+          (!filter.value.maxPrice || p.price <= filter.value.maxPrice) &&
+          (!filter.value.tagIds ||
+            filter.value.tagIds.every((tagId) => p.tags.includes(tagId)))
       )
     : productStore.products;
 });
 
-watch(() => filteredProducts, (newProducts) => {
-  console.log("ShopLayout 內部的 filteredProducts:", newProducts);
-}, { deep: true });
-
+watch(
+  () => filteredProducts,
+  (newProducts) => {
+    console.log("ShopLayout 內部的 filteredProducts:", newProducts);
+  },
+  { deep: true }
+);
 
 // 加入購物車、加入願望清單，並將這些事件傳遞給各個子組件
 const handleAddToCart = (product) => {
@@ -123,7 +129,7 @@ onMounted(async () => {
         productTagStore.fetchTags(),
         cartStore.fetchCart(),
         wishListStore.fetchWishList(),
-        notificationStore.fetchNotifications()
+        notificationStore.fetchNotifications(),
       ]);
       console.log("登入後同步會員資料");
     } catch (error) {
@@ -136,7 +142,7 @@ onMounted(async () => {
       await Promise.all([
         productStore.fetchPagedProducts(),
         categoryStore.fetchCategories(),
-        productTagStore.fetchTags()
+        productTagStore.fetchTags(),
       ]);
       console.log("登入前同步類別、標籤、商品資料");
     } catch (error) {
@@ -189,4 +195,3 @@ onMounted(async () => {
   display: none;
 }
 </style>
-

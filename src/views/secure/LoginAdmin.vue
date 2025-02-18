@@ -1,42 +1,47 @@
 <template>
-    
-	<form class="aa" @submit.prevent="submitForm">
-        
-		<div class="container">
-		  <!-- 註冊表單 -->
-		  <div class="register-box">
-			<h3>管理員</h3>
-			<div class="input-group">
-			  <label for="nickName">管理員</label>
-			  <input type="text" v-model="username" @keyup.enter="login" placeholder="Admin">
-			</div>
-			<span class="error">{{ message }}</span>
-			<div class="input-group">
-			  <label for="password">密碼</label>
-			  <input type="password" v-model="password" @keyup.enter="login" placeholder="Password">
-			</div>
-	
-			<div class="gg">
-			 
-				<button type="button" class="register-btn" @click="login">
-          登入
-        </button>
-			</div>
-	
-			<RouterLink class="nav-link" to="/secure/login">切換</RouterLink>
-		  </div>
-		</div>
-	  </form>
-	
-	
+  <form class="aa" @submit.prevent="submitForm">
+    <div class="container">
+      <!-- 註冊表單 -->
+      <div class="register-box">
+        <h3>管理員</h3>
+        <div class="input-group">
+          <label for="nickName">管理員</label>
+          <input
+            type="text"
+            v-model="username"
+            @keyup.enter="login"
+            placeholder="Admin"
+          />
+        </div>
+        <span class="error">{{ message }}</span>
+        <div class="input-group">
+          <label for="password">密碼</label>
+          <input
+            type="password"
+            v-model="password"
+            @keyup.enter="login"
+            placeholder="Password"
+          />
+        </div>
+
+        <div class="gg">
+          <button type="button" class="register-btn" @click="login">
+            登入
+          </button>
+        </div>
+
+        <RouterLink class="nav-link" to="/secure/login">切換</RouterLink>
+      </div>
+    </div>
+  </form>
 </template>
 
 <script setup>
-import { axiosapi } from '@/plugins/axios'; // 使用 default 匯
-import Swal from 'sweetalert2';
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
-import useUserStore from '@/stores/user.js';
+import { axiosapi2 } from "@/plugins/axios"; // 使用 default 匯
+import Swal from "sweetalert2";
+import { ref } from "vue";
+import { useRouter } from "vue-router";
+import useUserStore from "@/stores/user.js";
 
 const username = ref("");
 const password = ref("");
@@ -59,22 +64,23 @@ async function login() {
     password: password.value,
   };
 
-  axiosapi.defaults.headers.authorization = "";
+  axiosapi2.defaults.headers.authorization = "";
   userStore.setEmail("");
 
   try {
-    const response = await axiosapi.post(`/secure/loginadmin`, body);
+    const response = await axiosapi2.post(`/secure/loginadmin`, body);
     console.log("response", response);
 
     if (response.data.success) {
       // 存儲 token 到 localStorage
       saveUserInfoToLocalStorage(response.data.token);
+      userStore.setToken(response.data.token);
 
       await Swal.fire({
         title: response.data.message,
         icon: "success",
       });
-      axiosapi.defaults.headers.authorization = "Bearer " + response.data.token;
+      axiosapi2.defaults.headers.authorization = "Bearer " + response.data.token;
       userStore.setEmail(response.data.user);
       router.push({ path: "/admin" });
     } else {

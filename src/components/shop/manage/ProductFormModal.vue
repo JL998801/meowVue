@@ -4,7 +4,7 @@
     <div class="modal-dialog">
     <div class="modal-content">
         <div class="modal-header">
-            <h5 class="modal-title" id="productFormLabel">新增商品</h5>
+            <h5 class="modal-title" id="productFormLabel">新增商品<span class="input-hint">*所有欄位皆為必填</span></h5>
             <button type="button" class="btn-close" @click="closeModal"></button>
         </div>
 
@@ -25,6 +25,12 @@
                     {{ category.categoryName }}
                     </option>
                 </select>
+            </div>
+
+            <!-- ✅ 單位 -->
+            <div class="mb-3">
+                <label class="form-label">單位</label>
+                <input type="text" class="form-control" v-model="formData.unit" placeholder="請輸入單位" />
             </div>
 
             <!-- ✅ 標籤 -->
@@ -51,16 +57,10 @@
                 <input type="number" class="form-control" v-model="formData.stockQuantity" />
             </div>
 
-            <!-- ✅ 單位 -->
-            <div class="mb-3">
-                <label class="form-label">單位</label>
-                <input type="text" class="form-control" v-model="formData.unit" placeholder="請輸入單位" />
-            </div>
-
             <!-- ✅ 描述: 換行使用 shift+enter；按下 Enter 會送出表單-->
             <div class="mb-3">
                 <label class="form-label">
-                    描述 <span class="input-hint">(換行使用 Shift+Enter)</span>
+                    描述 <span class="input-hint">*換行使用 Shift+Enter</span>
                 </label>
                 <textarea 
                     class="form-control" 
@@ -92,7 +92,11 @@
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" @click="closeModal">取消</button>
-                <button type="submit" class="btn btn-primary">儲存</button>
+                <button 
+                    type="submit" 
+                    class="btn btn-primary"  
+                    @keydown.enter.exact.prevent="submitForm"
+                >儲存</button>
             </div>
         </form>
         </div>
@@ -263,6 +267,10 @@ watch(() => formData.value.categoryId, (newCategoryId) => {
 </script>
 
 <style scoped>
+.modal-title{
+    font-weight: 800;
+}
+
 .modal-content {
     border-radius: 12px;
     background-color: #f9f9f9;

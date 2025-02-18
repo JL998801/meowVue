@@ -43,7 +43,7 @@
           <select id="breed" v-model="form.breedId" required>
             <option value=""></option>
             <option
-              v-for="breed in breeds"
+              v-for="breed in filteredBreeds"
               :key="breed.breedId"
               :value="breed.breedId"
             >
@@ -143,7 +143,7 @@
         ></textarea>
       </div>
 
-      <div class="form-group form-single-row">
+      <!-- <div class="form-group form-single-row">
         <label for="details">詳細說明</label>
         <textarea
           id="details"
@@ -151,7 +151,7 @@
           v-model="form.details"
           placeholder="請輸入案件詳細說明..."
         ></textarea>
-      </div>
+      </div> -->
 
       <div class="form-group form-single-row">
         <label class="required">通報人可負擔事項(多選)</label>
@@ -186,7 +186,7 @@
 <script setup>
 import ImageUpload from "./ImageUpload.vue";
 import { useRouter } from "vue-router";
-import { ref, onMounted, watch, reactive } from "vue";
+import { ref, onMounted, watch, reactive, computed, nextTick } from "vue";
 import { axiosapi2 } from "@/plugins/axios.js";
 import { useRoute } from "vue-router";
 
@@ -348,6 +348,25 @@ const fetchBreeds = async () => {
     console.error("無法獲取品種資料:", error);
   }
 };
+const filteredBreeds = computed(() => {
+  const speciesId = Number(form.speciesId); // 確保是數字
+  if (speciesId === 2) {
+    return breeds.value.filter(
+      (breed) => breed.breedId >= 1 && breed.breedId <= 54
+    );
+  } else if (speciesId === 1) {
+    return breeds.value.filter((breed) => breed.breedId >= 55);
+  }
+  return breeds.value; // 預設返回全部品種
+});
+watch(
+  () => form.speciesId,
+  async (newSpeciesId) => {
+    console.log("物種變更為:", newSpeciesId);
+    form.breedId = ""; // 清空品種
+    await nextTick(); // 確保 Vue 更新後再計算
+  }
+);
 
 //提取救援需求資料
 const fetchRescueDemands = async () => {

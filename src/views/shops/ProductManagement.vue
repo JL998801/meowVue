@@ -369,6 +369,8 @@ const saveProduct = async (product) => {
         status: product.status,
     };
 
+    const images = product.selectedImages || [];
+
     let updateSuccess = true;
 
     try {
@@ -380,18 +382,26 @@ const saveProduct = async (product) => {
             }
         }
 
-         // ✅ 再上傳圖片
-        if (product.selectedImages && product.selectedImages.length > 0) {
-            const formData = new FormData();
-            product.selectedImages.forEach(({ file, index }) => {
-                formData.append(`image_${index}`, file);
-            });
-
-            const imageUpdateSuccess = await productStore.updateImages(product.productId, formData);
+        // ✅ 再判斷是否要更新圖片
+        if (images.length > 0) {
+            const imageUpdateSuccess = await productStore.updateImages(product.productId, images);
             if (!imageUpdateSuccess) {
                 updateSuccess = false;
             }
         }
+
+         // ✅ 再上傳圖片
+        // if (product.selectedImages && product.selectedImages.length > 0) {
+        //     const formData = new FormData();
+        //     product.selectedImages.forEach(({ file, index }) => {
+        //         formData.append(`image_${index}`, file);
+        //     });
+
+        //     const imageUpdateSuccess = await productStore.updateImages(product.productId, formData);
+        //     if (!imageUpdateSuccess) {
+        //         updateSuccess = false;
+        //     }
+        // }
 
         // ✅ 結果處理
         if (updateSuccess) {
