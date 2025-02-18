@@ -4,6 +4,12 @@
       <div class="filter-group">
         <input
           type="text"
+          v-model="caseId"
+          placeholder="案件ID"
+          class="input-field"
+        />
+        <input
+          type="text"
           v-model="keyword"
           placeholder="關鍵字"
           class="input-field"
@@ -49,73 +55,19 @@ import { axiosapi2 } from "@/plugins/axios.js";
 const baseUrl = import.meta.env.VITE_API_BASE_URL;
 const emit = defineEmits(["search"]);
 
+//傳遞表單數據
+const caseId = ref("");
 const keyword = ref("");
-const furColorId = ref("");
 const caseStateId = ref("");
-const cityId = ref("");
-const districtId = ref("");
-const selectedSpecies = ref([]);
+const selectedSpecies = ref([]); // 儲存選中的物種 ID
 const suspLost = ref(false);
-const selectedBreed = ref("");
 
-const furColors = ref([]);
-const cities = ref([]);
-const districts = ref([]);
-const breeds = ref([]);
+//拿取下拉選單數據
 const caseStates = ref([]);
 
 onMounted(() => {
-  fetchFurColors();
   fetchCaseStates();
-  fetchCities();
-  fetchBreeds();
 });
-
-const fetchFurColors = async () => {
-  try {
-    const response = await axiosapi2.get(`/pet/allFurColor`);
-    furColors.value = response.data;
-  } catch (error) {
-    console.error("無法獲取毛色資料:", error);
-  }
-};
-
-const fetchCities = async () => {
-  try {
-    const response = await axiosapi2.get(`/pet/allCity`);
-    cities.value = response.data;
-  } catch (error) {
-    console.error("無法獲取縣市資料:", error);
-  }
-};
-
-const fetchDistricts = async (selectedCityId) => {
-  if (!selectedCityId) {
-    districts.value = [];
-    return;
-  }
-  try {
-    const response = await axiosapi2.get(
-      `/pet/districtAreasByCity/${selectedCityId}`
-    );
-    districts.value = response.data;
-  } catch (error) {
-    console.error("無法獲取鄉鎮區資料:", error);
-  }
-};
-
-watch(cityId, (newCityId) => {
-  fetchDistricts(newCityId);
-});
-
-const fetchBreeds = async () => {
-  try {
-    const response = await axiosapi2.get(`/pet/allBreed`);
-    breeds.value = response.data;
-  } catch (error) {
-    console.error("無法獲取品種資料:", error);
-  }
-};
 
 const fetchCaseStates = async () => {
   try {
@@ -132,52 +84,59 @@ const filteredCaseStates = computed(() => {
   );
 });
 
+// 物種切換選中狀態
 const toggleSpecies = (value) => {
   const index = selectedSpecies.value.indexOf(value);
   if (index === -1) {
-    selectedSpecies.value.push(value);
+    selectedSpecies.value.push(value); // 如果未選中，添加到數組
   } else {
-    selectedSpecies.value.splice(index, 1);
+    selectedSpecies.value.splice(index, 1); // 如果已選中，從數組中移除
+  }
+  console.log("選中的物種:", selectedSpecies.value);
+};
+
+//走失標記
+const updateSuspLost = (event) => {
+  if (event.target.checked) {
+    suspLost.value = true; // 勾選時設為true
+  } else {
+    suspLost.value = false; // 取消勾選時設為 0
   }
 };
 
-const updateSuspLost = (event) => {
-  suspLost.value = event.target.checked;
-};
-
+//送出搜尋
 const onSearch = () => {
   const searchParams = {
+    caseId: caseId.value,
     keyword: keyword.value,
-    furColorId: furColorId.value,
     caseStateId: caseStateId.value,
-    cityId: cityId.value,
-    districtAreaId: districtId.value,
     speciesId: selectedSpecies.value,
     suspLost: suspLost.value,
-    breedId: selectedBreed.value,
   };
+  console.log("搜尋參數：", searchParams);
+  // 傳遞給父組件
   emit("search", searchParams);
 };
 
+//重置按鈕
 const resetForm = () => {
+  caseId.value = "";
   keyword.value = "";
-  furColorId.value = "";
   caseStateId.value = "";
-  cityId.value = "";
-  districtId.value = "";
   selectedSpecies.value = [];
-  suspLost.value = false;
+  suspLost.value = 0;
 
-  emit("search", {
-    keyword: "",
-    furColorId: "",
-    caseStateId: "",
-    cityId: "",
-    districtAreaId: "",
-    speciesId: [],
-    suspLost: false,
-    breedId: "",
-  });
+  //除了重製搜尋條件外，也讓所有案件重製(變回查詢全部案件)
+  const searchParams = {
+    caseId: caseId.value,
+    keyword: keyword.value,
+    caseStateId: caseStateId.value,
+    speciesId: selectedSpecies.value,
+    suspLost: suspLost.value,
+  };
+  console.log("搜尋參數：", searchParams);
+  // 傳遞給父組件
+  emit("search", searchParams);
 };
 </script>
 

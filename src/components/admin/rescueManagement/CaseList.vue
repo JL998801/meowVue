@@ -1,21 +1,6 @@
 <template>
+  <div @scroll="handleScroll" ref="scrollContainer"></div>
   <div class="case-list">
-    <!-- 排序按鈕 -->
-    <div class="sort-buttons">
-      <button
-        @click="changeSortOrder('desc')"
-        :class="{ active: sortOrder === 'desc' }"
-      >
-        新到舊
-      </button>
-      <button
-        @click="changeSortOrder('asc')"
-        :class="{ active: sortOrder === 'asc' }"
-      >
-        舊到新
-      </button>
-    </div>
-
     <table>
       <thead>
         <tr>
@@ -77,46 +62,42 @@ import { axiosapi2 } from "@/plugins/axios.js";
 const baseUrl = import.meta.env.VITE_API_BASE_URL;
 const props = defineProps({ searchParams: Object });
 
-const rescueCaseList = ref([]);
-const offset = ref(0);
-const limit = 10;
-const isLoading = ref(false);
-const hasMore = ref(true);
-const sortOrder = ref("desc"); // 預設為「新到舊」
+// 響應式數據
+const rescueCaseList = ref([]); // 案件數據
+const offset = ref(0); // 當前偏移量
+const limit = 10; // 每次請求數據量
+const isLoading = ref(false); // 加載狀態
+const hasMore = ref(true); // 是否還有更多數據
+const sortOrder = ref("desc");
+const scrollContainer = ref(null); // 滾動容器引用
+const cases = ref([]);
 
-// ✅ **載入案件數據**
+// 用戶一跳入頁面後請求案件數據
 const fetchCases = async () => {
-  if (isLoading.value || !hasMore.value) return;
-  isLoading.value = true;
+  if (isLoading.value || !hasMore.value) return; // 如果正在加載或沒有更多數據，直接返回
 
+  isLoading.value = true; // 開始加載
   try {
     const response = await axiosapi2.get(`/RescueCase/search/allCases`, {
-      params: { offset: offset.value, limit, sortOrder: sortOrder.value },
+      params: { offset: offset.value, limit, sortOrder: "desc" },
     });
 
-    rescueCaseList.value = response.data.cases;
-    offset.value += limit;
-    hasMore.value = response.data.hasMore;
+    // 更新案件數據
+    console.log("剛入頁面後端分批返回全部數據：", response.data.cases); // 調試數據結構
+    rescueCaseList.value.push(...response.data.cases); // 新數據追加到現有數據中
+    offset.value += limit; // 更新偏移量
+    hasMore.value = response.data.hasMore; // 更新是否還有更多數據
   } catch (error) {
     console.error("加載案件數據失敗：", error);
   } finally {
-    isLoading.value = false;
+    isLoading.value = false; // 加載結束
   }
 };
 
-// ✅ **變更排序方式 (新到舊 / 舊到新)**
-const changeSortOrder = (order) => {
-  if (sortOrder.value === order) return;
-  sortOrder.value = order;
-  offset.value = 0;
-  rescueCaseList.value = [];
-  fetchCases();
-};
-
-// ✅ **刪除案件**
+//刪除案件
 const deleteCase = async (caseId) => {
   try {
-    await axiosapi2.delete(`/RescueCase/delete/${caseId}`);
+    await axiosapi2.delete(`/api/RescueCase/delete/${caseId}`);
     rescueCaseList.value = rescueCaseList.value.filter(
       (c) => c.rescueCaseId !== caseId
     );
@@ -125,12 +106,11 @@ const deleteCase = async (caseId) => {
   }
 };
 
-// ✅ **查看案件**
+//點開案件頁面
 const viewCase = (caseId) => {
   window.open(`/pet/rescueCase/${caseId}`, "_blank");
 };
 
-// ✅ **格式化日期 (YYYY-MM-DD HH:mm:ss)**
 const formatDate = (dateString) => {
   if (!dateString) return "";
   const date = new Date(dateString);
@@ -147,7 +127,6 @@ const formatDate = (dateString) => {
     .replace(/\//g, "-");
 };
 
-// 狀態樣式類別
 const statusClass = (caseState) => {
   switch (caseState) {
     case "待救援":
@@ -159,26 +138,42 @@ const statusClass = (caseState) => {
   }
 };
 
-onMounted(fetchCases);
-
+//監聽用戶傳來搜尋條件searchParams的變化，更新案件數據(包含排序順和篩選條件)
 watch(
   () => props.searchParams,
   async (newParams) => {
     if (Object.keys(newParams).length === 0) return;
+
     isLoading.value = true;
+
+    // 轉換 Vue Proxy 物件為普通 JS 物件(Vue 的 ref() 和 reactive() 內部使用 Proxy 來管理響應式數據，包含一些 Vue 內部的 metadata，不是普通的 JS 物件)
+    //先用JSON.stringify()去除Vue Proxy的metadata，並返回乾淨的 JSON 字串
+    //JSON.parse()將JSON字串轉換為JS物件
+    const cleanedParams = JSON.parse(JSON.stringify(newParams));
+
+    console.log("🔹 原始 Proxy 物件:", newParams);
+    console.log("✅ 轉換後的普通物件:", cleanedParams);
 
     try {
       const response = await axiosapi2.post(
         `/RescueCase/search/infinite`,
-        newParams,
+        cleanedParams.searchParams,
         {
-          params: { offset: 0, limit: 10, sortOrder: sortOrder.value },
+          params: {
+            offset: 0,
+            limit: 10,
+            sortOrder: cleanedParams.sortOrder || "desc",
+          },
         }
       );
 
+      console.log("條件篩選後由後端返回數據：", response.data.cases); // 調試數據結構
+      // 重新填充新數據
       rescueCaseList.value = response.data.cases;
-      offset.value = response.data.cases.length;
-      hasMore.value = response.data.cases.length === limit;
+      offset.value += response.data.cases.length; // 更新 offset
+      hasMore.value = response.data.cases.length === limit; // 是否還有更多數據
+
+      cases.value = response.data;
     } catch (error) {
       console.error("搜尋失敗：", error);
     } finally {
@@ -187,6 +182,24 @@ watch(
   },
   { immediate: true }
 );
+
+const handleScroll = () => {
+  // 取得視窗滾動高度 & 總文檔高度
+  const scrollTop = window.scrollY || document.documentElement.scrollTop;
+  const windowHeight = window.innerHeight;
+  const fullHeight = document.documentElement.scrollHeight;
+
+  if (scrollTop + windowHeight >= fullHeight - 10) {
+    // 當網頁滾到底部時，請求更多數據
+    fetchCases();
+  }
+};
+
+// 初始化數據加載
+onMounted(() => {
+  fetchCases();
+  window.addEventListener("scroll", handleScroll); // 監聽整個頁面的滾動
+});
 </script>
 
 <style scoped>

@@ -36,7 +36,7 @@
     </div>
 
     <!-- 價格範圍 -->
-    <div>
+    <div class="price-container">
       <label>最低價格：</label>
       <input type="number" v-model="minPrice" placeholder="最低價格" />
       
@@ -112,7 +112,7 @@ const applyFilter = async () => {
 .shop-filters {
   width: 300px;
   padding: 15px;
-  margin: 2px;
+  margin: 5px;
   background-color: #d0ccd0;
   border-radius: 5%;
   row-gap: 10px;
@@ -121,6 +121,7 @@ const applyFilter = async () => {
 .search-bar {
   display: flex;
   gap: 10px;
+  margin: 5px;
 }
 
 .tag-container {
@@ -138,5 +139,11 @@ const applyFilter = async () => {
   padding: 8px 12px;  /* ✅ 按鈕內邊距，讓標籤更美觀 */
   white-space: nowrap; /* ✅ 防止標籤內文字換行 */
   border-radius: 8px;  /* ✅ 圓角美觀 */
+  margin: 5px;
+}
+
+.price-container{
+  gap: 10px;
+  margin: 5px;
 }
 </style>
