@@ -3,7 +3,7 @@
     <div class="rescue-page">
       <h1>{{ rescueCase.caseTitle }}</h1>
       <div class="second-container">
-        <div class="main-content">
+        <div class="main-content-1">
           <div>
             <CaseData v-if="rescueCase" :caseData="rescueCase" />
             <p v-else>載入中...</p>
@@ -269,7 +269,7 @@ h1 {
   align-items: flex-start; /* 元素頂部對齊 */
 }
 
-.main-content {
+.main-content-1 {
   flex: 18; /* 主內容區域占 3 倍空間 */
   display: flex;
   flex-direction: column; /* 垂直排列 SearchForm 和 CaseList */

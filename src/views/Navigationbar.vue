@@ -38,7 +38,7 @@
                 >
               </li>
               <li>
-                <RouterLink class="dropdown-item" to="/adopt"
+                <RouterLink class="dropdown-item" to="/pages/Adopt"
                   >動物認養</RouterLink
                 >
               </li>
@@ -70,7 +70,7 @@
               class="nav-link active"
               aria-current="page"
               to="/pet/map"
-              >地圖
+              >
               <font-awesome-icon
                 :icon="['fas', 'map-location-dot']"
                 size="xl"
