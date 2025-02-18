@@ -3,10 +3,7 @@
         <div v-for="category in caseCategories" :key="category.type" class="carousel-section">
             <div class="carousel-header">
                 <div class="title-container">
-                    <!-- <font-awesome-icon :icon="['fas', 'paw']" size="xl" style="color: #c6bc77;" /> -->
                     <h3>🐾 {{ category.title }} </h3>
-                    <!-- <p>🏷️ 類別: {{ category.type }}</p>
-                    <p>📊 資料筆數: {{ displayedCases[category.type]?.length || 0 }}</p> -->
                 </div>
                 <router-link :to="category.moreLink" class="more-button">查看更多</router-link>
             </div>
@@ -58,7 +55,7 @@ const displayedCases = ref({
 // **獲取 Banner 資料**
 const fetchBannerData = async () => {
     try {
-        const response = await axios.get("http://localhost:8080/banners");
+        const response = await axiosapi.get(`/banners`);
         let banners = response.data;
 
         console.log("✅ 獲取的 banners:", banners);
@@ -163,7 +160,7 @@ const prevSlide = (type) => {
 
 // **頁面載入時執行**
 onMounted(async () => {
-    console.log("⏩ 自動輪播觸發")
+    console.log("⏩ 自動輪播觸發");
     await fetchBannerData(); // ✅ 獲取最新案件
     startAutoSlide(); // ✅ 開啟自動輪播
 });
