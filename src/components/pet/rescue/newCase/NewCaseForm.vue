@@ -235,7 +235,6 @@ const submitForm = async () => {
   } catch (error) {
     //已經透過required屬性自動阻止表單提交，並且 瀏覽器會自動滾動到第一個未填欄位
     console.error("表單提交失敗:", error);
-    alert("提交失敗，請重試！");
     Swal.fire({
       title: "提交失敗",
       text: "請重試！",

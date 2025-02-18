@@ -166,7 +166,6 @@ router.beforeEach(async (to, from, next) => {
   console.log("userStore", userStore);
   console.log("to.path", to.path);
   
-  // const isPublicPage = publicPages.includes(to.path) || to.path.startsWith("/shop");
   const isPublicPage = publicPages.includes(to.path) || to.path.startsWith("/shop");
   console.log("isPublicPage", isPublicPage);
  

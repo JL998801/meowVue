@@ -35,7 +35,7 @@ const followCount = ref(props.follow);
 const isFollowing = ref(false);
 const route = useRoute();
 
-// 顯示彈窗訊息
+// 顯示追蹤訊息
 const showAlert = (message, icon) => {
   Swal.fire({
     title: "追蹤狀態",
@@ -53,6 +53,23 @@ const showAlert = (message, icon) => {
   });
 };
 
+// SweetAlert 提示要登入
+const showLoginAlert = () => {
+  Swal.fire({
+    title: "錯誤提示",
+    text: "登入後才能追蹤案件！",
+    icon: "warning",
+    confirmButtonText: "前往登入",
+    showCancelButton: true,
+    cancelButtonText: "取消",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      // 導向登入頁面（根據你的路由修改）
+      window.location.href = "/secure/login";
+    }
+  });
+};
+
 // 取得會員登入資訊
 const getAuthToken = () => {
   const user = localStorage.getItem("user");
@@ -64,7 +81,7 @@ const getAuthToken = () => {
 const toggleFollow = async () => {
   const token = getAuthToken();
   if (!token) {
-    alert("請先登入才能追蹤案件！");
+    showLoginAlert();
     return;
   }
 

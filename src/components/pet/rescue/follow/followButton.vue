@@ -121,11 +121,28 @@ watch(
   { immediate: true }
 );
 
+// SweetAlert 提示要登入
+const showLoginAlert = () => {
+  Swal.fire({
+    title: "錯誤提示",
+    text: "登入後才能追蹤案件！",
+    icon: "warning",
+    confirmButtonText: "前往登入",
+    showCancelButton: true,
+    cancelButtonText: "取消",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      // 導向登入頁面（根據你的路由修改）
+      window.location.href = "/secure/login";
+    }
+  });
+};
+
 // 切換追蹤狀態
 const toggleFollow = async () => {
   const token = getAuthToken();
   if (!token) {
-    alert("請先登入才能追蹤案件！");
+    showLoginAlert();
     return;
   }
 
