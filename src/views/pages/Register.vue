@@ -154,7 +154,7 @@ const submitForm = () => {
             localStorage.setItem("nickname", nickname);
 
             // 設置 HTTP header
-            axios.defaults.headers.authorization = "Bearer " + token;
+            axiosapi.defaults.headers.authorization = "Bearer " + token;
 
             // 跳轉到會員中心
             router.push("/pages/MemberCenter");
