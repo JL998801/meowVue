@@ -95,7 +95,7 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { axiosapi } from '@/plugins/axios';
-
+import Swal from 'sweetalert2';
 // Reactive state variables
 const nickName = ref('');
 const email = ref('');
@@ -103,17 +103,24 @@ const password = ref('');
 const confirmPassword = ref('');
 const name = ref('');
 const phone = ref('');
-const birthday = ref('');
+
 const address = ref('');
+const birthday = ref('2000-01-01');
 
 
 const router = useRouter();
 
 // Submit form function
+// Submit form function
 const submitForm = () => {
   // 密碼一致性驗證
   if (password.value !== confirmPassword.value) {
-    alert('密碼不一致！');
+    Swal.fire({
+      icon: 'error',
+      title: '密碼不一致',
+      text: '請確認密碼是否一致',
+      confirmButtonText: '確定'
+    });
     return;
   }
 
@@ -131,7 +138,13 @@ const submitForm = () => {
   // 註冊 API 請求
   axiosapi.post(`/register`, memberData)
     .then(response => {
-      alert('註冊成功！');
+      // 註冊成功顯示 SweetAlert2 提示
+      Swal.fire({
+        icon: 'success',
+        title: '註冊成功!',
+        text: '您的帳戶已成功創建。',
+        confirmButtonText: '確定'
+      });
 
       setTimeout(() => {
         // 註冊成功後進行自動登入
@@ -153,25 +166,45 @@ const submitForm = () => {
             localStorage.setItem('nickname', nickname);
 
             // 設置 HTTP header
-            axios.defaults.headers.authorization = "Bearer " + token;
+            axiosapi.defaults.headers.authorization = "Bearer " + token;
 
             // 跳轉到會員中心
             router.push('/pages/MemberCenter');
           })
           .catch(loginError => {
             console.log("登入失敗: ", loginError);
-            alert('登入失敗: ' + (loginError.response ? loginError.response.data.message : '未知錯誤'));
+            Swal.fire({
+              icon: 'error',
+              title: '登入失敗',
+              text: loginError.response ? loginError.response.data.message : '未知錯誤',
+              confirmButtonText: '確定'
+            });
           });
       }, 1000);  // 延遲 1 秒
     })
     .catch(error => {
       console.error("錯誤詳細信息:", error);
       if (error.response) {
-        alert('註冊失敗: ' + (error.response.data.message || '未知錯誤'));
+        Swal.fire({
+          icon: 'error',
+          title: '註冊失敗',
+          text: error.response.data.message || '未知錯誤',
+          confirmButtonText: '確定'
+        });
       } else if (error.request) {
-        alert('註冊失敗: 請求未收到回應');
+        Swal.fire({
+          icon: 'error',
+          title: '註冊失敗',
+          text: '請求未收到回應',
+          confirmButtonText: '確定'
+        });
       } else {
-        alert('註冊失敗: ' + error.message);
+        Swal.fire({
+          icon: 'error',
+          title: '註冊失敗',
+          text: error.message,
+          confirmButtonText: '確定'
+        });
       }
     });
 };

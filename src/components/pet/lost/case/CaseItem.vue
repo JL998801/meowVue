@@ -1,69 +1,79 @@
-<template lang="">
+<template>
   <div class="post">
-    <!-- 顯示圖片，若沒有圖片，顯示預設圖片 -->
     <div class="post-image">
       <img
-        :src="caseData?.casePictures?.[0]?.pictureUrl || '/path/to/default-image.jpg'"
-        :alt="caseData?.caseTitle || '無標題案件'"
+        :src="
+          caseItem?.casePictures?.length > 0
+            ? caseItem.casePictures[0].casePictures // ✅ 確保這是正確的 key
+            : defaultImage
+        "
+        :alt="caseItem.caseTitle"
       />
     </div>
     <div class="post-details">
       <div class="info">
-        <!-- 顯示救援案件編號，若沒有則顯示占位文本 -->
-        <div class="post-id">領養案件編號 : {{ caseData?.rescueCaseId || '未知編號' }}</div>
-        <!-- 顯示案件狀態，若沒有則顯示占位文本 -->
-        <div class="case-status" :class="statusClass(caseData?.caseState || '無狀態')" >
-          {{ caseData?.caseState || '無狀態' }}
+        <div class="post-id">
+          遺失案件編號 : {{ caseItem.lostCaseId || caseItem.rescueCaseId || "未知" }}
+        </div>
+        <div class="case-status" :class="statusClass(caseItem.caseState.caseStatement)">
+          {{ caseItem.caseState.caseStatement }}
         </div>
       </div>
       <div class="info-3">
-        <!-- 顯示建立日期，若沒有則顯示占位文本 -->
-        建立日期: {{ formatDate(caseData?.publicationTime) || '未知日期' }}
+        建立日期: {{ formatDate(caseItem.publicationTime) }}
       </div>
-      <h2 class="case-title">
-        <!-- 顯示案件標題，若沒有則顯示占位文本 -->
-        [{{ caseData?.cityName || '未知城市' }}{{ caseData?.districtAreaName || '未知區域' }}]
-        {{ caseData?.caseTitle || '無標題案件' }}
-      </h2>
+      <router-link :to="`/pet/lostCases/${caseItem.lostCaseId}`">
+        <h2 class="case-title">
+          [{{ caseItem.city.city }}{{ caseItem.districtArea.districtAreaName }}]
+          {{ caseItem.caseTitle }}
+        </h2>
+      </router-link>
       <div class="post-details-p">
-        <!-- 顯示動物類別，若沒有則顯示占位文本 -->
-        <p>動物類別：{{ caseData?.species || '無資料' }}</p>
-        <!-- 顯示動物品種，若沒有則顯示占位文本 -->
-        <p>動物品種：{{ caseData?.breed || '無資料' }}</p>
-        <!-- 顯示地點，若沒有則顯示占位文本 -->
-        <p>地點: {{ caseData?.cityName || '未知城市' }}{{ caseData?.districtAreaName || '未知區域' }}{{caseData?.street || '未知街道'}}</p>
-        <!-- 顯示救援需求，若沒有則顯示占位文本 -->
-        <p>救援需求：{{  caseData?.rescueDemands?.join("、") || "無資料"}}</p>
-        <!-- 顯示通報人可負擔事項，若沒有則顯示占位文本 -->
-        <p>通報人可負擔事項：{{ caseData?.canAffords?.join("、") || "無資料"}}</p>
+        <p>寵物類別：{{ caseItem.species.species }}</p>
+        <p>寵物姓名：{{ caseItem.name }}</p>
+        <p>寵物性別：{{ caseItem.gender }}</p>
+        <p>寵物品種：{{ caseItem.breed.breed }}</p>
+        <p>絕育狀態：{{ caseItem.sterilization || '未知' }}</p>
+        <p>附近地標：{{ caseItem.street }}</p>
       </div>
       <div class="case-footer">
         <p>
-            <font-awesome-icon icon="fa-solid fa-circle-user" class="user-icon" />發文者：<span class="author">{{ caseData?.memberNickName || '未知' }}</span>
+          <font-awesome-icon icon="fa-solid fa-circle-user" class="user-icon" />
+          發文者：<span class="author">{{ caseItem.memberNickName }}</span>
         </p>
         <div class="views-and-follows">
           <div class="viewCount">
-            <font-awesome-icon icon="fa-solid fa-eye" class="view-icon"/><span>{{ caseData?.viewCount || 0 }}</span> 
+            <font-awesome-icon icon="fa-solid fa-eye" class="view-icon" />
+            <span>{{ caseItem.viewCount || 0 }}</span>
           </div>
-          <followButton :follow="caseData?.follow" :caseId="caseData?.rescueCaseId" caseType="rescue"/>
+          <followButton
+            :follow="caseItem.follow"
+            :caseId="caseItem.lostCaseId"
+            caseType="lost"
+          />
         </div>
       </div>
     </div>
   </div>
 </template>
 
-
-
 <script setup>
-import { defineProps, ref, computed } from "vue";
+import { ref } from "vue";
+import followButton from "@/components/pet/rescue/follow/followButton.vue";
 
-// 從父組件傳遞的 caseData
+// 父組件傳遞的案件資訊
 defineProps({
-  caseData: {
+  caseItem: {
     type: Object,
     required: true,
   },
 });
+
+// 預設圖片
+const defaultImage = "/images/default-image.jpg";
+const pictureUrls = ref([]);
+//向後端請求對應案件的圖片(會獲得後端路徑，要在此改為前端路徑)
+const getCasePictures = () => {};
 
 // 格式化日期函數
 const formatDate = (date) => {
@@ -75,9 +85,9 @@ const formatDate = (date) => {
 // 狀態樣式類別
 const statusClass = (caseState) => {
   switch (caseState) {
-    case "待救援":
+    case "待協尋":
       return "status-pending";
-    case "已救援":
+    case "已尋獲":
       return "status-completed";
     default:
       return "status-default";
@@ -86,23 +96,6 @@ const statusClass = (caseState) => {
 </script>
 
 <style scoped>
-
-.user-icon{
-    margin-right: 6px;
-    color:#dbdddc;
-    font-size: 24px;
-}
-
-.view-icon{
-    margin-right:5px;
-    color:#dbdddc;
-    font-size: 20px;
-}
-
-.viewCount{
-  margin-right: 10px ;
-}
-
 a {
   text-decoration: none; /* 移除底線 */
   color: inherit; /* 讓顏色繼承父層的設定 */
@@ -138,18 +131,25 @@ a {
   letter-spacing: 0.5px;
   font-weight: 700;
   margin-bottom: 8px;
+  transition: color 0.2s ease-in-out, text-decoration 0.2s ease-in-out;
+  cursor: pointer;
+}
+
+.case-title:hover {
+  color: #feba07;
+  text-decoration: underline;
 }
 
 .case-footer {
   margin-top: 8px;
-  margin-left: 5px;
+  margin-left: 23px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   font-size: 15px;
 }
 
-.case-footer p{
+.case-footer p {
   width: 100%;
 }
 
@@ -165,15 +165,39 @@ a {
   color: #afa66b;
 }
 
+.user-icon {
+  margin-right: 6px;
+  color: #dbdddc;
+  font-size: 24px;
+}
+
+.view-icon {
+  margin-right: 5px;
+  color: #dbdddc;
+  font-size: 20px;
+}
+
+.heart-icon {
+  margin-right: 3px;
+  color: #ed6c6c;
+  font-size: 20px;
+}
+
 .post {
   display: flex;
   flex: 0 0 80%;
-  margin-top: 50px;
-  padding-bottom: 35px;
+  margin-bottom: 20px;
+  margin-top: 40px;
+  padding-bottom: 40px;
+  border-bottom: #eae9e9 2px solid;
 }
 
 .views {
   color: #333;
+}
+
+.viewCount {
+  margin-right: 10px;
 }
 
 .info {
@@ -195,15 +219,15 @@ a {
 
 .post-image {
   flex: 0 1 45%;
-  max-width: 50%;
+  max-width: 30%;
   text-align: center;
   order: -1;
 }
 
 .post-image img {
   max-width: 100%;
-  width: 325px;
-  height: 325px;
+  width: 230px;
+  height: 230px;
   border-radius: 8px;
   object-fit: cover;
   transition: transform 0.2s ease-in-out;
@@ -238,5 +262,12 @@ a {
   display: flex;
   justify-content: space-between;
   font-size: 14px;
+}
+
+.suspected-lost {
+  color: red;
+  font-weight: bold;
+  font-size: 16px;
+  margin-bottom: 8px;
 }
 </style>

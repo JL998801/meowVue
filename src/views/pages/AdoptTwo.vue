@@ -7,12 +7,9 @@
          <AdoptTwoUnit />
          <div class="edit-button">
            <div v-if="canEdit && rescueCase" class="member-buttons">
-             <router-link :to="`/pet/rescueCase/edit/${rescueCase.rescueCaseId}`" class="router-link">
-               <button @click="editCase">編輯案件</button>
-             </router-link>
-             <router-link :to="`/pet/rescueCase/update/${rescueCase.rescueCaseId}`" class="router-link">
-               <button @click="updateProgress">進度更新</button>
-             </router-link>
+             
+            
+            
            </div>
            <div v-else>
              <button>要求共同編輯權限</button>
@@ -46,12 +43,11 @@
        <div class="sidebar">
          <div class="support-button">
            <router-link to="/pet/rescue/add" class="button-link">
-             新增救援資訊
+             領養人聯絡資料
+             
            </router-link>
          </div>
-         <div class="advertisement">
-           <p>工商</p>
-         </div>
+       
        </div>
      </div>
    </div>
@@ -155,19 +151,7 @@
     background-color: #aca269;
   }
   
-  .advertisement {
-    background: #f9f9f9;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 15px;
-    text-align: center;
-    width: 70%;
-  }
-  
-  .advertisement img {
-    max-width: 100%;
-    border-radius: 5px;
-  }
+
   
   .second-container {
     display: flex;

@@ -1,26 +1,31 @@
 <template lang="">
   <div v-if="rescueCase">
     <div class="rescue-page">
-    <h1>{{rescueCase.caseTitle}}</h1>
+      <h1>{{ rescueCase.caseTitle }}</h1>
       <div class="second-container">
-        <div class="main-content">
+        <div class="main-content-case">
           <div>
-          <CaseData v-if="rescueCase" :caseData="rescueCase" />
-          <p v-else>載入中...</p>
-        </div>
+            <CaseData v-if="rescueCase" :caseData="rescueCase" />
+            <p v-else>載入中...</p>
+          </div>
           <div class="edit-button">
-            
             <div v-if="canEdit && rescueCase" class="member-buttons">
-              <router-link :to="`/pet/rescueCase/edit/${rescueCase.rescueCaseId}`"  class="router-link">
-                  <button @click="editCase">編輯案件</button>
+              <router-link
+                :to="`/pet/rescueCase/edit/${rescueCase.rescueCaseId}`"
+                class="router-link"
+              >
+                <button @click="editCase">編輯案件</button>
               </router-link>
-              <router-link :to="`/pet/rescueCase/update/${rescueCase.rescueCaseId}`"  class="router-link">
-              <button @click="updateProgress">進度更新</button>
-            </router-link>
+              <router-link
+                :to="`/pet/rescueCase/update/${rescueCase.rescueCaseId}`"
+                class="router-link"
+              >
+                <button @click="updateProgress">進度更新</button>
+              </router-link>
             </div>
-              <div v-else>
-                <button>要求共同編輯權限</button>
-              </div>
+            <div v-else>
+              <button>要求共同編輯權限</button>
+            </div>
           </div>
           <div class="share-buttons">
             <a href="#">分享至 Facebook</a>
@@ -29,15 +34,17 @@
           <div class="rescue-details">
             <div class="rescue-reason">
               <CaseRescueReason v-if="rescueCase" :rescueReason="rescueCase" />
-              
             </div>
             <div class="rescue-progress">
-              <CaseRescueProgress v-if="rescueCase" :rescueProgress="rescueCase" />
+              <CaseRescueProgress
+                v-if="rescueCase"
+                :rescueProgress="rescueCase"
+              />
               <!-- 根據進度數據動態生成 ProgressDetail 組件 -->
               <ProgressDetail
                 v-for="progress in rescueProgressList"
                 :key="progress.rescueProgressId"
-                :progress-detail="progress.progressDetail"    
+                :progress-detail="progress.progressDetail"
                 :create-time="progress.createTime"
                 :image-url="progress.imageUrl"
               />
@@ -63,19 +70,18 @@
         </div>
       </div>
     </div>
-</div>
-<p v-else>案件資料載入中...</p>
+  </div>
+  <p v-else>案件資料載入中...</p>
 </template>
-<script setup> 
-import { ref, onMounted, computed } from 'vue';
-import { useRoute } from 'vue-router';
-import axios from 'axios';
-import CaseData from '../../../../components/pet/rescue/case/CaseData.vue';
-import CaseRescueProgress from '../../../../components/pet/rescue/case/CaseRescueProgress.vue';
-import CaseRescueReason from '../../../../components/pet/rescue/case/CaseRescueReason.vue';
-import ProgressDetail from '../../../../components/pet/rescue/case/ProgressDetail.vue';
-import useUserStore from '@/stores/user.js'; // 載入 Pinia 的 user store
-
+<script setup>
+import { ref, onMounted, computed } from "vue";
+import { useRoute } from "vue-router";
+import axios from "axios";
+import CaseData from "../../../../components/pet/rescue/case/CaseData.vue";
+import CaseRescueProgress from "../../../../components/pet/rescue/case/CaseRescueProgress.vue";
+import CaseRescueReason from "../../../../components/pet/rescue/case/CaseRescueReason.vue";
+import ProgressDetail from "../../../../components/pet/rescue/case/ProgressDetail.vue";
+import useUserStore from "@/stores/user.js"; // 載入 Pinia 的 user store
 
 const baseUrl = import.meta.env.VITE_API_BASE_URL;
 
@@ -89,8 +95,7 @@ const rescueProgressList = ref([]);
 // 從後端獲取案件進度數據
 const fetchRescueProgress = async () => {
   try {
-
-    const caseId = route.params.id;  
+    const caseId = route.params.id;
     const response = await axios.get(
       `${baseUrl}/RescueCase/rescueProgress/${caseId}`
     );
@@ -105,11 +110,11 @@ const fetchRescueProgress = async () => {
   }
 };
 
-
 // 獲取當前登入的 memberId，進而決定是否顯示案件編輯
 const userMemberId = computed(() => {
   console.log("從pinia抓到memberId", userStore.memberId);
-  return userStore.memberId});
+  return userStore.memberId;
+});
 
 // 判斷是否顯示「編輯案件」與「進度更新」按鈕
 const canEdit = computed(() => {
@@ -128,26 +133,24 @@ const updateProgress = () => {
   console.log("進入進度更新模式");
 };
 
-
 onMounted(async () => {
-  fetchRescueProgress();  //向後端拿救援案件進度
+  fetchRescueProgress(); //向後端拿救援案件進度
   const caseId = route.params.id;
   try {
     const response = await axios.get(`${baseUrl}/RescueCase/search/${caseId}`);
-    rescueCase.value = response.data || {};  //確保 rescueCase 不為 null，會導致傳遞給子組件報錯
+    rescueCase.value = response.data || {}; //確保 rescueCase 不為 null，會導致傳遞給子組件報錯
     rescueCase.value.casePictures = rescueCase.value.casePictures || [];
-    console.log("案件資訊為",response.data);
+    console.log("案件資訊為", response.data);
   } catch (error) {
     console.error("載入案件失敗", error);
   }
 });
 </script>
 
-
 <style scoped>
-.member-buttons{
-  display: flex;         /* 使用 Flexbox */
-  gap: 30px;             /* 設置按鈕間距 */
+.member-buttons {
+  display: flex; /* 使用 Flexbox */
+  gap: 30px; /* 設置按鈕間距 */
   justify-content: center;
 }
 
@@ -165,11 +168,9 @@ h1 {
   letter-spacing: 1px;
 }
 
-
 .rescue-page {
   margin: 35px auto;
   max-width: 1200px;
-
 }
 .sidebar {
   flex: 1 1 20%;
@@ -231,7 +232,7 @@ h1 {
   align-items: flex-start; /* 元素頂部對齊 */
 }
 
-.main-content {
+.main-content-case {
   flex: 18; /* 主內容區域占 3 倍空間 */
   display: flex;
   flex-direction: column; /* 垂直排列 SearchForm 和 CaseList */
