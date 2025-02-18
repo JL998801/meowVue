@@ -4,7 +4,13 @@ import {axiosapi2} from "@/plugins/axios.js";
 
 const useUserStore = defineStore("user", () => {
     const token = ref("");
+    const email = ref("");
     const isTokenValid = ref(true); // 標記 token 是否有效
+
+    // 設置 Email
+    function setEmail(data) {
+        email.value = data;
+    }
 
     // 設置 Token，於用戶成功登入後調用
     function setToken(data) {
@@ -13,6 +19,7 @@ const useUserStore = defineStore("user", () => {
 
     // 清除用戶信息（登出）
     function logout() {
+        email.value = "";
         token.value = "";
         isTokenValid.value = false;
     }
@@ -71,8 +78,8 @@ const useUserStore = defineStore("user", () => {
         }
     });
 
-    //從token解析出role
-    const role = computed(() => {
+     //從token解析出role
+     const role = computed(() => {
         if (!token.value) {
             console.log("❌ Token 不存在");
             return null;
@@ -99,12 +106,15 @@ const useUserStore = defineStore("user", () => {
         return role.value === "admin";
     });    
 
+
     // 判斷是否已登入且在時效內（根據 token 判斷） 驗證token是否有效邏輯放在後端，從前端傳request時就會被驗證
     const isLogin = computed(() => {
         return token.value !== null && token.value !== "" && isTokenValid.value;;
     });
 
     return {
+        email,
+        setEmail,
         isLogin,
         token,
         setToken,
@@ -112,12 +122,12 @@ const useUserStore = defineStore("user", () => {
         validateToken,
         memberId,
         role,
-        isAdmin
+        isAdmin,
     }
 },
     {
         persist: { //預設存到 localStorage，整個 Store 會被持久化，當頁面刷新，這些數據會自動從 localStorage 讀取
-            storage: localStorage, paths: ["token"]    // 當 email 或 token 被更新時會自動存入 localStorage
+            storage: localStorage, paths: ["email", "token"]    // 當 email 或 token 被更新時會自動存入 localStorage
         }
     });
 export default useUserStore;    

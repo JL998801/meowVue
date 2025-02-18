@@ -146,7 +146,7 @@ const confirmUpload = async () => {
 
         console.log("前端發送的 Token:", token);
 
-        const response = await axiosapi2.post(`/Case/uploadImag`, formData, {
+        const response = await axiosapi2.post(`/Case/uploadImage`, formData, {
           headers: {
             "Content-Type": "multipart/form-data",
             Authorization: `Bearer ${token}`, //

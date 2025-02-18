@@ -56,20 +56,20 @@
         </select>
       </div>
 
-      <!-- 絕育狀態 -->
-      <div class="form-group">
-        <label>*絕育狀態：</label>
-        <select v-model="form.sterilization" required>
-          <option value="已絕育">已絕育</option>
-          <option value="未絕育">未絕育</option>
-        </select>
-      </div>
+            <!-- 絕育狀態 -->
+            <div class="form-group">
+                <label>*絕育狀態：</label>
+                <select v-model="form.sterilization" required>
+                    <option value="已絕育">已絕育</option>
+                    <option value="未絕育">未絕育</option>
+                </select>
+            </div>
 
-      <!-- 年齡 -->
-      <div class="form-group">
-        <label>年齡：</label>
-        <input v-model="form.age" type="number" />
-      </div>
+            <!-- 年齡 -->
+            <div class="form-group">
+                <label>年齡：</label>
+                <input v-model="form.age" type="number" />
+            </div>
 
       <!-- 晶片號碼 -->
       <div class="form-group">
@@ -106,38 +106,40 @@
         <input v-model="form.street" type="text" placeholder="請輸入街道名稱" />
       </div>
 
-      <!-- 走失經過 -->
-      <div class="form-group">
-        <label>*走失經過：</label>
-        <textarea v-model="form.lostExperience" required></textarea>
-      </div>
+            <!-- 走失經過 -->
+            <div class="form-group">
+                <label>*走失經過：</label>
+                <textarea v-model="form.lostExperience" required></textarea>
+            </div>
 
-      <!-- 特徵描述 -->
-      <div class="form-group">
-        <label>*特徵描述：</label>
-        <textarea v-model="form.featureDescription" required></textarea>
-      </div>
+            <!-- 特徵描述 -->
+            <div class="form-group">
+                <label>*特徵描述：</label>
+                <textarea v-model="form.featureDescription" required></textarea>
+            </div>
 
-      <!-- 聯絡方式 -->
-      <div class="form-group">
-        <label>聯絡方式：</label>
-        <input v-model="form.contactInformation" type="text" />
-      </div>
+            <!-- 聯絡方式 -->
+            <div class="form-group">
+                <label>聯絡方式：</label>
+                <input v-model="form.contactInformation" type="text" />
+            </div>
 
-      <!-- 圖片上傳（最多 3 張） -->
-      <div class="form-group">
-        <label>案件圖片（第一張為封面，最多 3 張）：</label>
-        <div class="upload-image">
-          <ImageUpload @image-uploaded="ImageUploaded"></ImageUpload>
-          <ImageUpload @image-uploaded="ImageUploaded"></ImageUpload>
-          <ImageUpload @image-uploaded="ImageUploaded"></ImageUpload>
-        </div>
-      </div>
+            <!-- 圖片上傳（最多 3 張） -->
+            <div class="form-group">
+                <label>案件圖片（第一張為封面，最多 3 張）：</label>
+                <input type="file" @change="handleFileUpload" multiple accept="image/*" />
+                <div class="image-preview">
+                    <div v-for="(image, index) in previewImages" :key="index" class="image-container">
+                        <img :src="image" alt="案件圖片" />
+                        <span v-if="index === 0" class="cover-label">封面</span>
+                    </div>
+                </div>
+            </div>
 
-      <!-- 提交按鈕 -->
-      <button type="submit" class="submit-btn">提交案件</button>
-    </form>
-  </div>
+            <!-- 提交按鈕 -->
+            <button type="submit" class="submit-btn">提交案件</button>
+        </form>
+    </div>
 </template>
 
 <script setup>
@@ -193,25 +195,25 @@ const fetchData = async () => {
       axiosapi.get(`/pet/allCaseState`),
     ]);
 
-    speciesList.value = speciesRes.data;
-    breedList.value = breedRes.data;
-    furColorList.value = colorRes.data;
-    cityList.value = cityRes.data;
-    caseStateList.value = caseStateRes.data;
+        speciesList.value = speciesRes.data;
+        breedList.value = breedRes.data;
+        furColorList.value = colorRes.data;
+        cityList.value = cityRes.data;
+        caseStateList.value = caseStateRes.data;
 
-    console.log("✅ 物種:", speciesList.value);
-    console.log("✅ 品種:", breedList.value);
-    console.log("✅ 毛色:", furColorList.value);
-    console.log("✅ 城市:", cityList.value);
-    console.log("✅ 案件狀態:", caseStateList.value);
-  } catch (error) {
-    console.error("❌ 獲取資料失敗:", error);
-  }
+        console.log("✅ 物種:", speciesList.value);
+        console.log("✅ 品種:", breedList.value);
+        console.log("✅ 毛色:", furColorList.value);
+        console.log("✅ 城市:", cityList.value);
+        console.log("✅ 案件狀態:", caseStateList.value);
+    } catch (error) {
+        console.error("❌ 獲取資料失敗:", error);
+    }
 };
 
 // **根據城市獲取區域**
 const fetchDistrictAreas = async () => {
-  if (!form.value.cityId) return; // 確保 `cityId` 有選擇
+    if (!form.value.cityId) return; // 確保 `cityId` 有選擇
 
   try {
     const response = await axiosapi.get(`/pet/districtAreasByCity/${form.value.cityId}`);
@@ -223,16 +225,13 @@ const fetchDistrictAreas = async () => {
 };
 
 // **監聽 `cityId` 變化，自動獲取區域**
-watch(
-  () => form.value.cityId,
-  (newCityId) => {
+watch(() => form.value.cityId, (newCityId) => {
     if (newCityId) {
-      fetchDistrictAreas();
+        fetchDistrictAreas();
     } else {
-      districtAreaList.value = []; // 清空區域列表
+        districtAreaList.value = []; // 清空區域列表
     }
-  }
-);
+});
 
 // **晶片號碼長度檢測**
 const validateMicroChipNumber = () => {
@@ -302,65 +301,64 @@ const submitForm = async () => {
 onMounted(() => {
   fetchData();
 });
+
 </script>
 
 <style scoped>
 .container {
-  max-width: 600px;
-  margin: 20px auto;
-  padding: 20px;
-  background: #f9f9f9;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 .form-group {
-  margin-bottom: 15px;
+    margin-bottom: 15px;
 }
 
 label {
-  font-weight: bold;
-  display: block;
+    font-weight: bold;
+    display: block;
 }
 
-input,
-select,
-textarea {
-  width: 100%;
-  padding: 8px;
-  margin-top: 5px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+input, select, textarea {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
 }
 
 .image-preview {
-  display: flex;
-  gap: 10px;
-  margin-top: 10px;
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
 }
 
 .image-container {
-  position: relative;
-  width: 100px;
-  height: 100px;
+    position: relative;
+    width: 100px;
+    height: 100px;
 }
 
 .image-container img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 5px;
-  border: 1px solid #ccc;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 5px;
+    border: 1px solid #ccc;
 }
 
 .cover-label {
-  position: absolute;
-  bottom: 5px;
-  left: 5px;
-  background: #ff5722;
-  color: white;
-  font-size: 12px;
-  padding: 2px 5px;
-  border-radius: 3px;
+    position: absolute;
+    bottom: 5px;
+    left: 5px;
+    background: #ff5722;
+    color: white;
+    font-size: 12px;
+    padding: 2px 5px;
+    border-radius: 3px;
 }
 </style>

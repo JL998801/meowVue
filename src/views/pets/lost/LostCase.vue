@@ -29,6 +29,17 @@
                         <div class="lost-reason">
                             <CaseLostReason v-if="lostCase" :lostReason="lostCase" />
                         </div>
+                        <div class="lost-progress">
+                            <CaseLostProgress v-if="lostCase" :lostProgress="lostCase" />
+                            <!-- 根據進度數據動態生成 ProgressDetail 組件 -->
+                            <ProgressDetail
+                                v-for="progress in lostProgressList"
+                                :key="progress.lostProgressId"
+                                :progress-detail="progress.progressDetail"
+                                :create-time="progress.createTime"
+                                :image-url="progress.imageUrl"
+                            />
+                        </div>
                     </div>
 
                     <div class="sidebar">
@@ -48,8 +59,10 @@
 import { ref, onMounted, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import axios from 'axios';
-import CaseData from '@/components/pet/lost/case/CaseData.vue';
-import CaseLostReason from '@/components/pet/lost/case/CaseLostReason.vue';
+import CaseData from '../../../../components/pet/lost/case/CaseData.vue';
+import CaseLostProgress from '../../../../components/pet/lost/case/CaseLostProgress.vue';
+import CaseLostReason from '../../../../components/pet/lost/case/CaseLostReason.vue';
+import ProgressDetail from '../../../../components/pet/lost/case/ProgressDetail.vue';
 import useUserStore from '@/stores/user.js'; // 載入 Pinia 的 user store
 
 

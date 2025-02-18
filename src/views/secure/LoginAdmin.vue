@@ -5,13 +5,23 @@
       <div class="register-box">
         <h3>管理員</h3>
         <div class="input-group">
-          <label for="nickName">使用者暱稱</label>
-          <input type="text" v-model="username" @keyup.enter="login" />
+          <label for="nickName">管理員</label>
+          <input
+            type="text"
+            v-model="username"
+            @keyup.enter="login"
+            placeholder="Admin"
+          />
         </div>
         <span class="error">{{ message }}</span>
         <div class="input-group">
           <label for="password">密碼</label>
-          <input type="text" v-model="password" @keyup.enter="login" />
+          <input
+            type="password"
+            v-model="password"
+            @keyup.enter="login"
+            placeholder="Password"
+          />
         </div>
 
         <div class="gg">
@@ -27,7 +37,7 @@
 </template>
 
 <script setup>
-import { axiosapi } from "@/plugins/axios.js";
+import { axiosapi2 } from "@/plugins/axios"; // 使用 default 匯
 import Swal from "sweetalert2";
 import { ref } from "vue";
 import { useRouter } from "vue-router";
@@ -54,10 +64,11 @@ async function login() {
     password: password.value,
   };
 
-  axiosapi.defaults.headers.authorization = "";
+  axiosapi2.defaults.headers.authorization = "";
+  userStore.setEmail("");
 
   try {
-    const response = await axiosapi.post("/secure/loginadmin", body);
+    const response = await axiosapi2.post(`/secure/loginadmin`, body);
     console.log("response", response);
 
     if (response.data.success) {
@@ -69,8 +80,8 @@ async function login() {
         title: response.data.message,
         icon: "success",
       });
-      axiosapi.defaults.headers.authorization = "Bearer " + response.data.token;
-
+      axiosapi2.defaults.headers.authorization = "Bearer " + response.data.token;
+      userStore.setEmail(response.data.user);
       router.push({ path: "/admin" });
     } else {
       document.querySelector(".error").innerHTML = response.data.message;
