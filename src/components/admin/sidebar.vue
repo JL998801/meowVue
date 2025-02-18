@@ -1,7 +1,7 @@
 <template>
   <div class="back-sidebar">
     <h2>商城後台管理系统</h2>
-    <router-link to="/admin/users">用戶管理</router-link>
+    <router-link to="/admin/adminCard">用戶管理</router-link>
     <router-link to="/admin/categories">分類管理</router-link>
     <router-link to="/admin/orders">訂單管理</router-link>
     <router-link to="/admin/products">商品管理</router-link>
@@ -95,4 +95,7 @@ const isCaseMenuOpen2 = ref(false); // 控制寵物案件分析子選單的開�
   flex-direction: column;
   background-color: #1a456a;
 }
+
+
+
 </style>
