@@ -15,7 +15,7 @@ const removeFromWishList = (productId) => {
 </script>
 
 <template>
-  <div class="modal fade" id="wishListModal" tabindex="-1" aria-labelledby="wishListModalLabel" aria-hidden="true">
+  <div class="modal fade" id="" tabindex="-1" aria-labelledby="wishListModalLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">

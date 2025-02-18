@@ -2,10 +2,9 @@
 import { computed, defineProps, onMounted, ref } from "vue";
 import ProductCard from "@/components/shop/home/ProductCard.vue";
 import Pagination from "@/components/shop/home/Pagination.vue";
-import useProductStore from "../../stores/productStore"
-import useCartStore from "../../stores/cartStore"
+import useProductStore from "@/stores/productStore"
+import useCartStore from "@/stores/cartStore"
 import axios from 'axios';
-import { useStore } from 'vuex'
 
 // 接收 shopSidebar.vue 搜尋資料
 const props = defineProps({
@@ -20,7 +19,6 @@ const selectedFilter = ref({}); // 用於存儲篩選條件
 const loading = ref(false);
 
 const cartStore = useCartStore();
-const store = useStore();
 
 // ✅ 確保 `filteredProducts` 只在 `productStore.products` 有值時運行
 const filteredProducts = computed(() => {

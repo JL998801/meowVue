@@ -22,7 +22,7 @@
           <BadgeCounter
             icon="❤️"
             :count="wishlistCount"
-            modalTarget="#wishListModal"
+            modalTarget="#"
             :updateOnClick="true"
             @open-modal="openModal"
           />
@@ -32,7 +32,7 @@
           <BadgeCounter
             icon="🔔"
             :count="notificationCount"
-            modalTarget="#notificationModal"
+            modalTarget="#"
             :updateOnClick="true"
             @open-modal="openModal"
           />
@@ -83,7 +83,7 @@
   <div
     v-show="isUserLoggedIn"
     class="modal fade"
-    id="wishlistModal"
+    id=""
     tabindex="-1"
     aria-hidden="true"
   >
@@ -108,7 +108,7 @@
   <div
     v-show="isUserLoggedIn"
     class="modal fade"
-    id="notificationModal"
+    id=""
     tabindex="-1"
     aria-hidden="true"
   >

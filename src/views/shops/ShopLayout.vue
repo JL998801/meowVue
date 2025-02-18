@@ -1,5 +1,5 @@
 <template>
-  <!-- shopLayout.vue 是最頂層的組件，它負責接收 shopHome 傳遞的事件 -->
+  <!-- shopLayout.vue 是最頂層的組件，它負責接收 ShopHome 傳遞的事件 -->
   <div class="shop-layout">
     <!-- 🔹 商城導覽列 -->
     <ShopNavBar
