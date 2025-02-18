@@ -1,8 +1,8 @@
-<template >
-   <div class="rescue-page">
+<template>
+  <div class="rescue-page">
     <EditCaseTitle></EditCaseTitle>
     <div class="second-container">
-      <div class="main-content">
+      <div>
         <EditCaseForm></EditCaseForm>
       </div>
       <div class="sidebar">
@@ -16,13 +16,8 @@
 </template>
 
 <script setup>
-import EditCaseTitle from "@/components/pet/rescue/editCase/EditCaseTitle.vue"
-import EditCaseForm from "@/components/pet/rescue/editCase/EditCaseForm.vue"
-
-
-
+import EditCaseTitle from "@/components/pet/rescue/editCase/EditCaseTitle.vue";
+import EditCaseForm from "@/components/pet/rescue/editCase/EditCaseForm.vue";
 </script>
 
-<style scope>
-    
-</style>
+<style scope></style>
