@@ -53,7 +53,7 @@
         <div>
           <RouterLink class="link" to="/pages/Register">註冊會員</RouterLink>
         </div>
-        <RouterLink class="nav-link" to="/secure/loginadmin">切換</RouterLink>
+       
       </div>
     </div>
   </form>
