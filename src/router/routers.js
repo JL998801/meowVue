@@ -155,7 +155,7 @@ router.beforeEach(async (to, from, next) => {
     '/pet/lost/member',
     "/admin",
     '/pages/FormAdopt',
-    '/pages/AdoptTwo',
+    '/pages/AdoptTwo' ,
 
 
   ];  // 不需要驗證的路由
