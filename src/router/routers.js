@@ -142,7 +142,7 @@ router.beforeEach(async (to, from, next) => {
     "/secure/login",
     "/403",
     "/",
-    "/pet/rescue/search",
+    "/pet/rescue/search/",   
     "/pet/map",
     "/pets/Register",
     "/pets/MemberCenter",
