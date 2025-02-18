@@ -143,7 +143,7 @@ router.beforeEach(async (to, from, next) => {
     "/secure/login",
     "/403",
     "/",
-    "/pet/rescue/search",   
+    "/pet/rescue/search",
     "/pet/map",
     "/pets/Register",
     "/pets/MemberCenter",
@@ -156,18 +156,18 @@ router.beforeEach(async (to, from, next) => {
     '/pet/lost/member',
     "/admin",
     '/pages/FormAdopt',
-    '/pages/AdoptTwo' ,
+    '/pages/AdoptTwo',
 
 
   ];  // 不需要驗證的路由
 
   console.log("userStore", userStore);
   console.log("to.path", to.path);
-  
+
 
   const isPublicPage = publicPages.includes(to.path) || to.path.startsWith("/shop");
   console.log("isPublicPage", isPublicPage);
- 
+
   // ✅ 改用 `.some()` 來判斷是否為公開頁面；配合部分頁面:id的設計
   // const isPublicPage = publicPages.some(page => to.path.startsWith(page));
 
@@ -197,7 +197,7 @@ router.beforeEach(async (to, from, next) => {
   }
 
   // 限制 /admin 頁面，只有管理員可以進入
-  if (to.path.startsWith("/admin") && !userStore.isAdmin) {
+  if (to.path.startsWith("/admin") && !userStore.isAdmin()) {
     return next("/403");  // 轉到「無權限」頁面
   }
 
