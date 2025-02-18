@@ -29,7 +29,7 @@ import { ref, onMounted } from "vue";
 import { CartService } from "@/services/CartService";
 
 // ✅ 會員 ID (通常應該從 Vuex/Pinia 或 localStorage 取得)
-const memberId = localStorage.getItem("memberId") || 1;
+const memberId = 1;
 const cartActions = ref([]);
 const isLoading = ref(true);
 const errorMessage = ref("");

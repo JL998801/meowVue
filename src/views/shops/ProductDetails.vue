@@ -91,7 +91,7 @@
 <script setup>
 import { ref, computed, onMounted, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { axiosapi } from '@/plugins/axios.js';
+import { axiosapi3 } from '@/plugins/axios.js';
 import useProductStore from "@/stores/productStore";
 import useCartStore from "@/stores/cartStore"; // 使用 Pinia 管理購物車
 
@@ -115,12 +115,12 @@ const addToCart = async () => {
   if (!selectedProduct.value) return;
 
   try {
-    const memberId = localStorage.getItem("memberId") || 1; // 先從 localStorage 讀取會員 ID，若無則使用固定 ID
+    const memberId = 1; // 先從 localStorage 讀取會員 ID，若無則使用固定 ID
     const productId = selectedProduct.value.productId;
     const quantity = 1;
 
     // 發送請求到後端，將會員 ID、商品 ID 和數量發送過去
-    await axiosapi.post('/pages/cart/add', {
+    await axiosapi3.post('/pages/cart/add', {
       memberId,
       productId,
       quantity,
@@ -355,3 +355,4 @@ onMounted(async () => {
   }
 }
 </style>
+<q></q>
