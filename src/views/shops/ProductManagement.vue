@@ -153,7 +153,7 @@
                             placeholder="選擇標籤..."
                             class="floating-multiselect custom-multiselect"
                         >
-                            <!-- ✅ 這裡的 template 必須是 Multiselect 內部的 slot -->
+                            <!-- ✅ 使用自訂 slot 來改變選單內容 -->
                             <!-- 當 editMode[product.productId] = true 時，確保 product.tags 預設為空數組 -->
                             <template v-slot:option="{ option }">
                                 <div class="custom-option" :class="{ 'selected-option': isSelected(product, option) }">
@@ -229,6 +229,8 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import Swal from "sweetalert2";
+import Multiselect from "vue-multiselect";
+
 import ProductFormModal from "@/components/shop/manage/ProductFormModal.vue";
 import useProductStore from "@/stores/productStore";
 import useCategoryStore from "@/stores/categoryStore";
@@ -487,7 +489,7 @@ onMounted(() => {
 });
 </script>
 
-<style>
+<style scoped>
 /* 隱藏滾動條但允許滾動 */
 html, body {
     overflow: auto; /* ✅ 允許滾動 */
@@ -525,18 +527,19 @@ body::-webkit-scrollbar {
     border-radius: 20px; /* 讓邊框成為橢圓形 */
     table-layout: auto; /* 允許表格根據內容調整寬度 */
     /* overflow: hidden; 防止內容溢出 */
-    /* overflow: visible; 允許內容超出 `table` 顯示 */
+    overflow: visible; /*允許內容超出 `table` 顯示*/
 }
 
-/* 固定表格首欄的寬度 */
+/* 表頭、列、欄 */
 .table th,
+.table tr,
 .table td {
-    position: relative; /* ✅ 讓 `td` 內部可以顯示超出的內容；Multiselect` 的相對參照  */
+    position: relative; /*✅ 讓 `td` 內部可以顯示超出的內容；Multiselect` 的相對參照 */
     text-align: center;
+    overflow: visible !important; /*✅ 允許 `Multiselect` 顯示*/
     vertical-align: middle;
     white-space: nowrap; /* ✅ 除非 `textarea`，否則不允許換行 */
     /* overflow: hidden; ✅ 避免表格變形，但允許內容顯示(除了到期日欄位) */
-    overflow: visible !important; /*✅ 允許 `Multiselect` 顯示*/
 
     height: auto; /* ✅ 允許 `td` 在 `editMode` 時增高 */
     min-height: 40px; /* ✅ 設定最小高度，避免過度壓縮 */
@@ -591,14 +594,6 @@ td.editable-cell .custom-select {
     width: 100%;
 }
 
-/* ✅ 確保 `td` 內的 select 不會超出範圍 */
-td.editable-cell {
-    position: relative; /* 讓 select 保持在 td 內 */
-    overflow: hidden; /* 防止超出 */
-    white-space: nowrap; /* 避免文字換行 */
-    padding: 5px; /* 內邊距 */
-}
-
 /* ✅ 設置包裹 select 的 div */
 .select-wrapper {
     width: 100%; /* 讓 div 佔滿 td */
@@ -608,6 +603,8 @@ td.editable-cell {
 
 /* ✅ 自訂 select 樣式，確保與 td 對齊 */
 .custom-select {
+    position: relative !important;
+    z-index: 1000 !important;
     width: 100%; /* 讓 select 填滿 td */
     min-width: 80px; /* 避免 select 太小 */
     max-width: 100%; /* 不讓 select 超出 td */
@@ -615,7 +612,7 @@ td.editable-cell {
     font-size: 14px;
     border-radius: 5px;
     box-sizing: border-box;
-    overflow: hidden; /* ✅ 確保 select 不會溢出 */
+    /* overflow: hidden; ✅ 確保 select 不會溢出 */
 }
 
 /* ✅ 確保標籤欄位的 `td` 允許內容顯示 */
@@ -628,38 +625,25 @@ td.tag-cell {
 /* ✅ 讓 Multiselect (多選標籤)本身的輸入框填滿 `td` */
 .custom-multiselect {
     position: relative;  /* ✅ 讓 `Multiselect` 定位不影響表格 */
-    z-index: 9999; /* 讓下拉選單出現在最上層 */
+    z-index: 1000; /* ✅ 確保不被其他元素遮擋 */
     width: 100%;
     min-width: 120px;
     max-width: 100%;
     box-sizing: border-box;
-    z-index: 10; /* ✅ 確保不被其他元素遮擋 */
 }
 
-/* ✅ 讓 Multiselect 下拉選單能懸浮於 `td` 之上 */
+/* 讓 `Multiselect` 選單完整展開 */
 .custom-multiselect .multiselect__content-wrapper {
     position: absolute !important;
-    z-index: 9999; /* ✅ 確保 `dropdown` 顯示在 `td` 之上 */
-    width: auto;
-    min-width: 100%;
-    max-width: 200px; /* ✅ 限制最大寬度 */
-    max-height: 180px; /* ✅ 限制最大高度，防止溢出 */
-    overflow-y: auto; /* ✅ 允許滾動 */
+    z-index: 9999 !important;
+    max-height: 300px !important;
+    overflow-y: auto !important;
     background: white;
-    /* border: 1px solid #c6bc77; */
-    border-radius: 2px;
-    box-shadow: 0 2px 10px #d0ccd0;
+    border-radius: 4px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-/* ✅ 讓 Multiselect 內的選項間距更清晰 */
-.custom-multiselect .multiselect__option {
-    padding: 8px 12px;
-    white-space: nowrap; /* ✅ 防止換行 */
-    overflow: hidden;
-    text-overflow: ellipsis; /* ✅ 內容過長時顯示省略號 */
-}
-
-/* ✅ 讓選擇的標籤 (tag) 正確顯示 */
+/* 讓選擇的標籤 (tag) 正確顯示 */
 .custom-multiselect .multiselect__tags {
     display: flex;
     flex-wrap: wrap;
@@ -669,7 +653,13 @@ td.tag-cell {
     border-radius: 5px;
 }
 
-/* ✅ 讓每個選項顯示 `Checkbox` 而不是預設標籤 */
+/* 隱藏 `vue-multiselect` 預設的 `•` 點點 */
+.multiselect__option::before {
+    display: none !important;
+    content: "" !important;
+}
+
+/* 讓每個選項顯示 `Checkbox` 而不是預設標籤 */
 .custom-option {
     display: flex;
     align-items: center;
@@ -680,34 +670,19 @@ td.tag-cell {
     transition: background 0.2s ease-in-out;
 }
 
-/* ✅ 當選中時，改變底色 */
+/* 當選中時，改變底色 */
 .selected-option {
     background: #cce5ff; /* ✅ 輕微藍色背景，表示選中 */
 }
 
-/* ✅ 調整 Checkbox 樣式 */
+/* 調整 Checkbox 樣式 */
 .custom-option input[type="checkbox"] {
     width: 16px;
     height: 16px;
     accent-color: #007bff; /* ✅ 設定 Checkbox 顏色 */
 }
 
-/* ✅ 隱藏 `vue-multiselect` 預設的 `•` 點點 */
-.multiselect__option::before {
-    display: none !important;
-    content: "" !important;
-}
-
-/* ✅ 讓標籤 (tag) 不會影響行內元素 */
-.custom-multiselect .multiselect__tag {
-    background: #feba07;
-    color: white;
-    padding: 5px 10px;
-    border-radius: 4px;
-    font-size: 14px;
-}
-
-/* 讓建立時間、更新時間的 td 內容允許換行 */
+/* ✅ 讓建立時間、更新時間的 td 內容允許換行 */
 td.date-time-cell {
     font-size: small;
     white-space: pre-line; /* ✅ 允許換行 */

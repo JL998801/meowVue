@@ -15,6 +15,7 @@ import LoginAdmin from '@/views/secure/LoginAdmin.vue';
 import Register from '@/views/pages/Register.vue';
 import MemberCenter from '@/views/pages/MemberCenter.vue';
 import MemberCard from '@/views/pages/MemberCard.vue';
+import AdminCard from '../views/AdminCard.vue';
 //冠
 import LineMessage from '@/views/secure/LineMessage.vue';
 import FollowCase from '@/views/secure/FollowCase.vue';
@@ -67,6 +68,7 @@ const routes = [
   { path: '/pages/Register', component: Register, name: 'register-link' },
   { path: "/pages/FormAdopt", component: FormAdopt, name: "FormAdopt-link" },
   { path: "/pages/AdoptTwo", component: AdoptTwo, name: "AdoptTwo-link" },
+  { path: "/pages/Adopt", component: Adopt, name: "Adopt-link" },
   // { path: "/pets/lostcase", component: LostCase, name: "pets-LostCase-link" },
   { path: "/pets/lostform", component: LostForm, name: "pets-LostForm-link" },
   { path: "/pets/reportform", component: ReportForm, name: "pets-ReportForm-link" },
@@ -102,6 +104,7 @@ const routes = [
   //這樣 /admin/* 下面的所有路由都會套用 AdminManagement.vue，讓 Sidebar 固定存在！
   {
     path: "/admin", component: AdminManagement, name: "adminManagement-link", meta: { hideNavbar: true }, children: [
+      { path: "adminCard", component: AdminCard },
       { path: "rescueCase", component: RescueManagement },
       { path: "rescueAnalysis", component: RescueAnalysis },
       { path: "lostCase", component: LostAdmin },
@@ -140,7 +143,7 @@ router.beforeEach(async (to, from, next) => {
     "/secure/login",
     "/403",
     "/",
-    "/pet/rescue/search",
+    "/pet/rescue/search",   
     "/pet/map",
     "/pets/Register",
     "/pets/MemberCenter",
@@ -153,21 +156,20 @@ router.beforeEach(async (to, from, next) => {
     '/pet/lost/member',
     "/admin",
     '/pages/FormAdopt',
-    '/pages/AdoptTwo',
+    '/pages/AdoptTwo' ,
 
 
   ];  // 不需要驗證的路由
 
   console.log("userStore", userStore);
   console.log("to.path", to.path);
-  // 🔥 `/shop` 及其所有子路由都不需要驗證 (開發用byNaomi)
-  // const isPublicPage = publicPages.includes(to.path) || to.path.startsWith("/shop");
-  // console.log("isPublicPage", isPublicPage);
-  // if (!isPublicPage && !userStore.isAuthenticated) {
-  //   return next("/secure/login"); // 🔐 重新導向到登入頁
-  // }
+  
+
+  const isPublicPage = publicPages.includes(to.path) || to.path.startsWith("/shop");
+  console.log("isPublicPage", isPublicPage);
+ 
   // ✅ 改用 `.some()` 來判斷是否為公開頁面；配合部分頁面:id的設計
-  const isPublicPage = publicPages.some(page => to.path.startsWith(page));
+  // const isPublicPage = publicPages.some(page => to.path.startsWith(page));
 
   //用來判斷救援案件頁面路徑，需要是公開
   const isRescueCaseDetail = to.path.startsWith("/pet/rescueCase/") && to.path.split("/").length === 4;
@@ -194,6 +196,11 @@ router.beforeEach(async (to, from, next) => {
     }
   }
 
+  // 限制 /admin 頁面，只有管理員可以進入
+  if (to.path.startsWith("/admin") && !userStore.isAdmin()) {
+    return next("/403");  // 轉到「無權限」頁面
+  }
+  
   next(); // 驗證成功則繼續跳轉
 });
 

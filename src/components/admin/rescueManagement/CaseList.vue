@@ -191,7 +191,7 @@ watch(
 
 <style scoped>
 .case-list {
-  padding: 10px;
+  padding: px;
   overflow-y: auto;
 }
 
