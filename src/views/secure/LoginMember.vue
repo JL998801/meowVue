@@ -64,7 +64,7 @@ import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import useUserStore from "@/stores/user.js";
 import Swal from "sweetalert2";
-import { axiosapi2 } from "@/plugins/axios.js";
+import { axiosapi } from "@/plugins/axios.js";
 import { loadGoogleAuth } from "@/plugins/googleAuth.js"; // 引入 Google Auth 加載函數
 
 const username = ref("");
@@ -115,6 +115,7 @@ onMounted(async () => {
   }
 });
 
+// Google 登入成功的回調函數
 function googleLoginSuccess(response) {
   console.log("googleLoginSuccess", response);
 
@@ -128,75 +129,17 @@ function googleLoginSuccess(response) {
     return;
   }
 
+  // 顯示用戶資訊，或者用於後續操作
+  console.log("Client ID:", clientId);
+  console.log("Credential:", credential);
+
   // 儲存資料到 localStorage
   localStorage.setItem("googleClientId", clientId);
   localStorage.setItem("googleCredential", credential);
 
-  const memberData = {
-    nickName: "Jude Chu", 
-    password: "1223", 
-    name: "Name",
-    email: "sonicchu1223@hotmail.com", 
-    phone: "0932624161", 
-    address: "新北市板橋區", 
-    birthday: "2000-12-23" 
-  };
-
-  // 註冊 API 請求
-  axiosapi.post(`/register`, memberData)
-    .then(response => {
-      // 使用 SweetAlert 顯示成功註冊訊息
-      Swal.fire({
-              title: "登入成功！",
-              icon: "success",
-            });
-
-      setTimeout(() => {
-        // 註冊成功後進行自動登入
-        const loginData = {
-          email: memberData.email,
-          password: memberData.password
-        };
-
-        // 登入 API 請求
-        axiosapi.post(`/ajax/secure/login`, loginData)
-          .then(loginResponse => {
-            const { token, user } = loginResponse.data;
-            const { memberId, email, nickname } = user;
-
-            // 儲存登入資訊到 localStorage
-            localStorage.setItem('memberId', memberId);
-            localStorage.setItem('email', email);
-            localStorage.setItem('token', token);
-            localStorage.setItem('nickname', nickname);
-
-            // 顯示 SweetAlert 登入成功訊息
-          
-
-            // 跳轉或進行其他操作
-            window.location.href = "/pages/MemberCenter"; // 假設會員中心頁面
-          })
-          .catch(loginError => {
-            console.error("登入失敗", loginError);
-            Swal.fire({
-              title: "登入失敗",
-              text: "請檢查帳號和密碼",
-              icon: "error",
-            });
-          });
-      }, 1000); // 註冊後延遲登入
-    })
-    .catch(registerError => {
-      console.error("註冊失敗", registerError);
-      Swal.fire({
-        title: "註冊失敗",
-        text: "請稍後再試",
-        icon: "error",
-      });
-    });
+  // 跳轉到會員中心頁面
+  router.push({ path: "/pages/MemberCenter" });
 }
-
-
 
 // 儲存用戶資訊到 localStorage 和 Vuex
 function saveUserInfoToLocalStorage(user, token) {
@@ -224,17 +167,16 @@ async function submitForm() {
   };
 
   try {
-    const response = await axiosapi2.post(`/ajax/secure/login`, body);
+    const response = await axiosapi.post(`/ajax/secure/login`, body);
     console.log("登入成功", response);
     if (response.data.success) {
-      // 使用 SweetAlert 顯示成功訊息
       await Swal.fire({
         title: response.data.message,
         icon: "success",
       });
 
       saveUserInfoToLocalStorage(response.data.user, response.data.token);
-      axiosapi2.defaults.headers.authorization = `Bearer ${response.data.token}`;
+      axiosapi.defaults.headers.authorization = `Bearer ${response.data.token}`;
       router.push({ path: "/pages/MemberCenter" });
     } else {
       message.value = response.data.message;
@@ -253,7 +195,6 @@ async function submitForm() {
     isLoggingIn.value = false; // 解除防止重複提交
   }
 }
-
 </script>
 
 <style scoped>
