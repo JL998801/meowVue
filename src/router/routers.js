@@ -146,7 +146,7 @@ router.beforeEach(async (to, from, next) => {
     "/secure/login",
     "/403",
     "/",
-    "/pet/rescue/search",   
+    "/pet/rescue/search",
     "/pet/map",
     "/pets/Register",
     "/pets/MemberCenter",
@@ -170,21 +170,15 @@ router.beforeEach(async (to, from, next) => {
 
   console.log("userStore", userStore);
   console.log("to.path", to.path);
-<<<<<<< HEAD
-  // 🔥 `/shop` 及其所有子路由都不需要驗證 (開發用byNaomi)
-  // const isPublicPage = publicPages.includes(to.path) || to.path.startsWith("/shop");
-  // console.log("isPublicPage", isPublicPage);
-  // if (!isPublicPage && !userStore.isAuthenticated) {
-  //   return next("/secure/login"); // 🔐 重新導向到登入頁
-  // }
+
   // ✅ 改用 `.some()` 來判斷是否為公開頁面；配合部分頁面:id的設計
   const isPublicPage = publicPages.some(page => to.path.startsWith(page));
 =======
-  
+
 
   const isPublicPage = publicPages.includes(to.path) || to.path.startsWith("/shop");
   console.log("isPublicPage", isPublicPage);
- 
+
   // ✅ 改用 `.some()` 來判斷是否為公開頁面；配合部分頁面:id的設計
   // const isPublicPage = publicPages.some(page => to.path.startsWith(page));
 >>>>>>> 5b89eede5f1d15b590c47a0bb1d0819ab7adf086
@@ -220,7 +214,7 @@ router.beforeEach(async (to, from, next) => {
   if (to.path.startsWith("/admin") && !userStore.isAdmin()) {
     return next("/403");  // 轉到「無權限」頁面
   }
-  
+
 >>>>>>> 5b89eede5f1d15b590c47a0bb1d0819ab7adf086
   next(); // 驗證成功則繼續跳轉
 });
