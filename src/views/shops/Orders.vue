@@ -43,7 +43,7 @@
 </template>
 
 <script>
-import { axiosapi } from "@/plugins/axios.js";
+import { axiosapi3 } from "@/plugins/axios.js";
 
 export default {
   data() {
@@ -55,7 +55,7 @@ export default {
   methods: {
     async fetchOrders() {
       try {
-        const response = await axiosapi.get(`/orders/admin`);
+        const response = await axiosapi3.get(`/orders/admin`);
         this.orders = response.data.map(order => ({
           ...order,
           newStatus: order.orderStatus,
@@ -66,7 +66,7 @@ export default {
     },
     async updateStatus(order) {
       try {
-        const response = await axiosapi.put(`/orders/${order.orderId}`, {
+        const response = await axiosapi3.put(`/orders/${order.orderId}`, {
           orderStatus: order.newStatus,
         });
         if (response.status === 200) {

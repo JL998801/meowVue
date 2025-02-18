@@ -14,7 +14,22 @@
           <input type="checkbox" v-model="selectedItems" :value="item.cartItemId" class="cart-checkbox" />
           
           <!-- 顯示商品圖片 -->
-          <img v-if="item.product?.productImage" :src="getProductImage(item.product.productId)" class="product-image" alt="Product Image" />
+          <template v-if="item.product">
+            <img
+              :src="item.product.imageUrls?.length > 0 ? item.product.imageUrls[0] : placeholderImage"
+              alt="主商品圖片"
+              class="product-image"
+            />
+            <div class="thumbnail-container">
+              <img
+                v-for="(image, index) in item.product.imageUrls?.slice(1, 5)"
+                :key="index"
+                :src="image"
+                :alt="`商品圖片 ${index + 1}`"
+                class="thumbnail"
+              />
+            </div>
+          </template>
           
           <p>
             {{ item.product?.productName || '商品名稱加載中...' }} - 單價:
@@ -67,10 +82,12 @@
 import { computed, onMounted, ref } from 'vue';
 import { useCartStore } from '@/stores/cartStore'; // 使用 Pinia Store
 import { useRouter } from 'vue-router';
-import { axiosapi } from "@/plugins/axios.js";
+import { axiosapi3 } from "@/plugins/axios.js";
+import useProductStore from "@/stores/productStore"; // 引入 Product Store
 
 // 初始化 API URL 和 Pinia Store
 const cartStore = useCartStore();
+const productStore = useProductStore();
 const router = useRouter();
 
 // 確保 cart 有默認值
@@ -82,6 +99,7 @@ const defaultCreditCard = '4311-9511-1111-1111';
 const defaultShippingAddress = '123 Main St';
 const creditCard = ref(defaultCreditCard);
 const shippingAddress = ref(defaultShippingAddress);
+
 
 // 計算總價格
 const totalPrice = computed(() => {
@@ -97,7 +115,7 @@ const getProductImage = async (productId) => {
     return productImages.value[productId]; // 如果已經有圖片 URL，直接返回
   }
   try {
-    const response = await axiosapi.get(`/product/images/${productId}`);
+    const response = await axiosapi3.get(`/product/images/${productId}`);
     const primaryImage = response.data.find(image => image.isPrimary);
     if (primaryImage) {
       productImages.value[productId] = primaryImage.imageUrl; // 存儲圖片 URL
@@ -117,9 +135,9 @@ const syncQuantityWithDatabase = async (item) => {
       item.editQuantity = 0;
       return;
     }
-    const memberId = localStorage.getItem('memberId') || sessionStorage.getItem('memberId'); // 獲取會員 ID
-    const cartId = cartStore.cartId; // 使用動態 cartId
-    await axiosapi.post(`/pages/cart/add`, {
+    const memberId = 1; // 獲取會員 ID
+    const cartId = 1; // 使用動態 cartId
+    await axiosapi3.post(`/pages/cart/add`, {
       memberId: memberId,
       productId: item.product.productId,
       quantity: item.editQuantity,
@@ -137,9 +155,9 @@ const syncQuantityWithDatabase = async (item) => {
 const clearCart = async () => {
   if (confirm('確定要清空購物車嗎？')) {
     try {
-      const memberId = localStorage.getItem('memberId') || sessionStorage.getItem('memberId'); // 獲取會員 ID
-      const cartId = cartStore.cartId; // 使用動態 cartId
-      await axiosapi.delete(`/pages/cart/clear/${memberId}`);
+      const memberId = 1; // 獲取會員 ID
+      const cartId = 1; // 使用動態 cartId
+      await axiosapi3.delete(`/pages/cart/clear/${memberId}`);
       cartStore.clearCart();
       await cartStore.fetchCartDataFromServer();
     } catch (error) {
@@ -153,7 +171,7 @@ const clearCart = async () => {
 const removeItem = async (cartItemId) => {
   if (cartItemId && confirm('確定要刪除此商品嗎？')) {
     try {
-      await axiosapi.delete(`/pages/cart/delete/${cartItemId}`);
+      await axiosapi3.delete(`/pages/cart/delete/${cartItemId}`);
       cartStore.removeFromCart(cartItemId);
       await cartStore.fetchCartDataFromServer();
     } catch (error) {
@@ -166,7 +184,7 @@ const removeItem = async (cartItemId) => {
 const goToPayment = async () => {
   try {
     // 從 localStorage 或 sessionStorage 中獲取 memberId
-    const memberId = localStorage.getItem('memberId') || sessionStorage.getItem('memberId');
+    const memberId = 1;
     const selectedCartItems = cart.value.filter(item => selectedItems.value.includes(item.cartItemId));
 
     if (selectedCartItems.length === 0) {
@@ -192,7 +210,7 @@ const goToPayment = async () => {
     console.log("發送的訂單資訊:", orderData);
 
     // 發送請求到後端提交訂單
-    await axiosapi.post(`/orders/submit`, orderData); // 使用 axios 發送請求
+    await axiosapi3.post(`/orders/submit`, orderData); // 使用 axios 發送請求
 
     alert('訂單提交成功！');
     router.push('/shop/details');
@@ -209,6 +227,14 @@ onMounted(async () => {
     await cartStore.fetchCartDataFromServer();
     cart.value.forEach(item => {
       item.editQuantity = item.quantity || 0; // 初始化 editQuantity
+
+      // 如果購物車商品沒有 imageUrls，從 productStore 中獲取
+      if (!item.product?.imageUrls) {
+        const product = productStore.products.find(p => p.productId === item.product.productId);
+        if (product) {
+          item.product.imageUrls = product.imageUrls;
+        }
+      }
     });
   } catch (error) {
     console.error('獲取購物車數據失敗:', error);
@@ -241,6 +267,17 @@ onMounted(async () => {
   width: 100px;
   height: 100px;
   margin-bottom: 10px;
+}
+
+.thumbnail-container {
+  display: flex;
+  gap: 5px;
+  margin-top: 10px;
+}
+
+.thumbnail {
+  width: 50px;
+  height: 50px;
 }
 
 .quantity-container {
