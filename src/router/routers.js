@@ -197,7 +197,7 @@ router.beforeEach(async (to, from, next) => {
   }
 
   // 限制 /admin 頁面，只有管理員可以進入
-  if (to.path.startsWith("/admin") && !userStore.isAdmin()) {
+  if (to.path.startsWith("/admin") && !userStore.isAdmin) {
     return next("/403");  // 轉到「無權限」頁面
   }
 
