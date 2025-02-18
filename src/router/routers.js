@@ -15,6 +15,7 @@ import LoginAdmin from '@/views/secure/LoginAdmin.vue';
 import Register from '@/views/pages/Register.vue';
 import MemberCenter from '@/views/pages/MemberCenter.vue';
 import MemberCard from '@/views/pages/MemberCard.vue';
+import AdminCard from '../views/AdminCard.vue';
 //冠
 import LineMessage from '@/views/secure/LineMessage.vue';
 import FollowCase from '@/views/secure/FollowCase.vue';
@@ -102,6 +103,7 @@ const routes = [
   //這樣 /admin/* 下面的所有路由都會套用 AdminManagement.vue，讓 Sidebar 固定存在！
   {
     path: "/admin", component: AdminManagement, name: "adminManagement-link", meta: { hideNavbar: true }, children: [
+      { path: "adminCard", component: AdminCard },
       { path: "rescueCase", component: RescueManagement },
       { path: "rescueAnalysis", component: RescueAnalysis },
       { path: "lostCase", component: LostAdmin },
