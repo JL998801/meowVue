@@ -162,12 +162,7 @@ router.beforeEach(async (to, from, next) => {
 
   console.log("userStore", userStore);
   console.log("to.path", to.path);
-  // 🔥 `/shop` 及其所有子路由都不需要驗證 (開發用byNaomi)
-  // const isPublicPage = publicPages.includes(to.path) || to.path.startsWith("/shop");
-  // console.log("isPublicPage", isPublicPage);
-  // if (!isPublicPage && !userStore.isAuthenticated) {
-  //   return next("/secure/login"); // 🔐 重新導向到登入頁
-  // }
+  
   // ✅ 改用 `.some()` 來判斷是否為公開頁面；配合部分頁面:id的設計
   const isPublicPage = publicPages.some(page => to.path.startsWith(page));
 

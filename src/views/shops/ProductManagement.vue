@@ -14,11 +14,12 @@
             </div>
 
             <!-- ✅ 新增商品按鈕 -->
+            <!-- 引入 Modal 組件 -->
+            <ProductFormModal ref="productFormRef" />
+
             <button class="btn btn-success add-product-btn" @click="addProduct">
                 + 新增商品
             </button>
-                <!-- 引入 Modal 組件 -->
-                <ProductFormModal ref="productFormRef" />
         </div>
 
         <!-- 商品列表 -->
@@ -143,26 +144,24 @@
                         </span>
                     </td>
                     <td v-else class="tag-cell">
-                        <Multiselect
-                            v-model="product.tags"
-                            :options="tagStore.tags"
-                            label="tagName"
-                            track-by="tagId"
-                            multiple
-                            :close-on-select="false"
-                            placeholder="選擇標籤..."
-                            class="floating-multiselect custom-multiselect"
-                        >
-                            <!-- ✅ 使用自訂 slot 來改變選單內容 -->
-                            <!-- 當 editMode[product.productId] = true 時，確保 product.tags 預設為空數組 -->
-                            <template v-slot:option="{ option }">
-                                <div class="custom-option" :class="{ 'selected-option': isSelected(product, option) }">
-                                    <input type="checkbox" :checked="isSelected(product, option)" @change="toggleTag(product, option)" />
-                                    <span>{{ option.tagName }}</span>
-                                </div>
-                            </template>
-                        </Multiselect>
+                        <label class="form-label">標籤</label>
+                        <div class="checkbox-group">
+                            <div v-for="tag in tagStore.tags" :key="tag.tagId" class="form-check form-check-inline">
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    :id="'tag_' + tag.tagId"
+                                    :value="tag"
+                                    :checked="isSelected(product, tag)"
+                                    @change="toggleTag(product, tag)"
+                                />
+                                <label class="form-check-label" :for="'tag_' + tag.tagId">
+                                    {{ tag.tagName }}
+                                </label>
+                            </div>
+                        </div>
                     </td>
+
 
                     <!-- 原價 -->
                     <td v-if="!editMode[product.productId]">{{ product.originalPrice }}</td>
@@ -229,8 +228,6 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import Swal from "sweetalert2";
-import Multiselect from "vue-multiselect";
-
 import ProductFormModal from "@/components/shop/manage/ProductFormModal.vue";
 import useProductStore from "@/stores/productStore";
 import useCategoryStore from "@/stores/categoryStore";
@@ -262,7 +259,7 @@ const formatDate = (dateString) => {
     return `${year}-${month}-${day}\n${hours}:${minutes}:${seconds}`;
 };
 
-// **點擊搜尋按鈕時調用 `fetchFilteredProducts` 並發送事件**
+// ✅ 點擊搜尋按鈕時調用 `fetchFilteredProducts` 並發送事件**
 const applyFilter = async () => {
     const filter = {
         query: searchQuery.value || null,
@@ -285,29 +282,20 @@ const productFormRef = ref(null);
 const addProduct = () => {
     if (productFormRef.value) {
         productFormRef.value.openModal();
-    }
-};
-
-/** 確認選項是否已選中:確保 product.tags 一定是數組，並增加 null 檢查 */
-const isSelected = (product, option) => {
-    return Array.isArray(product.tags) && product.tags.some(tag => tag.tagId === option.tagId);
-};
-
-/** 切換標籤選擇狀態 */
-const toggleTag = (product, option) => {
-    if (!Array.isArray(product.tags)) {
-        product.tags = []; // 確保是陣列，避免 undefined 錯誤
-    }
-
-    const index = product.tags.findIndex(tag => tag.tagId === option.tagId);
-    if (index === -1) {
-        product.tags.push(option); // ✅ 如果沒選，就加入
     } else {
-        product.tags.splice(index, 1); // ✅ 如果已選，就移除
+        console.error("ProductFormModal 未載入");
     }
 };
 
-//  ✅ 修改商品圖片
+// ✅ 修改商品: 每個欄位開放調整，備份一份原始數據供"取消"操作時恢復資料 */
+const modifyProduct = (productId) => {
+    editMode.value[productId] = true;
+
+    // 備份原始數據（確保每個 `productId` 都有對應的備份）
+    originalProductData.value[productId] = JSON.parse(JSON.stringify(productStore.products.find(p => p.productId === productId)));
+};
+
+//  修改商品圖片
 const handleImageUpload = (event, product, index) => {
     const file = event.target.files[0];
     if (!file) return;
@@ -328,12 +316,23 @@ const handleImageUpload = (event, product, index) => {
     reader.readAsDataURL(file);
 };
 
-// ✅ 修改商品: 每個欄位開放調整，備份一份原始數據供"取消"操作時恢復資料 */
-const modifyProduct = (productId) => {
-    editMode.value[productId] = true;
+/** 確認選項是否已選中:確保 product.tags 一定是數組，並增加 null 檢查 */
+const isSelected = (product, option) => {
+    return Array.isArray(product.tags) && product.tags.some(tag => tag.tagId === option.tagId);
+};
 
-    // 備份原始數據（確保每個 `productId` 都有對應的備份）
-    originalProductData.value[productId] = JSON.parse(JSON.stringify(productStore.products.find(p => p.productId === productId)));
+/** 切換標籤選擇狀態 */
+const toggleTag = (product, option) => {
+    if (!Array.isArray(product.tags)) {
+        product.tags = []; // 確保是陣列，避免 undefined 錯誤
+    }
+
+    const index = product.tags.findIndex(tag => tag.tagId === option.tagId);
+    if (index === -1) {
+        product.tags.push(option); // ✅ 如果沒選，就加入
+    } else {
+        product.tags.splice(index, 1); // ✅ 如果已選，就移除
+    }
 };
 
 // 取消編輯，恢復原始數據 */
@@ -486,6 +485,7 @@ onMounted(() => {
     productStore.fetchProducts();
     categoryStore.fetchCategories();
     tagStore.fetchTags();
+    console.log("ProductFormModal ref:", productFormRef.value); // ✅ 檢查是否為 null；"新增商品"談窗掛載後才被訪問
 });
 </script>
 
@@ -524,10 +524,16 @@ body::-webkit-scrollbar {
 
 .table{
     width: 100%;
-    border-radius: 20px; /* 讓邊框成為橢圓形 */
+    border-radius: 50px; /* 讓邊框成為橢圓形 */
+    background-color: #f3d89f;
     table-layout: auto; /* 允許表格根據內容調整寬度 */
     /* overflow: hidden; 防止內容溢出 */
     overflow: visible; /*允許內容超出 `table` 顯示*/
+}
+
+.table th{
+    background-color: #d0ccd0;
+    color: #000000;
 }
 
 /* 表頭、列、欄 */
@@ -563,8 +569,7 @@ th:nth-child(14), td:nth-child(14) { width: 80px; } /* 狀態 */
 th:nth-child(15), td:nth-child(15) { width: 150px; } /* 操作按鈕 */
 
 /* 下拉選單通用: 類別、標籤、狀態 */
-td .form-select,
-td .multiselect {
+td .form-select {
     position: relative; /* ✅ 讓 Multiselect 內容不會被 `td` 限制 */
     box-sizing: border-box;
     width: 100%;
@@ -622,64 +627,11 @@ td.tag-cell {
     white-space: normal; /* 允許內容換行 */
 }
 
-/* ✅ 讓 Multiselect (多選標籤)本身的輸入框填滿 `td` */
-.custom-multiselect {
-    position: relative;  /* ✅ 讓 `Multiselect` 定位不影響表格 */
-    z-index: 1000; /* ✅ 確保不被其他元素遮擋 */
-    width: 100%;
-    min-width: 120px;
-    max-width: 100%;
-    box-sizing: border-box;
-}
-
-/* 讓 `Multiselect` 選單完整展開 */
-.custom-multiselect .multiselect__content-wrapper {
-    position: absolute !important;
-    z-index: 9999 !important;
-    max-height: 300px !important;
-    overflow-y: auto !important;
-    background: white;
-    border-radius: 4px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-/* 讓選擇的標籤 (tag) 正確顯示 */
-.custom-multiselect .multiselect__tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
-    padding: 5px;
-    background: white;
-    border-radius: 5px;
-}
-
-/* 隱藏 `vue-multiselect` 預設的 `•` 點點 */
-.multiselect__option::before {
-    display: none !important;
-    content: "" !important;
-}
-
-/* 讓每個選項顯示 `Checkbox` 而不是預設標籤 */
-.custom-option {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 12px;
-    cursor: pointer;
-    border-radius: 5px; /* ✅ 圓角 */
-    transition: background 0.2s ease-in-out;
-}
-
-/* 當選中時，改變底色 */
-.selected-option {
-    background: #cce5ff; /* ✅ 輕微藍色背景，表示選中 */
-}
-
-/* 調整 Checkbox 樣式 */
-.custom-option input[type="checkbox"] {
-    width: 16px;
-    height: 16px;
-    accent-color: #007bff; /* ✅ 設定 Checkbox 顏色 */
+/* ✅ 讓 `checkbox` 間距更清晰 */
+.checkbox-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 /* ✅ 讓建立時間、更新時間的 td 內容允許換行 */
