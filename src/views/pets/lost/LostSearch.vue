@@ -97,7 +97,7 @@
 </template>
 
 <script setup>
-import { ref, watch, computed, onMounted } from "vue";
+import { ref, watch, computed, onMounted, watchEffect } from "vue";
 import { axiosapi } from "@/plugins/axios.js";
 import CaseList from "@/components/pet/lost/case/CaseList.vue"; // ✅ 引入 CaseList
 
@@ -135,16 +135,20 @@ const searchParams = ref({
 
 // ✅ **計算屬性：當 `searchCases()` 更新時，自動變更 `searchParams`**
 const computedSearchParams = computed(() => ({
-  keyword: keyword.value || "",
-  lostCaseId: lostCaseId.value ? Number(lostCaseId.value) : undefined,
-  caseStateId: selectedCaseStatement.value || undefined,
-  cityId: cityId.value || undefined,
-  districtAreaId: district.value || undefined,
-  speciesId: filters.value.species || undefined,
-  gender: filters.value.gender || "",
+  keyword: keyword.value ? keyword.value.trim() : null, // ✅ `""` 變成 `null`
+  lostCaseId: lostCaseId.value, // ✅ 避免 `0`
+  caseStateId: selectedCaseStatement.value,
+  cityId: cityId.value,
+  districtAreaId: district.value,
+  speciesId: filters.value.species,
+  gender: filters.value.gender,
   sterilization: filters.value.sterilization ? "已絕育" : "",
   sortOrder: sortOrder.value,
 }));
+watchEffect(() => {
+  searchParams.value = computedSearchParams.value;
+  console.log("🔄 searchParams 更新:", searchParams.value);
+});
 
 // ✅ **更新排序方式**
 const updateSortOrder = (order) => {

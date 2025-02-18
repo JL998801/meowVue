@@ -92,11 +92,10 @@ const handleScroll = () => {
 
 // **監聽 `searchParams` 變化**
 watch(
-  () => props.searchParams, // ✅ 監聽 `searchParams`
+  () => props.searchParams,
   async (newParams, oldParams) => {
     console.log("🔄 `searchParams` 變更，重新請求數據:", newParams);
 
-    // 如果 searchParams 沒有變更，則不執行請求
     if (JSON.stringify(newParams) === JSON.stringify(oldParams)) {
       return;
     }
@@ -105,7 +104,7 @@ watch(
     try {
       const response = await axiosapi2.post(
         "/lostcases/search",
-        newParams, // ✅ 直接傳遞 `searchParams`
+        newParams,
         {
           params: {
             offset: 0,
