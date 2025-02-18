@@ -107,7 +107,11 @@
 
 <script setup>
 import { ref, watch } from "vue";
+<<<<<<< HEAD
 import * as bootstrap from "bootstrap";
+=======
+// import * as bootstrap from "bootstrap";
+>>>>>>> 5b89eede5f1d15b590c47a0bb1d0819ab7adf086
 import Swal from "sweetalert2";
 import Multiselect from "vue-multiselect";
 import useProductStore from "@/stores/productStore";

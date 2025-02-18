@@ -29,7 +29,18 @@
 </div>
 
 <!-- 按鈕，點擊後觸發圖片上傳 -->
+<<<<<<< HEAD
 <button @click="submitForm" class="bg-bu text-w px-3 py-1 rounded text-sm">上傳圖片</button>
+=======
+<!-- 按鈕，點擊後觸發圖片上傳 -->
+<button 
+  v-if="!googleCredential" 
+  @click="submitForm" 
+  class="bg-bu text-w px-3 py-1 rounded text-sm">
+  上傳圖片
+</button>
+
+>>>>>>> 5b89eede5f1d15b590c47a0bb1d0819ab7adf086
 
 
 
@@ -86,6 +97,10 @@
   import { useRouter } from 'vue-router';
   import SidebarMenu from "@/components/SidebarMenu.vue";
   import { axiosapi } from '@/plugins/axios';
+<<<<<<< HEAD
+=======
+  const googleCredential = ref(localStorage.getItem('googleCredential')); 
+>>>>>>> 5b89eede5f1d15b590c47a0bb1d0819ab7adf086
   const selectedFiles = ref([null]);  // 儲存選擇的檔案
   const imagePreviews = ref([null]);  // 儲存圖片預覽
   const rescueCaseCount = ref(0);  // 救援案件數

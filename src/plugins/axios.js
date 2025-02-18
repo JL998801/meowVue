@@ -23,6 +23,11 @@ axiosapi.interceptors.request.use(
         const token = localStorage.getItem("authToken"); // 從 localStorage 取得 Token
         if (token) {
             config.headers.Authorization = `Bearer ${token}`; // 自動附加 `Authorization` Header
+            if (config.data instanceof FormData) {
+                config.headers["Content-Type"] = "multipart/form-data";  // ✅ 確保 FormData 請求 (修改圖片 by Naomi)
+            } else {
+                config.headers["Content-Type"] = "application/json";
+            }
         }
 
         if (!(config.data instanceof FormData)) {

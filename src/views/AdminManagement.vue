@@ -63,6 +63,8 @@ body {
 .full-width {
   margin-left: 0;
 }
+<<<<<<< HEAD
+=======
 
 /* 🔹 隱藏 Sidebar 時顯示按鈕 */
 .sidebar-toggle {
@@ -82,4 +84,27 @@ body {
 .sidebar-toggle:hover {
   background-color: #555;
 }
+>>>>>>> 5b89eede5f1d15b590c47a0bb1d0819ab7adf086
+
+/* 🔹 隱藏 Sidebar 時顯示按鈕 */
+.sidebar-toggle {
+  position: fixed;
+  top: 20px;
+  left: 10px;
+  background-color: #333;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  font-size: 18px;
+  cursor: pointer;
+  border-radius: 5px;
+  z-index: 1000;
+}
+
+<<<<<<< HEAD
+.sidebar-toggle:hover {
+  background-color: #555;
+}
+=======
+>>>>>>> 5b89eede5f1d15b590c47a0bb1d0819ab7adf086
 </style>

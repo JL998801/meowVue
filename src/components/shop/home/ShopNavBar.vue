@@ -59,11 +59,24 @@
       <p>購物車是空的！</p>
     </div>
     <div v-else>
+<<<<<<< HEAD
       <div v-for="item in cartStore.cart" :key="item.cartItemId" class="cart-item">
         <!-- 更新商品圖片邏輯 -->
         <img
           :src="item.product?.imageUrls?.[0] || '/images/lostcat5.png'"
           :alt="item.product?.productName || '無圖片'"
+=======
+      <div
+        v-for="item in cartStore.cart"
+        :key="item.cartItemId"
+        class="cart-item"
+      >
+        <!-- 顯示商品縮圖 -->
+        <img
+          v-if="item.product?.imageUrl"
+          :src="item.product.imageUrl"
+          alt="Product Image"
+>>>>>>> 5b89eede5f1d15b590c47a0bb1d0819ab7adf086
           class="product-image"
         />
         <p>
@@ -135,8 +148,12 @@ import { computed, ref } from "vue";
 import { useRouter } from "vue-router";
 import Swal from "sweetalert2";
 import petLogo from "@/assets/petLogo.png"; // Logo 圖示
+<<<<<<< HEAD
 import useProductStore from "@/stores/productStore";
 	const productStore = useProductStore();
+=======
+
+>>>>>>> 5b89eede5f1d15b590c47a0bb1d0819ab7adf086
 import useUserStore from "@/stores/user";
 import { storeToRefs } from "pinia";
 import useCartStore from "@/stores/cartStore";

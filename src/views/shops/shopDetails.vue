@@ -32,7 +32,11 @@
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useOrderStore } from "@/stores/order"; // 引入 Pinia store
+<<<<<<< HEAD
 import { axiosapi3} from "@/plugins/axios.js";
+=======
+import { axiosapi} from "@/plugins/axios.js";
+>>>>>>> 5b89eede5f1d15b590c47a0bb1d0819ab7adf086
 
 const router = useRouter();
 const orderStore = useOrderStore(); // 使用 Pinia store
@@ -42,13 +46,21 @@ const loading = ref(false);
 const error = ref(null);
 
 // 從 localStorage 或 sessionStorage 取得 memberId
+<<<<<<< HEAD
 const memberId = 1;  // 設定為 1 作為測試 ID
+=======
+const memberId = localStorage.getItem("memberId") || 1;  // 設定為 1 作為測試 ID
+>>>>>>> 5b89eede5f1d15b590c47a0bb1d0819ab7adf086
 
 // 讀取訂單資料
 const fetchOrderData = async () => {
   loading.value = true;
   try {
+<<<<<<< HEAD
     const response = await axiosapi3.get(`/orders/member/${memberId}`);
+=======
+    const response = await axiosapi.get(`/orders/member/${memberId}`);
+>>>>>>> 5b89eede5f1d15b590c47a0bb1d0819ab7adf086
     orderList.value = response.data.map(order => ({
       ...order,
       orderItems: order.orderItems.map(item => ({
@@ -88,7 +100,11 @@ const getStatusClass = (status) => {
 const cancelOrder = async (orderId) => {
   if (confirm("確定要取消該訂單嗎？")) {
     try {
+<<<<<<< HEAD
       const response = await axiosapi3.post(`/orders/cancel`, null, {
+=======
+      const response = await axiosapi.post(`/orders/cancel`, null, {
+>>>>>>> 5b89eede5f1d15b590c47a0bb1d0819ab7adf086
         params: { orderId }
       });
       if (response.status === 200) {
@@ -115,7 +131,11 @@ const goToPayment = async (order) => {
         purchasedPrice: item.purchasedPrice,
       })),
     };
+<<<<<<< HEAD
     const paymentResponse = await axiosapi3.post(`/pages/ecpay/send`, paymentData);
+=======
+    const paymentResponse = await axiosapi.post(`/pages/ecpay/send`, paymentData);
+>>>>>>> 5b89eede5f1d15b590c47a0bb1d0819ab7adf086
     if (paymentResponse.status === 200) {
       router.push("/shop/payment");
     } else {

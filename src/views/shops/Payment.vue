@@ -17,7 +17,11 @@
       </ul>
       
       <form @submit.prevent="sendPayment">
+<<<<<<< HEAD
         <button type="submit" :disabled="!selectedOrder">立即支付</button>
+=======
+        <button type="submit">立即支付</button>
+>>>>>>> 5b89eede5f1d15b590c47a0bb1d0819ab7adf086
       </form>
     </div>
   </div>
@@ -26,6 +30,7 @@
 <script setup>
 import { computed } from "vue";
 import { useOrderStore } from "@/stores/order"; // Import Pinia store
+<<<<<<< HEAD
 import { axiosapi3 } from "@/plugins/axios.js";
 
 const orderStore = useOrderStore();
@@ -113,6 +118,69 @@ const sendPayment = async () => {
       alert("❌ 支付請求異常，請稍後重試！");
     }
   }
+=======
+import { axiosapi } from "@/plugins/axios.js";
+
+
+// Pinia store to manage selected order
+const orderStore = useOrderStore();
+
+// Computed property to get selected order from Pinia
+const selectedOrder = computed(() => orderStore.selectedOrder);
+
+// Prepare payment data based on selected order
+const getPaymentData = () => {
+  if (!selectedOrder.value) return null;
+
+  return {
+    orderId: selectedOrder.value.orderId,
+    total: selectedOrder.value.finalPrice.toString(),
+    name: selectedOrder.value.orderItems.map((item) => item.productName).join(", "),
+    desc: `包含 ${selectedOrder.value.orderItems.length} 項商品`
+  };
+};
+
+// Handle sending the payment request
+const sendPayment = () => {
+  const paymentData = getPaymentData();
+  
+  if (!paymentData) {
+    alert("訂單資料缺失，請返回訂單頁面重新選擇！");
+    return;
+  }
+
+  // Convert the data to x-www-form-urlencoded format
+  const formData = new URLSearchParams();
+  formData.append("orderId", paymentData.orderId);
+  formData.append("total", paymentData.total);
+  formData.append("name", paymentData.name);
+  formData.append("desc", paymentData.desc);
+
+  // Use x-www-form-urlencoded to send the data
+  axiosapi.post(`/pages/ecpay/send`, formData, {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded" // Ensure the content type is x-www-form-urlencoded
+      }
+    })
+    .then((response) => {
+      // Assuming the response contains HTML form to trigger the payment
+      const container = document.createElement("div");
+      container.innerHTML = response.data;
+
+      // Append the form to the body
+      document.body.appendChild(container);
+
+      // Find the form inside the container and submit it manually
+      const paymentForm = container.querySelector("form");
+      if (paymentForm) {
+        paymentForm.submit(); // Submit the form to initiate the payment process
+      }
+    })
+    .catch((error) => {
+      console.error("支付失敗：", error);
+      alert("支付請求失敗，請稍後重試！");
+    });
+>>>>>>> 5b89eede5f1d15b590c47a0bb1d0819ab7adf086
 };
 </script>
 
@@ -138,11 +206,14 @@ button:hover {
   background-color: #218838;
 }
 
+<<<<<<< HEAD
 button:disabled {
   background-color: #ccc;
   cursor: not-allowed;
 }
 
+=======
+>>>>>>> 5b89eede5f1d15b590c47a0bb1d0819ab7adf086
 .error {
   color: red;
 }

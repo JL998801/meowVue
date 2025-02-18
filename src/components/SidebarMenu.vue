@@ -27,7 +27,11 @@ const menuItems = [
   { label: "流浪救援管理", link: "/member-center/rescueCase" },
   { label: "動物送養管理", link: "/adoption-management" },
   { label: "動物領養管理", link: "/foster-management" },
+<<<<<<< HEAD
   { label: "遺失協尋管理", link: "/lost-management" },
+=======
+  { label: "遺失協尋管理", link: "/pet/lost/member" },
+>>>>>>> 5b89eede5f1d15b590c47a0bb1d0819ab7adf086
   { label: "追蹤案件管理", link: "/member-center/followCase" },
   { label: "違規通報管理", link: "/violation-management" },
 ];

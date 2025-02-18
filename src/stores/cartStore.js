@@ -1,13 +1,23 @@
 import { defineStore } from "pinia";
+<<<<<<< HEAD
 import { axiosapi3 } from "@/plugins/axios.js"; // 確保 axiosapi 正確導入
+=======
+import { axiosapi } from "@/plugins/axios.js"; // 確保 axiosapi 正確導入
+>>>>>>> 5b89eede5f1d15b590c47a0bb1d0819ab7adf086
 
 export const useCartStore = defineStore("cart", {
   state: () => {
     // 從 localStorage 獲取購物車資料（如果可用）
     const cartData = localStorage.getItem("cart");
+<<<<<<< HEAD
     const memberId = 1; // 從 localStorage 獲取會員 ID
     // 若 cartId 为空，設定為 1
     const cartId = 1;
+=======
+    const memberId = localStorage.getItem('memberId') || null; // 從 localStorage 獲取會員 ID
+    // 若 cartId 为空，設定為 1
+    const cartId = localStorage.getItem('cartId') || sessionStorage.getItem('cartId') || 1;
+>>>>>>> 5b89eede5f1d15b590c47a0bb1d0819ab7adf086
 
     return {
       cart: cartData && cartData !== "undefined" ? JSON.parse(cartData) : [],
@@ -25,7 +35,11 @@ export const useCartStore = defineStore("cart", {
     // **生成唯一的 cartId**
     generateCartId() {
       // 如果有 memberId，則 cartId 就等於 memberId，否則設為 1
+<<<<<<< HEAD
       const memberId = 1;
+=======
+      const memberId = this.memberId || 1;
+>>>>>>> 5b89eede5f1d15b590c47a0bb1d0819ab7adf086
       const validCartId = isNaN(memberId) ? 1 : memberId; // 確保 cartId 是數字
       localStorage.setItem('cartId', validCartId); // 存入 localStorage
       return validCartId;
@@ -119,7 +133,11 @@ export const useCartStore = defineStore("cart", {
             productId: item.productId,
             productName: item.productName,
           }));
+<<<<<<< HEAD
           await axiosapi3.put(`/pages/cart/update/${this.memberId}`, cartData);
+=======
+          await axiosapi.put(`/pages/cart/update/${this.memberId}`, cartData);
+>>>>>>> 5b89eede5f1d15b590c47a0bb1d0819ab7adf086
         }
       } catch (error) {
         console.error("購物車同步失敗:", error);
@@ -131,7 +149,11 @@ export const useCartStore = defineStore("cart", {
       try {
         if (!this.memberId) return; // 沒有登入則不請求數據
 
+<<<<<<< HEAD
         const response = await axiosapi3.get(`/pages/cart/list/${this.memberId}`);
+=======
+        const response = await axiosapi.get(`/pages/cart/list/${this.memberId}`);
+>>>>>>> 5b89eede5f1d15b590c47a0bb1d0819ab7adf086
         if (response.data) {
           const updatedCart = response.data.map((item) => ({
             ...item,
@@ -171,7 +193,11 @@ export const useCartStore = defineStore("cart", {
           selectedItems,
         };
 
+<<<<<<< HEAD
         const response = await axiosapi3.post(`/pages/order/create`, orderData);
+=======
+        const response = await axiosapi.post(`/pages/order/create`, orderData);
+>>>>>>> 5b89eede5f1d15b590c47a0bb1d0819ab7adf086
         if (response.data.success) {
           alert("訂單提交成功！");
           this.setSelectedOrder(response.data.order);

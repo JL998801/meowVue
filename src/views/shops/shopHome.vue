@@ -1,11 +1,19 @@
 <script setup>
 import { computed, defineProps, onMounted, ref } from "vue";
 import ProductCard from "@/components/shop/home/ProductCard.vue";
+<<<<<<< HEAD
 import Pagination from "@/components/shop/home/Pagination.vue";
 import useProductStore from "../../stores/productStore"
 import useCartStore from "../../stores/cartStore"
 import axios from 'axios';
 import { useStore } from 'vuex'
+=======
+import Pagination from "@/components/shop/home/pagination.vue";
+import useProductStore from "../../stores/productStore";
+import useCartStore from "../../stores/cartStore";
+import axios from "axios";
+import { useStore } from "vuex";
+>>>>>>> 5b89eede5f1d15b590c47a0bb1d0819ab7adf086
 
 // 接收 shopSidebar.vue 搜尋資料
 const props = defineProps({
@@ -26,9 +34,21 @@ const store = useStore();
 const filteredProducts = computed(() => {
   if (!Array.isArray(productStore.products)) return [];
   return productStore.products.filter((product) => {
+<<<<<<< HEAD
     const matchesCategory = !selectedFilter.value.categoryId || product.categoryId === selectedFilter.value.categoryId;
     const matchesMinPrice = !selectedFilter.value.minPrice || product.salePrice >= selectedFilter.value.minPrice;
     const matchesMaxPrice = !selectedFilter.value.maxPrice || product.salePrice <= selectedFilter.value.maxPrice;
+=======
+    const matchesCategory =
+      !selectedFilter.value.categoryId ||
+      product.categoryId === selectedFilter.value.categoryId;
+    const matchesMinPrice =
+      !selectedFilter.value.minPrice ||
+      product.salePrice >= selectedFilter.value.minPrice;
+    const matchesMaxPrice =
+      !selectedFilter.value.maxPrice ||
+      product.salePrice <= selectedFilter.value.maxPrice;
+>>>>>>> 5b89eede5f1d15b590c47a0bb1d0819ab7adf086
     return matchesCategory && matchesMinPrice && matchesMaxPrice;
   });
 });
@@ -40,19 +60,33 @@ const filteredProducts = computed(() => {
 //   return category.products; // 直接回傳該類別的產品
 // };
 
+<<<<<<< HEAD
 // const displayedCategories = computed(() => 
+=======
+// const displayedCategories = computed(() =>
+>>>>>>> 5b89eede5f1d15b590c47a0bb1d0819ab7adf086
 //   props.categories.filter(category => targetCategories.includes(category.categoryName))
 // );
 
 onMounted(() => {
+<<<<<<< HEAD
   productStore.fetchProducts();  //取得商品資訊
+=======
+  productStore.fetchProducts(); //取得商品資訊
+>>>>>>> 5b89eede5f1d15b590c47a0bb1d0819ab7adf086
   productStore.fetchPagedProducts(); // ✅ 預設取得第一頁數據
 });
 
 // 獲取會員ID
 const getMemberId = async () => {
   try {
+<<<<<<< HEAD
     const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/member/getMemberId`); 
+=======
+    const response = await axios.get(
+      `${import.meta.env.VITE_API_URL}/api/member/getMemberId`
+    );
+>>>>>>> 5b89eede5f1d15b590c47a0bb1d0819ab7adf086
     return response.data.memberId; // 假設後端返回的是 { memberId: <id> }
   } catch (error) {
     console.error("獲取會員ID失敗:", error);
@@ -63,7 +97,13 @@ const getMemberId = async () => {
 // 獲取購物車ID (可以改為從後端獲取)
 const getCartId = async () => {
   try {
+<<<<<<< HEAD
     const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/cart/getCartId`);
+=======
+    const response = await axios.get(
+      `${import.meta.env.VITE_API_URL}/api/cart/getCartId`
+    );
+>>>>>>> 5b89eede5f1d15b590c47a0bb1d0819ab7adf086
     return response.data.cartId; // 假設後端返回的是 { cartId: <id> }
   } catch (error) {
     console.error("獲取購物車ID失敗:", error);
@@ -77,8 +117,13 @@ const addToCart = async (index) => {
   if (!product) return;
 
   try {
+<<<<<<< HEAD
     const memberId = 1; // 從後端獲取會員ID
     const cartId = 1; // 從後端獲取購物車ID
+=======
+    const memberId = await getMemberId(); // 從後端獲取會員ID
+    const cartId = await getCartId(); // 從後端獲取購物車ID
+>>>>>>> 5b89eede5f1d15b590c47a0bb1d0819ab7adf086
     if (!memberId || !cartId) {
       alert("無法獲取會員或購物車資訊");
       return;
@@ -87,13 +132,21 @@ const addToCart = async (index) => {
     const productId = product.productId;
     const quantity = 1;
 
+<<<<<<< HEAD
     await axios.post(`${import.meta.env.VITE_API_URL}/api/pages/cart/add`, {
+=======
+    await axios.post(`${import.meta.env.VITE_API_URL}/pages/cart/add`, {
+>>>>>>> 5b89eede5f1d15b590c47a0bb1d0819ab7adf086
       cartId,
       memberId,
       productId,
       quantity,
     });
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> 5b89eede5f1d15b590c47a0bb1d0819ab7adf086
     cartStore.addToCart({ ...product, quantity });
     alert("商品已成功加入購物車");
   } catch (error) {
@@ -108,6 +161,7 @@ const addToWishlist = (product) => {
   alert("商品已加入願望清單！"); //跳出彈窗
 };
 </script>
+<<<<<<< HEAD
  
 <template>
     <!-- 🔹 搜尋前: 顯示商品卡片-->
@@ -144,6 +198,45 @@ const addToWishlist = (product) => {
         <p>下載中</p>
       </div>
   
+=======
+
+<template>
+  <!-- 🔹 搜尋前: 顯示商品卡片-->
+  <div class="shop-home">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <!-- 🔹 分頁控制 -->
+      <div
+        class="spinner-grow text-warning"
+        role="status"
+        v-if="productStore.loading"
+      >
+        <span class="sr-only">Loading...</span>
+      </div>
+      <div class="pagination">
+        <Pagination v-if="productStore.totalPages" />
+      </div>
+    </div>
+    <!-- 🔹 商品卡片:點擊需要傳入 product 資訊 -->
+    <div class="product-grid" v-if="productStore.products.length > 0">
+      <ProductCard
+        displayMode="one"
+        v-for="product in productStore.products"
+        :key="product.productId"
+        :product="product"
+        @add-to-cart="addToCart(index)"
+        @add-to-wishlist="addToWishlist"
+      />
+    </div>
+
+    <!-- 🔹 搜尋後無結果 -->
+    <div v-else-if="!productStore.loading">
+      <p>沒有符合條件的商品</p>
+    </div>
+
+    <div v-else>
+      <p>下載中</p>
+    </div>
+>>>>>>> 5b89eede5f1d15b590c47a0bb1d0819ab7adf086
   </div>
 </template>
 
@@ -173,9 +266,15 @@ select.form-select {
 .product-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+<<<<<<< HEAD
   flex-wrap: wrap;  /* ✅ 商品超出畫面時自動換行 */
   gap: 5px;  /* ✅ 設定卡片之間的間距 */
   justify-content: space-between;  /* ✅ 讓商品平均分配 */
+=======
+  flex-wrap: wrap; /* ✅ 商品超出畫面時自動換行 */
+  gap: 5px; /* ✅ 設定卡片之間的間距 */
+  justify-content: space-between; /* ✅ 讓商品平均分配 */
+>>>>>>> 5b89eede5f1d15b590c47a0bb1d0819ab7adf086
   width: 100%; /* ✅ 確保內容撐滿畫面 */
 }
 

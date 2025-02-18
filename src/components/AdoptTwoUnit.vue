@@ -10,7 +10,11 @@
     <div class="post-details">
       <div class="info">
         <!-- 顯示救援案件編號，若沒有則顯示占位文本 -->
+<<<<<<< HEAD
         <div class="post-id">救援案件編號 : {{ caseData?.rescueCaseId || '未知編號' }}</div>
+=======
+        <div class="post-id">領養案件編號 : {{ caseData?.rescueCaseId || '未知編號' }}</div>
+>>>>>>> 5b89eede5f1d15b590c47a0bb1d0819ab7adf086
         <!-- 顯示案件狀態，若沒有則顯示占位文本 -->
         <div class="case-status" :class="statusClass(caseData?.caseState || '無狀態')" >
           {{ caseData?.caseState || '無狀態' }}

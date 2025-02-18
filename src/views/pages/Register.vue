@@ -92,6 +92,7 @@
 </template>
 
 <script setup>
+<<<<<<< HEAD
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { axiosapi } from '@/plugins/axios';
@@ -109,11 +110,33 @@ const address = ref('');
 
 const router = useRouter();
 
+=======
+import { ref } from "vue";
+import { useRouter } from "vue-router";
+import { axiosapi } from "@/plugins/axios";
+
+// Reactive state variables
+const nickName = ref("");
+const email = ref("");
+const password = ref("");
+const confirmPassword = ref("");
+const name = ref("");
+const phone = ref("");
+const birthday = ref("");
+const address = ref("");
+
+const router = useRouter();
+
+>>>>>>> 5b89eede5f1d15b590c47a0bb1d0819ab7adf086
 // Submit form function
 const submitForm = () => {
   // 密碼一致性驗證
   if (password.value !== confirmPassword.value) {
+<<<<<<< HEAD
     alert('密碼不一致！');
+=======
+    alert("密碼不一致！");
+>>>>>>> 5b89eede5f1d15b590c47a0bb1d0819ab7adf086
     return;
   }
 
@@ -124,6 +147,7 @@ const submitForm = () => {
     password: password.value,
     name: name.value,
     phone: phone.value,
+<<<<<<< HEAD
     birthday: birthday.value,  // 日期格式
     address: address.value
   };
@@ -132,21 +156,43 @@ const submitForm = () => {
   axiosapi.post(`/register`, memberData)
     .then(response => {
       alert('註冊成功！');
+=======
+    birthday: birthday.value, // 日期格式
+    address: address.value,
+  };
+
+  // 註冊 API 請求
+  axiosapi
+    .post(`/register`, memberData)
+    .then((response) => {
+      alert("註冊成功！");
+>>>>>>> 5b89eede5f1d15b590c47a0bb1d0819ab7adf086
 
       setTimeout(() => {
         // 註冊成功後進行自動登入
         const loginData = {
           email: email.value,
+<<<<<<< HEAD
           password: password.value
         };
 
         // 登入 API 請求
         axiosapi.post(`/ajax/secure/login`, loginData)
           .then(loginResponse => {
+=======
+          password: password.value,
+        };
+
+        // 登入 API 請求
+        axiosapi
+          .post(`/ajax/secure/login`, loginData)
+          .then((loginResponse) => {
+>>>>>>> 5b89eede5f1d15b590c47a0bb1d0819ab7adf086
             const { token, user } = loginResponse.data;
             const { memberId, email, nickname } = user;
 
             // 儲存登入資訊到 localStorage
+<<<<<<< HEAD
             localStorage.setItem('memberId', memberId);
             localStorage.setItem('email', email);
             localStorage.setItem('token', token);
@@ -172,13 +218,49 @@ const submitForm = () => {
         alert('註冊失敗: 請求未收到回應');
       } else {
         alert('註冊失敗: ' + error.message);
+=======
+            localStorage.setItem("memberId", memberId);
+            localStorage.setItem("email", email);
+            localStorage.setItem("token", token);
+            localStorage.setItem("nickname", nickname);
+
+            // 設置 HTTP header
+            axiosapi.defaults.headers.authorization = "Bearer " + token;
+
+            // 跳轉到會員中心
+            router.push("/pages/MemberCenter");
+          })
+          .catch((loginError) => {
+            console.log(": ", loginError);
+            alert(
+              "登入失敗: " +
+                (loginError.response
+                  ? loginError.response.data.message
+                  : "未知錯誤")
+            );
+          });
+      }, 1000); // 延遲 1 秒
+    })
+    .catch((error) => {
+      console.error("錯誤詳細信息:", error);
+      if (error.response) {
+        alert("註冊失敗: " + (error.response.data.message || "未知錯誤"));
+      } else if (error.request) {
+        alert("註冊失敗: 請求未收到回應");
+      } else {
+        alert("註冊失敗: " + error.message);
+>>>>>>> 5b89eede5f1d15b590c47a0bb1d0819ab7adf086
       }
     });
 };
 </script>
 
+<<<<<<< HEAD
   <style scoped>
 
+=======
+<style scoped>
+>>>>>>> 5b89eede5f1d15b590c47a0bb1d0819ab7adf086
 .gg {
   display: flex;
   gap: 20px; /* 加一些間隔 */
@@ -186,6 +268,7 @@ const submitForm = () => {
   align-items: center;
   width: 100%; /* 保證容器寬度為 100% */
 }
+<<<<<<< HEAD
  /* 調整 Google 登入按鈕的樣式 */
 .google-login-container {
     flex: 1; /* 確保按鈕的寬度相等 */
@@ -213,6 +296,35 @@ const submitForm = () => {
     width: 60px;
     height: 20px;
     margin-right: 10px;
+=======
+/* 調整 Google 登入按鈕的樣式 */
+.google-login-container {
+  flex: 1; /* 確保按鈕的寬度相等 */
+}
+
+.google-login-btn {
+  font-family: "Noto Sans KR", sans-serif;
+  background-color: #f0f0f0;
+  color: #4285f4;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  width: 100%; /* 讓按鈕寬度自適應 */
+}
+
+.google-login-btn:hover {
+  background-color: #dcdcdc;
+}
+
+.google-icon {
+  width: 60px;
+  height: 20px;
+  margin-right: 10px;
+>>>>>>> 5b89eede5f1d15b590c47a0bb1d0819ab7adf086
 }
 
 /* 註冊按鈕樣式 */
