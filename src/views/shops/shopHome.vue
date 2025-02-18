@@ -52,7 +52,7 @@ onMounted(() => {
 // 獲取會員ID
 const getMemberId = async () => {
   try {
-    const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/member/getMemberId`); 
+    const response = await axios.get(`${import.meta.env.VITE_API_URL}/member/getMemberId`); 
     return response.data.memberId; // 假設後端返回的是 { memberId: <id> }
   } catch (error) {
     console.error("獲取會員ID失敗:", error);
@@ -63,7 +63,7 @@ const getMemberId = async () => {
 // 獲取購物車ID (可以改為從後端獲取)
 const getCartId = async () => {
   try {
-    const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/cart/getCartId`);
+    const response = await axios.get(`${import.meta.env.VITE_API_URL}/cart/getCartId`);
     return response.data.cartId; // 假設後端返回的是 { cartId: <id> }
   } catch (error) {
     console.error("獲取購物車ID失敗:", error);
@@ -87,7 +87,7 @@ const addToCart = async (index) => {
     const productId = product.productId;
     const quantity = 1;
 
-    await axios.post(`${import.meta.env.VITE_API_URL}/api/pages/cart/add`, {
+    await axios.post(`${import.meta.env.VITE_API_URL}/pages/cart/add`, {
       cartId,
       memberId,
       productId,

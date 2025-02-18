@@ -72,19 +72,78 @@ const useProductStore = defineStore("shop", () => {
     }
 
     // ✅ 添加商品
+    // async function addProduct(newProduct) {
+    //     loading.value = true;
+    //     errorMessage.value = null;
+    //     try {
+    //         const data = await ProductService.addProducts(newProduct);
+    //         products.value.push(data); // 添加到本地列表
+    //     } catch (err) {
+    //         errorMessage.value = "添加商品失敗：" + err.message;
+    //     } finally {
+    //         loading.value = false;
+    //     }
+    // }
+
+    // async function addProduct(newProduct) {
+    //     loading.value = true;
+    //     errorMessage.value = null;
+    //     try {
+    //         const response = await ProductService.addProducts(newProduct);
+            
+    //         if (response.success) { // 確保 API 回應成功
+    //             products.value.push(response.product); // 添加新商品
+    //             Swal.fire("成功", "商品已成功新增！", "success");
+    //         } else {
+    //             throw new Error(response.message || "新增失敗");
+    //         }
+    //     } catch (err) {
+    //         errorMessage.value = "添加商品失敗：" + err.message;
+    //         Swal.fire("錯誤", errorMessage.value, "error");
+    //     } finally {
+    //         loading.value = false;
+    //     }
+    // }    
+
     async function addProduct(newProduct) {
         loading.value = true;
         errorMessage.value = null;
+    
         try {
-            const data = await ProductService.addProducts(newProduct);
-            products.value.push(data); // 添加到本地列表
+            const formData = new FormData();
+    
+            // 將 `productRequest` 轉為 JSON 字串
+            formData.append("productRequest", JSON.stringify(newProduct));
+    
+            // 添加圖片檔案
+            if (newProduct.productImages) {
+                newProduct.productImages.forEach((file) => {
+                    formData.append("productImages", file);
+                });
+            }
+    
+            // 發送請求，確保 `Content-Type` 為 `multipart/form-data`
+            const response = await axios.post("http://localhost:8080/api/products", formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                    "Authorization": `Bearer ${userStore.token}`, // 確保攜帶 `token`
+                },
+            });
+    
+            if (response.data.success) {
+                products.value.push(response.data.product);
+                Swal.fire("成功", "商品已成功新增！", "success");
+            } else {
+                throw new Error(response.data.message || "新增失敗");
+            }
         } catch (err) {
             errorMessage.value = "添加商品失敗：" + err.message;
+            Swal.fire("錯誤", errorMessage.value, "error");
         } finally {
             loading.value = false;
         }
     }
-
+    
     // ✅ 刪除商品
     async function deleteProduct(id) {
         try {
@@ -100,21 +159,6 @@ const useProductStore = defineStore("shop", () => {
             return { success: false, message: err.message };
         }
     }
-    
-    // async function deleteProduct(id) {
-    //     loading.value = true;
-    //     errorMessage.value = null;
-    //     try {
-    //         await ProductService.deleteProducts(id);
-    //         products.value = products.value.filter(product => product.productId !== id); // 從本地列表移除
-    //     } catch (err) {
-    //         console.error("刪除商品失敗:", err);
-    //         errorMessage.value = "刪除商品失敗：" + err.message;
-    //         return false; // ✅ 回傳 `false`，讓 Vue 組件知道刪除失敗
-    //     } finally {
-    //         loading.value = false;
-    //     }
-    // }
 
     // ✅ 修改商品欄位 (圖片欄位單獨處理)
     async function modifyProduct(id, productData, productImages = []) {
@@ -144,29 +188,18 @@ const useProductStore = defineStore("shop", () => {
     }    
 
     // 修改商品圖片
-    async function updateImages(id, productImages) {
-        const formData = new FormData();
-    
-        // 附加圖片檔案
-        productImages.forEach((image) => {
-            formData.append("images", image);
-        });
-    
+    async function updateImages(id, newImages) {
         try {
-            const response = await ProductService.updateImages(id, formData);
-            console.log("✅ 圖片更新成功:", response);
-    
-            if (response && response.success) {
-                return true;
+            const response = await ProductService.updateProductImages(id, newImages);
+            if (response.success) {
+                Swal.fire("成功!", "商品圖片已更新!", "success");
             } else {
-                console.error("⚠️ 圖片 API 失敗:", response);
-                return false;
+                throw new Error(response.message || "圖片更新失敗");
             }
         } catch (error) {
-            console.error("🔴 圖片更新失敗:", error);
-            return false;
+            Swal.fire("錯誤!", "圖片更新失敗：" + error.message, "error");
         }
-    }    
+    }        
 
     // ✅ 讓以下方法和參數，可以被 Vue 組件使用
     return {

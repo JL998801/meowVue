@@ -1,5 +1,4 @@
-import { jsonRequest } from "@/plugins/axios";
-// import { axiosapi } from "@/plugins/axios";
+import { axiosapi, uploadFile, jsonRequest } from "@/plugins/axios";
 
 const API_URL = "/products";
 
@@ -13,9 +12,6 @@ export const ProductService = {
    */
 
   async getPagedProducts(page = 0, size = 10, sortBy = "productName", order = "asc") {
-    // return axiosapi.get(`${API_URL}/paged`, {
-    //   params: { page, size, sortBy, order } // ✅ 傳遞 API 參數
-    // });
     return jsonRequest("get", `${API_URL}/paged?page=${page}&size=${size}&sortBy=${sortBy}&order=${order}`);
   },
 
@@ -31,17 +27,52 @@ export const ProductService = {
     return jsonRequest("post", `${API_URL}/search`, searchParams);
   },
 
-  // 商品增刪改
-  async addProducts() {
-    return jsonRequest("post", `${API_URL}`, newProduct);
+  // ✅ 商品增刪改
+   async addProducts(newProduct) {
+    const formData = new FormData();
+
+    // 轉換 JSON 物件為 Blob
+    const productBlob = new Blob([JSON.stringify(newProduct)], { type: "application/json" });
+    formData.append("productRequest", productBlob); // `productRequest` 必須與後端對應
+
+    // 附加圖片
+    if (newProduct.productImages && newProduct.productImages.length > 0) {
+        newProduct.productImages.forEach((image) => {
+            formData.append("productImages", image); // 確保圖片的 `key` 與後端一致
+        });
+    }
+
+    try {
+        const response = await uploadFile("/products", formData);
+        console.log("✅ 商品新增成功:", response.data);
+        return response.data;
+    } catch (error) {
+        console.error("🔴 新增商品失敗:", error);
+        throw error;
+    }
   },
 
-  async deleteProducts(id) {
-    return jsonRequest("delete", `${API_URL}/${id}`);
-  },
+  async updateProductImages(productId, images) {
+    const formData = new FormData();
 
-  async updateImages(id) {
-    return jsonRequest("patch", `${API_URL}/${id}/images`);
+    // 附加圖片
+    images.forEach((image) => {
+        formData.append("images", image); // 確保 key 與後端 controller 一致
+    });
+
+    try {
+        const response = await axiosapi.patch(`/products/${productId}/images`, formData, {
+            headers: {
+                "Content-Type": "multipart/form-data", // ✅ 確保請求標頭正確
+            },
+        });
+
+        console.log("✅ 圖片更新成功:", response.data);
+        return response.data;
+    } catch (error) {
+        console.error("🔴 圖片更新失敗:", error);
+        throw error;
+    }
   },
 
   async modifyProducts(id, formData) {
@@ -57,6 +88,10 @@ export const ProductService = {
         console.error("🔴 修改 API 失敗:", error);
         throw new Error("修改 API 失敗");
     }
+  },
+  
+  async deleteProducts(id) {
+    return jsonRequest("delete", `${API_URL}/${id}`);
   },
 
 };
