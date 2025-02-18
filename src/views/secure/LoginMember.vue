@@ -27,20 +27,6 @@
 
         <div class="gg">
           <!-- Google 登入按鈕 -->
-          <div class="google-login-container">
-            <button
-              class="google-login-btn"
-              id="google-login-btn"
-              type="button"
-            >
-              <img
-                src="https://www.gstatic.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png"
-                alt="Google Icon"
-                class="google-icon"
-              />
-              登入
-            </button>
-          </div>
 
           <!-- 普通登入按鈕 -->
           <div>
@@ -49,7 +35,17 @@
             </button>
           </div>
         </div>
-
+        <div class="google-login-container">
+          <button class="google-login-btn" id="google-login-btn" type="button">
+            <img
+              src="https://www.gstatic.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png"
+              alt="Google Icon"
+              class="google-icon"
+            />
+            登入
+          </button>
+        </div>
+        <div><LineLogin class="line-button-member" /></div>
         <div>
           <RouterLink class="link" to="/pages/Register">註冊會員</RouterLink>
         </div>
@@ -66,6 +62,7 @@ import useUserStore from "@/stores/user.js";
 import Swal from "sweetalert2";
 import { axiosapi2 } from "@/plugins/axios.js";
 import { loadGoogleAuth } from "@/plugins/googleAuth.js"; // 引入 Google Auth 加載函數
+import LineLogin from "@/components/member/login/LineLogin.vue";
 
 const username = ref("");
 const password = ref("");
@@ -133,50 +130,51 @@ function googleLoginSuccess(response) {
   localStorage.setItem("googleCredential", credential);
 
   const memberData = {
-    nickName: "Jude Chu", 
-    password: "1223", 
+    nickName: "Jude Chu",
+    password: "1223",
     name: "Name",
-    email: "sonicchu1223@hotmail.com", 
-    phone: "0932624161", 
-    address: "新北市板橋區", 
-    birthday: "2000-12-23" 
+    email: "sonicchu1223@hotmail.com",
+    phone: "0932624161",
+    address: "新北市板橋區",
+    birthday: "2000-12-23",
   };
 
   // 註冊 API 請求
-  axiosapi.post(`/register`, memberData)
-    .then(response => {
+  axiosapi
+    .post(`/register`, memberData)
+    .then((response) => {
       // 使用 SweetAlert 顯示成功註冊訊息
       Swal.fire({
-              title: "登入成功！",
-              icon: "success",
-            });
+        title: "登入成功！",
+        icon: "success",
+      });
 
       setTimeout(() => {
         // 註冊成功後進行自動登入
         const loginData = {
           email: memberData.email,
-          password: memberData.password
+          password: memberData.password,
         };
 
         // 登入 API 請求
-        axiosapi.post(`/ajax/secure/login`, loginData)
-          .then(loginResponse => {
+        axiosapi
+          .post(`/ajax/secure/login`, loginData)
+          .then((loginResponse) => {
             const { token, user } = loginResponse.data;
             const { memberId, email, nickname } = user;
 
             // 儲存登入資訊到 localStorage
-            localStorage.setItem('memberId', memberId);
-            localStorage.setItem('email', email);
-            localStorage.setItem('token', token);
-            localStorage.setItem('nickname', nickname);
+            localStorage.setItem("memberId", memberId);
+            localStorage.setItem("email", email);
+            localStorage.setItem("token", token);
+            localStorage.setItem("nickname", nickname);
 
             // 顯示 SweetAlert 登入成功訊息
-          
 
             // 跳轉或進行其他操作
             window.location.href = "/pages/MemberCenter"; // 假設會員中心頁面
           })
-          .catch(loginError => {
+          .catch((loginError) => {
             console.error("登入失敗", loginError);
             Swal.fire({
               title: "登入失敗",
@@ -186,7 +184,7 @@ function googleLoginSuccess(response) {
           });
       }, 1000); // 註冊後延遲登入
     })
-    .catch(registerError => {
+    .catch((registerError) => {
       console.error("註冊失敗", registerError);
       Swal.fire({
         title: "註冊失敗",
@@ -195,8 +193,6 @@ function googleLoginSuccess(response) {
       });
     });
 }
-
-
 
 // 儲存用戶資訊到 localStorage 和 Vuex
 function saveUserInfoToLocalStorage(user, token) {
@@ -253,7 +249,6 @@ async function submitForm() {
     isLoggingIn.value = false; // 解除防止重複提交
   }
 }
-
 </script>
 
 <style scoped>
@@ -268,12 +263,17 @@ async function submitForm() {
 }
 /* 調整 Google 登入按鈕的樣式 */
 .google-login-container {
-  flex: 1; /* 確保按鈕的寬度相等 */
+  width: 220px;
+  align-items: center;
+  margin-left: 50px;
+  margin-bottom: 10px;
 }
 
 .google-login-btn {
   font-family: "Noto Sans KR", sans-serif;
-  background-color: #f0f0f0;
+  background-color: #ffffff;
+  height: 50px;
+  width: 70px;
   color: #4285f4;
   border: none;
   padding: 10px px;

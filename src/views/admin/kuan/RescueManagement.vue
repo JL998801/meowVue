@@ -39,7 +39,6 @@ import SearchForm from "@/components/admin/rescueManagement/SearchForm.vue";
 import CaseList from "@/components/admin/rescueManagement/CaseList.vue";
 //此為案件條件表單和caseList的父組件
 
-const cases = ref([]); // 儲存案件列表
 // 搜尋參數
 const searchParams = ref({});
 

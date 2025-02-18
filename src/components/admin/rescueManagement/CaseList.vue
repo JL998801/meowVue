@@ -97,7 +97,8 @@ const fetchCases = async () => {
 //刪除案件
 const deleteCase = async (caseId) => {
   try {
-    await axiosapi2.delete(`/api/RescueCase/delete/${caseId}`);
+    console.log("要刪除案件id", caseId);
+    await axiosapi2.delete(`/RescueCase/delete/${caseId}`);
     rescueCaseList.value = rescueCaseList.value.filter(
       (c) => c.rescueCaseId !== caseId
     );

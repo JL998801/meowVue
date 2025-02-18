@@ -62,6 +62,10 @@ const caseStateId = ref("");
 const selectedSpecies = ref([]); // 儲存選中的物種 ID
 const suspLost = ref(false);
 
+// 儲存案件列表
+
+const cases = ref([]);
+
 //拿取下拉選單數據
 const caseStates = ref([]);
 

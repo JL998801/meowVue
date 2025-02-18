@@ -71,7 +71,7 @@ const routes = [
   { path: "/pages/Adopt", component: Adopt, name: "Adopt-link" },
   // { path: "/pets/lostcase", component: LostCase, name: "pets-LostCase-link" },
   { path: "/pets/lostform", component: LostForm, name: "pets-LostForm-link" },
-  { path: "/pets/reportform", component: ReportForm, name: "pets-ReportForm-link" },
+  // { path: "/pets/reportform", component: ReportForm, name: "pets-ReportForm-link" },
   { path: "/pages/MemberCenter", component: MemberCenter, name: "MemberCenter-link" },
   { path: "/pages/MemberCard", component: MemberCard, name: "MemberCard-link" },
 
@@ -156,7 +156,8 @@ router.beforeEach(async (to, from, next) => {
     '/pet/lost/member',
     "/admin",
     '/pages/FormAdopt',
-    '/pages/AdoptTwo' ,
+    '/pages/AdoptTwo',
+    '/advanced-settings',
     '/pages/Adopt' ,
 
 
@@ -195,6 +196,11 @@ router.beforeEach(async (to, from, next) => {
 
       return next("/secure/login"); // 跳轉到登入頁面
     }
+  }
+
+  // 限制 /admin 頁面，只有管理員可以進入
+  if (to.path.startsWith("/admin") && !userStore.isAdmin) {
+    return next("/403");  // 轉到「無權限」頁面
   }
 
   next(); // 驗證成功則繼續跳轉
