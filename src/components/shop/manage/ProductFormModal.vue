@@ -1,127 +1,126 @@
 <!-- ✅ ProductFormModal.vue -->
 <template>
-<div class="modal fade" ref="productModal" id="productFormModal" tabindex="-1" aria-labelledby="productFormLabel" aria-hidden="true">
-    <div class="modal-dialog">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h5 class="modal-title" id="productFormLabel">新增商品<span class="input-hint">*所有欄位皆為必填</span></h5>
-            <button type="button" class="btn-close" @click="closeModal"></button>
-        </div>
-
-        <div class="modal-body">
-        <form @submit.prevent="submitForm">
-
-            <!-- ✅ 名稱 -->
-            <div class="mb-3">
-                <label class="form-label">名稱</label>
-                <input type="text" class="form-control" v-model="formData.productName" />
+    <div class="modal fade" ref="productModal" id="productFormModal" tabindex="-1" aria-labelledby="productFormLabel" aria-hidden="true">
+        <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="productFormLabel">新增商品<span class="input-hint">*所有欄位皆為必填</span></h5>
+                <button type="button" class="btn-close" @click="closeModal"></button>
             </div>
-
-            <!-- ✅ 分類 -->
-            <div class="mb-3">
-                <label class="form-label">分類</label>
-                <select class="form-select" v-model="formData.categoryId">
-                    <option v-for="category in categoryStore.categories" :key="category.categoryId" :value="category.categoryId">
-                    {{ category.categoryName }}
-                    </option>
-                </select>
-            </div>
-
-            <!-- ✅ 單位 -->
-            <div class="mb-3">
-                <label class="form-label">單位</label>
-                <input type="text" class="form-control" v-model="formData.unit" placeholder="請輸入單位" />
-            </div>
-
-            <!-- ✅ 標籤 -->
-            <div class="mb-3">
-                <label class="form-label">標籤</label>
-                <div class="checkbox-group">
-                <div v-for="tag in tagStore.tags" :key="tag.tagId" class="form-check form-check-inline">
-                    <input
-                    class="form-check-input"
-                    type="checkbox"
-                    :id="'tag_' + tag.tagId"
-                    :value="tag.tagId"
-                    :checked="isSelected(tag)"
-                    @change="toggleTag(tag)"
-                    />
-                    <label class="form-check-label" :for="'tag_' + tag.tagId">
-                    {{ tag.tagName }}
-                    </label>
+    
+            <div class="modal-body">
+            <form @submit.prevent="submitForm">
+    
+                <!-- ✅ 名稱 -->
+                <div class="mb-3">
+                    <label class="form-label">名稱</label>
+                    <input type="text" class="form-control" v-model="formData.productName" />
                 </div>
+    
+                <!-- ✅ 分類 -->
+                <div class="mb-3">
+                    <label class="form-label">分類</label>
+                    <select class="form-select" v-model="formData.categoryId">
+                        <option v-for="category in categoryStore.categories" :key="category.categoryId" :value="category.categoryId">
+                        {{ category.categoryName }}
+                        </option>
+                    </select>
                 </div>
-            </div>
-
-            <!-- ✅ 原價 -->
-            <div class="mb-3">
-                <label class="form-label">原價</label>
-                <input type="number" class="form-control" v-model="formData.originalPrice" />
-            </div>
-
-            <!-- ✅ 售價 -->
-            <div class="mb-3">
-                <label class="form-label">售價</label>
-                <input type="number" class="form-control" v-model="formData.salePrice" />
-            </div>
-
-            <!-- ✅ 庫存數量 -->
-            <div class="mb-3">
-                <label class="form-label">庫存數量</label>
-                <input type="number" class="form-control" v-model="formData.stockQuantity" />
-            </div>
-
-            <!-- ✅ 描述: 換行使用 shift+enter；按下 Enter 會送出表單-->
-            <div class="mb-3">
-                <label class="form-label">
-                    描述 <span class="input-hint">*換行使用 Shift+Enter</span>
-                </label>
-                <textarea 
-                    class="form-control" 
-                    v-model="formData.description" 
-                    @keydown.enter.exact.prevent="submitForm"
-                    @keydown.shift.enter="allowNewLine"
-                ></textarea>
-            </div>
-
-            <!-- ✅ 到期日 -->
-            <div class="mb-3">
-                <label class="form-label">到期日</label>
-                <input type="date" class="form-control" v-model="formData.expire" />
-            </div>
-
-            <!-- ✅ 圖片上傳 -->
-            <div class="mb-3">
-                <label class="form-label">圖片上傳</label>
-                <input type="file" multiple class="form-control" @change="handleFileUpload" accept="image/*" />
-                <div class="preview-container">
-                    <div v-for="(image, index) in previewImages" :key="index" class="preview-image">
-                        <img :src="image" class="img-thumbnail" />
-                        <button type="button" class="btn btn-danger btn-sm remove-btn" @click="removeImage(index)">
-                        <font-awesome-icon :icon="['far', 'circle-xmark']" style="color: #ffffff;" />
-                        </button>
+    
+                <!-- ✅ 單位 -->
+                <div class="mb-3">
+                    <label class="form-label">單位</label>
+                    <input type="text" class="form-control" v-model="formData.unit" placeholder="請輸入單位" />
+                </div>
+    
+                <!-- ✅ 標籤 -->
+                <div class="mb-3">
+                    <label class="form-label">標籤</label>
+                    <div class="checkbox-group">
+                    <div v-for="tag in tagStore.tags" :key="tag.tagId" class="form-check form-check-inline">
+                        <input
+                        class="form-check-input"
+                        type="checkbox"
+                        :id="'tag_' + tag.tagId"
+                        :value="tag.tagId"
+                        :checked="isSelected(tag)"
+                        @change="toggleTag(tag)"
+                        />
+                        <label class="form-check-label" :for="'tag_' + tag.tagId">
+                        {{ tag.tagName }}
+                        </label>
+                    </div>
                     </div>
                 </div>
+    
+                <!-- ✅ 原價 -->
+                <div class="mb-3">
+                    <label class="form-label">原價</label>
+                    <input type="number" class="form-control" v-model="formData.originalPrice" />
+                </div>
+    
+                <!-- ✅ 售價 -->
+                <div class="mb-3">
+                    <label class="form-label">售價</label>
+                    <input type="number" class="form-control" v-model="formData.salePrice" />
+                </div>
+    
+                <!-- ✅ 庫存數量 -->
+                <div class="mb-3">
+                    <label class="form-label">庫存數量</label>
+                    <input type="number" class="form-control" v-model="formData.stockQuantity" />
+                </div>
+    
+                <!-- ✅ 描述: 換行使用 shift+enter；按下 Enter 會送出表單-->
+                <div class="mb-3">
+                    <label class="form-label">
+                        描述 <span class="input-hint">*換行使用 Shift+Enter</span>
+                    </label>
+                    <textarea 
+                        class="form-control" 
+                        v-model="formData.description" 
+                        @keydown.enter.exact.prevent="submitForm"
+                        @keydown.shift.enter="allowNewLine"
+                    ></textarea>
+                </div>
+    
+                <!-- ✅ 到期日 -->
+                <div class="mb-3">
+                    <label class="form-label">到期日</label>
+                    <input type="date" class="form-control" v-model="formData.expire" />
+                </div>
+    
+                <!-- ✅ 圖片上傳 -->
+                <div class="mb-3">
+                    <label class="form-label">圖片上傳</label>
+                    <input type="file" multiple class="form-control" @change="handleFileUpload" accept="image/*" />
+                    <div class="preview-container">
+                        <div v-for="(image, index) in previewImages" :key="index" class="preview-image">
+                            <img :src="image" class="img-thumbnail" />
+                            <button type="button" class="btn btn-danger btn-sm remove-btn" @click="removeImage(index)">
+                            <font-awesome-icon :icon="['far', 'circle-xmark']" style="color: #ffffff;" />
+                            </button>
+                        </div>
+                    </div>
+                </div>
+    
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @click="closeModal">取消</button>
+                    <button 
+                        type="submit" 
+                        class="btn btn-primary"  
+                        @keydown.enter.exact.prevent="submitForm"
+                    >儲存</button>
+                </div>
+            </form>
             </div>
-
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" @click="closeModal">取消</button>
-                <button 
-                    type="submit" 
-                    class="btn btn-primary"  
-                    @keydown.enter.exact.prevent="submitForm"
-                >儲存</button>
-            </div>
-        </form>
+        </div>
         </div>
     </div>
-    </div>
-</div>
 </template>
-
+    
 <script setup>
-import { ref, watch, onMounted, defineExpose } from "vue";
-import { Modal } from "bootstrap";  // bootstrap 透過 main.js 引入時，不會自動為 Vue 組件建立 Modal 實例
+import { ref, watch, onMounted, defineExpose, nextTick } from "vue";
 import Swal from "sweetalert2";
 import useProductStore from "@/stores/productStore";
 import useCategoryStore from "@/stores/categoryStore";
@@ -169,25 +168,23 @@ const toggleTag = (tag) => {
     }
 };
 
-// ✅ 確保 Modal 只初始化一次
+// ✅ 手動初始化 Bootstrap Modal
 onMounted(() => {
-    if (productModal.value) {
-        modalInstance = new Modal(productModal.value);
-    }
+    nextTick(() => {
+        if (productModal.value) {
+            modalInstance = new bootstrap.Modal(productModal.value);
+        }
+    });
 });
 
-// 開啟 Modal
+// 手動開啟
 const openModal = () => {
-    if (modalInstance) {
-        modalInstance.show();
-    }
+    modalInstance?.show();
 };
 
-// 關閉 Modal
+// 手動關閉
 const closeModal = () => {
-    if (modalInstance) {
-        modalInstance.hide();
-    }
+    modalInstance?.hide();
 };
 
 // ✅ 處理圖片上傳
@@ -301,7 +298,7 @@ watch(() => formData.value.categoryId, (newCategoryId) => {
     }
 });
 </script>
-
+    
 <style scoped>
 .modal-title{
     font-weight: 800;
@@ -362,8 +359,8 @@ watch(() => formData.value.categoryId, (newCategoryId) => {
 
 /* ✅ 讓 `checkbox` 間距更明顯 */
 .checkbox-group {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 </style>

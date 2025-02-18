@@ -24,7 +24,7 @@ import MemberRescueCase from '../views/secure/MemberRescueCase.vue';
 //卓頁面
 import LostMember from '@/views/pets/lost/LostMember.vue';
 import LostForm from '@/views/pets/lost/LostForm.vue';
-// import ReportForm from '@/views/pets/report/ReportForm.vue';
+import ReportForm from '@/views/pets/report/ReportForm.vue';
 // import LostCase from '@/views/pets/lost/LostCase.vue';
 
 // 商城頁面
@@ -77,7 +77,7 @@ const routes = [
 
   //卓穎頁面
   { path: "/pets/lostform", component: LostForm, name: "pets-LostForm-link" },
-  // { path: "/pets/reportform", component: ReportForm, name: "pets-ReportForm-link" },
+  { path: "/pets/reportform", component: ReportForm, name: "pets-ReportForm-link" },
   // { path: "/pet/lostCase/:id", component: LostCase, name: "pet-lostCase-link", props: true },
   { path: "/pet/lost/search", component: AllLostCase, name: "pet-lostCase-link", props: true },
 
@@ -108,9 +108,9 @@ const routes = [
       { path: "rescueCase", component: RescueManagement },
       { path: "rescueAnalysis", component: RescueAnalysis },
       { path: "lostCase", component: LostAdmin },
-      { path: "shopManage", component: ShopManagement },
+      // { path: "shopManage", component: ShopManagement },
       { path: "products", component: ProductManagement },
-      { path: "notifications", component: Notifications },
+      // { path: "notifications", component: Notifications },
       { path: "orders", component: Ordersrders },
     ],
   },
@@ -143,7 +143,7 @@ router.beforeEach(async (to, from, next) => {
     "/secure/login",
     "/403",
     "/",
-    "/pet/rescue/search",
+    "/pet/rescue/search",   
     "/pet/map",
     "/pets/Register",
     "/pets/MemberCenter",
@@ -158,17 +158,18 @@ router.beforeEach(async (to, from, next) => {
     '/pages/FormAdopt',
     '/pages/AdoptTwo',
     '/advanced-settings',
+    '/pages/Adopt' ,
 
 
   ];  // 不需要驗證的路由
 
   console.log("userStore", userStore);
   console.log("to.path", to.path);
-
-
+  
+  // const isPublicPage = publicPages.includes(to.path) || to.path.startsWith("/shop");
   const isPublicPage = publicPages.includes(to.path) || to.path.startsWith("/shop");
   console.log("isPublicPage", isPublicPage);
-
+ 
   // ✅ 改用 `.some()` 來判斷是否為公開頁面；配合部分頁面:id的設計
   // const isPublicPage = publicPages.some(page => to.path.startsWith(page));
 

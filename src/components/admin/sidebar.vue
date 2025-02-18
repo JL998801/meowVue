@@ -2,7 +2,7 @@
   <div class="back-sidebar">
     <h2>後台管理系统</h2>
     <router-link to="/admin/adminCard">用戶管理</router-link>
-    <router-link to="/admin/categories">分類管理</router-link>
+    <!-- <router-link to="/admin/categories">分類管理</router-link> -->
     <router-link to="/admin/orders">訂單管理</router-link>
     <router-link to="/admin/products">商品管理</router-link>
 
@@ -10,7 +10,7 @@
       <div class="menu-title" @click="toggleCaseManage">寵物案件管理 ⮟</div>
       <div v-show="isCaseMenuOpen1" class="submenu">
         <router-link to="/admin/rescueCase">救援案件</router-link>
-        <router-link to="/admin/adopt-case">認養案件</router-link>
+        <!-- <router-link to="/admin/adopt-case">認養案件</router-link> -->
         <router-link to="/admin/lostCase">遺失案件</router-link>
       </div>
     </div>
@@ -18,11 +18,11 @@
       <div class="menu-title" @click="toggleCaseAnalysis">寵物案件分析 ⮟</div>
       <div v-show="isCaseMenuOpen2" class="submenu">
         <router-link to="/admin/rescueAnalysis">救援案件</router-link>
-        <router-link to="/admin/adopt-case">認養案件</router-link>
-        <router-link to="/admin/lostCase">遺失案件</router-link>
+        <!-- <router-link to="/admin/adopt-case">認養案件</router-link> -->
+        <!-- <router-link to="/admin/lostCase">遺失案件</router-link> -->
       </div>
     </div>
-    <router-link to="/admin/operations">運營管理</router-link>
+    <!-- <router-link to="/admin/operations">運營管理</router-link> -->
   </div>
 </template>
 

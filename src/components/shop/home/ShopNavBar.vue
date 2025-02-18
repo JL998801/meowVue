@@ -22,7 +22,7 @@
           <BadgeCounter
             icon="❤️"
             :count="wishlistCount"
-            modalTarget="#wishListModal"
+            modalTarget="#"
             :updateOnClick="true"
             @open-modal="openModal"
           />
@@ -32,7 +32,7 @@
           <BadgeCounter
             icon="🔔"
             :count="notificationCount"
-            modalTarget="#notificationModal"
+            modalTarget="#"
             :updateOnClick="true"
             @open-modal="openModal"
           />
@@ -83,7 +83,7 @@
   <div
     v-show="isUserLoggedIn"
     class="modal fade"
-    id="wishlistModal"
+    id=""
     tabindex="-1"
     aria-hidden="true"
   >
@@ -108,7 +108,7 @@
   <div
     v-show="isUserLoggedIn"
     class="modal fade"
-    id="notificationModal"
+    id=""
     tabindex="-1"
     aria-hidden="true"
   >
@@ -136,7 +136,6 @@ import { useRouter } from "vue-router";
 import Swal from "sweetalert2";
 import petLogo from "@/assets/petLogo.png"; // Logo 圖示
 import useProductStore from "@/stores/productStore";
-	const productStore = useProductStore();
 import useUserStore from "@/stores/user";
 import { storeToRefs } from "pinia";
 import useCartStore from "@/stores/cartStore";
@@ -156,6 +155,7 @@ const router = useRouter();
 const cartStore = useCartStore();
 
 // 初始化: Store、空陣列
+const productStore = useProductStore();
 const userStore = useUserStore();
 const wishListStore = useWishListStore();
 const notificationStore = useNotificationStore();

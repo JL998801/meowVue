@@ -7,55 +7,58 @@
       <p>購物車是空的！</p>
     </div>
     
-    <div v-else>
-      <!-- 顯示每個商品 -->
-      <div class="cart-items-grid">
-        <div v-for="item in cart" :key="item.cartItemId" class="cart-item">
-          <input type="checkbox" v-model="selectedItems" :value="item.cartItemId" class="cart-checkbox" />
-          
-          <!-- 顯示商品圖片 -->
-          <template v-if="item.product">
-            <img
-              :src="item.product.imageUrls?.length > 0 ? item.product.imageUrls[0] : placeholderImage"
-              alt="主商品圖片"
-              class="product-image"
-            />
-            <div class="thumbnail-container">
-              <img
-                v-for="(image, index) in item.product.imageUrls?.slice(1, 5)"
-                :key="index"
-                :src="image"
-                :alt="`商品圖片 ${index + 1}`"
-                class="thumbnail"
-              />
-            </div>
-          </template>
-          
-          <p>
-            {{ item.product?.productName || '商品名稱加載中...' }} - 單價:
-            {{ item.product?.salePrice || 0 }}元 ×
-            <span>{{ item.quantity }}</span>
-          </p>
-          
-          <!-- 編輯數量輸入框 -->
-          <div class="quantity-container">
-            <input 
-              type="number" 
-              v-model.number="item.editQuantity" 
-              min="0" 
-              @input="validateInput(item)" 
-              class="quantity-input"
-              :placeholder="item.editQuantity || 0"
-            />
-            
-            <!-- 更新數量按鈕 -->
-            <button @click="syncQuantityWithDatabase(item)" class="update-btn">更新數量</button>
-          </div>
-
-          <!-- 刪除商品按鈕 -->
-          <button @click="removeItem(item.cartItemId)" class="remove-btn">刪除此商品</button>
+    <div class="cart-items-grid">
+  <div v-for="item in cart" :key="item.cartItemId" class="cart-item">
+    <input type="checkbox" v-model="selectedItems" :value="item.cartItemId" class="cart-checkbox" />
+    
+    <!-- 顯示商品圖片 -->
+    <div class="image-container">
+      <template v-if="item.product">
+        <img
+          :src="item.product.imageUrls?.length > 0 ? item.product.imageUrls[0] : placeholderImage"
+          alt="主商品圖片"
+          class="product-image"
+        />
+        <div class="thumbnail-container">
+          <img
+            v-for="(image, index) in item.product.imageUrls?.slice(1, 5)"
+            :key="index"
+            :src="image"
+            :alt="`商品圖片 ${index + 1}`"
+            class="thumbnail"
+          />
         </div>
+      </template>
+    </div>
+    
+    <!-- 右邊商品文字與數量按鈕區塊 -->
+    <div class="item-details">
+      <p>
+        {{ item.product?.productName || '商品名稱加載中...' }} - 單價:
+        {{ item.product?.salePrice || 0 }}元 ×
+        <span>{{ item.quantity }}</span>
+      </p>
+      
+      <!-- 編輯數量輸入框 -->
+      <div class="quantity-container">
+        <input 
+          type="number" 
+          v-model.number="item.editQuantity" 
+          min="0" 
+          @input="validateInput(item)" 
+          class="quantity-input"
+          :placeholder="item.editQuantity || 0"
+        />
+        
+        <!-- 更新數量按鈕 -->
+        <button @click="syncQuantityWithDatabase(item)" class="update-btn">更新數量</button>
       </div>
+
+      <!-- 刪除商品按鈕 -->
+      <button @click="removeItem(item.cartItemId)" class="remove-btn">刪除此商品</button>
+    </div>
+  </div>
+</div>
 
       <!-- 顯示總金額 -->
       <div>
@@ -75,7 +78,7 @@
         <button @click="goToPayment" class="go-to-payment-btn">前往交易明細</button>
       </div>
     </div>
-  </div>
+
 </template>
 
 <script setup>
@@ -253,14 +256,26 @@ onMounted(async () => {
 }
 
 .cart-item {
-  border: 2px solid #FFFD77;
-  background-color: #FEBA07;
+  border-radius: 8px; 
+  background-color: #c6bc77;
   padding: 20px;
   position: relative;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
+  flex-direction: row; /* 使用 row 來水平排列圖片與文字 */
+  align-items: flex-start; /* 將圖片和文字對齊 */
+  text-align: left;
+}
+
+.cart-checkbox {
+  transform: scale(4); /* Make the checkbox 4 times larger */
+  margin: 5px; /* Add 5px margin around the checkbox */
+}
+
+
+.image-container {
+  flex: 1; /* 讓圖片區塊佔據一半 */
+  margin-right: 20px; /* Add space to the right side of the image container */
+  margin-left: 120px;  /* Add space to the left side of the image container */
 }
 
 .product-image {
@@ -278,6 +293,11 @@ onMounted(async () => {
 .thumbnail {
   width: 50px;
   height: 50px;
+}
+
+.item-details {
+  flex: 2; /* 讓文字和按鈕區塊佔據另一半 */
+  padding-left: 20px;
 }
 
 .quantity-container {
@@ -305,7 +325,7 @@ onMounted(async () => {
   background-color: #2196F3;
   color: white;
   border: none;
-  padding: 5px 10px;
+  padding: 10px 20px; /* 讓按鈕變大 */
   cursor: pointer;
 }
 

@@ -1,5 +1,5 @@
 <template>
-  <!-- shopLayout.vue 是最頂層的組件，它負責接收 shopHome 傳遞的事件 -->
+  <!-- shopLayout.vue 是最頂層的組件，它負責接收 ShopHome 傳遞的事件 -->
   <div class="shop-layout">
     <!-- 🔹 商城導覽列 -->
     <ShopNavBar
@@ -12,7 +12,7 @@
     <!-- 🔹 商城主要內容區域 -->
     <main class="shop-container">
       <!-- 🔹 商品篩選側邊欄 (左側) -->
-      <aside clase="shop-sidebar" v-if="!isProductDetailPage">
+      <aside clase="shop-sidebar" v-if="isShopSearchPage">
         <!-- 🔹 接收 `update-filter` 事件，更新 `filter` -->
         <ShopSideBar @update-filter="updateFilter" />
       </aside>
@@ -45,10 +45,8 @@ import ShopSideBar from "@/components/shop/home/ShopSidebar.vue"; //左側搜尋
 // 獲取當前路由
 const route = useRoute();
 
-// **當路由是 `/shop/product/:id` 時，隱藏 ShopSideBar**
-const isProductDetailPage = computed(() =>
-  route.path.startsWith("/shop/product/")
-);
+// **當路由是 `/shop` 時，顯示 ShopSideBar**
+const isShopSearchPage = computed(() => route.path === '/shop');
 
 // 初始化: Store、空陣列
 const userStore = useUserStore();
