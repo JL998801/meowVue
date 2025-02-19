@@ -1,15 +1,11 @@
 <template>
   <div class="post">
     <div class="post-image">
-      <img
-        :src="
-          caseItem?.casePictures?.length > 0
-            ? caseItem.casePictures[0].casePictures // ✅ 確保這是正確的 key
-            : defaultImage
-        "
-        :alt="caseItem.caseTitle"
-      />
-    </div>
+    <img
+      :src="pictureUrls.length > 0 ? pictureUrls[0] : defaultImage"
+      :alt="caseItem.caseTitle"
+    />
+  </div>
     <div class="post-details">
       <div class="info">
         <div class="post-id">
@@ -60,6 +56,7 @@
 <script setup>
 import { ref, onMounted, watch } from "vue";
 import followButton from "@/components/pet/rescue/follow/followButton.vue";
+import {axiosapi} from "@/plugins/axios.js";
 
 // 父組件傳遞的案件資訊
 const props = defineProps({
@@ -69,39 +66,53 @@ const props = defineProps({
   },
 });
 
-// 預設圖片
-const defaultImage = "/images/default-image.jpg";
-
-// 響應式變數，儲存圖片 URL 陣列
 const pictureUrls = ref([]);
+const defaultImage = "/images/default.png"; // 預設圖片
+// const memberNickName = ref(""); // 預設發文者名稱
 
-// 向後端請求對應案件的圖片
-const getCasePictures = () => {
-  if (!props.caseItem.casePictures || props.caseItem.casePictures.length === 0) {
-    pictureUrls.value = [defaultImage]; // 沒有圖片則使用預設圖片
-    return;
+// 獲取環境變數 API Base URL
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080"; 
+
+const getCasePictures = async () => {
+  try {
+    if (!props.caseItem?.lostCaseId) {
+      pictureUrls.value = [defaultImage];
+      return;
+    }
+
+    // 向後端請求案件圖片數據
+    const response = await axiosapi.get(`/lostcases/${props.caseItem.lostCaseId}`);
+
+    if (response.data && response.data.casePictures && response.data.casePictures.length > 0) {
+      // 從 casePictures 陣列中提取圖片 URL，並轉換為可用的 URL
+      pictureUrls.value = response.data.casePictures.map(pic => convertBackendPath(pic.pictureUrl));
+    } else {
+      pictureUrls.value = [defaultImage]; // 若無圖片，使用預設圖片
+    }
+  } catch (error) {
+    console.error("獲取圖片失敗：", error);
+    pictureUrls.value = [defaultImage]; // 失敗時使用預設圖片
   }
-
-  // 確保 `axiosapi.defaults.baseURL` 沒有多餘的 `/api/`
-  const baseURL = axiosapi.defaults.baseURL.replace(/\/api$/, "");
-
-  // 處理圖片路徑
-  pictureUrls.value = props.caseItem.casePictures.map((picture) => {
-    return picture.pictureUrl && picture.pictureUrl.includes("C:/upload/final/")
-      ? `${baseURL}${picture.pictureUrl.replace("C:/upload/final/", "/upload/")}`
-      : defaultImage; // 如果圖片路徑有錯誤，使用預設圖片
-  });
 };
 
-// **當元件掛載時，自動獲取圖片**
+// 將後端的本機路徑轉換為前端可讀取的 URL
+const convertBackendPath = (path) => {
+  if (!path) return defaultImage;
+  
+  // 避免 URL 重複轉換
+  if (path.startsWith("http")) {
+    return path;
+  }
+
+  return path.replace("C:/upload/final/pet/images/", `${API_BASE_URL}/upload/final/pet/images/`);
+};
+
+// 組件載入時請求圖片數據
 onMounted(() => {
   getCasePictures();
+  // fetchAllCasesAndSetNickName();
+  console.log("caseItem 數據:", props.caseItem);
 });
-
-// **當 `caseItem` 改變時，重新獲取圖片**
-watch(() => props.caseItem, () => {
-  getCasePictures();
-}, { deep: true });
 
 // 格式化日期函數
 const formatDate = (date) => {

@@ -140,7 +140,7 @@ function googleLoginSuccess(response) {
   };
 
   // 註冊 API 請求
-  axiosapi
+  axiosapi2
     .post(`/register`, memberData)
     .then((response) => {
       // 使用 SweetAlert 顯示成功註冊訊息
@@ -157,7 +157,7 @@ function googleLoginSuccess(response) {
         };
 
         // 登入 API 請求
-        axiosapi
+        axiosapi2
           .post(`/ajax/secure/login`, loginData)
           .then((loginResponse) => {
             const { token, user } = loginResponse.data;
@@ -168,11 +168,14 @@ function googleLoginSuccess(response) {
             localStorage.setItem("email", email);
             localStorage.setItem("token", token);
             localStorage.setItem("nickname", nickname);
+            userStore.setToken(token); // 儲存 token 到 store
+            // 儲存 token 到 Pinia 的 userStore
+            
 
             // 顯示 SweetAlert 登入成功訊息
 
             // 跳轉或進行其他操作
-            window.location.href = "/pages/MemberCenter"; // 假設會員中心頁面
+            router.push({ path: "/pages/MemberCenter" }); // 假設會員中心頁面
           })
           .catch((loginError) => {
             console.error("登入失敗", loginError);
@@ -193,6 +196,7 @@ function googleLoginSuccess(response) {
       });
     });
 }
+
 
 // 儲存用戶資訊到 localStorage 和 Vuex
 function saveUserInfoToLocalStorage(user, token) {

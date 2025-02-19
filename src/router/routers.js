@@ -150,6 +150,7 @@ router.beforeEach(async (to, from, next) => {
     "/pets/MemberCard",
     "/adopt",
     "/secure/loginadmin",
+    "/pages/Register",
     '/callback',
     '/pet/lost/search',
     '/pets/lostform',

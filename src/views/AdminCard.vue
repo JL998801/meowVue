@@ -36,7 +36,7 @@
             <td>{{ member.phone }}</td>
             <td>
               <button @click="editMember(member.memberId)">编辑</button>
-              <button @click="deleteMember(member.memberId)">删除</button>
+              
             </td>
           </tr>
         </tbody>
@@ -309,7 +309,7 @@ defineOptions({
   
 .aa{
     
-    margin-right: 200px;
+    margin-right: 100px;
 }
 
   body {
@@ -329,7 +329,7 @@ defineOptions({
 
   
   .main-content {
-    display: flex;
+   
     margin-left: 240px;
     padding: 20px;
   }

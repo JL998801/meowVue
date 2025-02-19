@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="container">
     <h2>我的購物車</h2>
 
     <!-- 顯示購物車空或非空 -->
@@ -8,77 +8,76 @@
     </div>
     
     <div class="cart-items-grid">
-  <div v-for="item in cart" :key="item.cartItemId" class="cart-item">
-    <input type="checkbox" v-model="selectedItems" :value="item.cartItemId" class="cart-checkbox" />
-    
-    <!-- 顯示商品圖片 -->
-    <div class="image-container">
-      <template v-if="item.product">
-        <img
-          :src="item.product.imageUrls?.length > 0 ? item.product.imageUrls[0] : placeholderImage"
-          alt="主商品圖片"
-          class="product-image"
-        />
-        <div class="thumbnail-container">
-          <img
-            v-for="(image, index) in item.product.imageUrls?.slice(1, 5)"
-            :key="index"
-            :src="image"
-            :alt="`商品圖片 ${index + 1}`"
-            class="thumbnail"
-          />
-        </div>
-      </template>
-    </div>
-    
-    <!-- 右邊商品文字與數量按鈕區塊 -->
-    <div class="item-details">
-      <p>
-        {{ item.product?.productName || '商品名稱加載中...' }} - 單價:
-        {{ item.product?.salePrice || 0 }}元 ×
-        <span>{{ item.quantity }}</span>
-      </p>
-      
-      <!-- 編輯數量輸入框 -->
-      <div class="quantity-container">
-        <input 
-          type="number" 
-          v-model.number="item.editQuantity" 
-          min="0" 
-          @input="validateInput(item)" 
-          class="quantity-input"
-          :placeholder="item.editQuantity || 0"
-        />
+      <div v-for="item in cart" :key="item.cartItemId" class="cart-item">
+        <input type="checkbox" v-model="selectedItems" :value="item.cartItemId" class="cart-checkbox" />
         
-        <!-- 更新數量按鈕 -->
-        <button @click="syncQuantityWithDatabase(item)" class="update-btn">更新數量</button>
-      </div>
+        <!-- 顯示商品圖片 -->
+        <div class="image-container">
+          <template v-if="item.product">
+            <img
+              :src="item.product.imageUrls?.length > 0 ? item.product.imageUrls[0] : placeholderImage"
+              alt="主商品圖片"
+              class="product-image"
+            />
+            <div class="thumbnail-container">
+              <img
+                v-for="(image, index) in item.product.imageUrls?.slice(1, 5)"
+                :key="index"
+                :src="image"
+                :alt="`商品圖片 ${index + 1}`"
+                class="thumbnail"
+              />
+            </div>
+          </template>
+        </div>
+        
+        <!-- 右邊商品文字與數量按鈕區塊 -->
+        <div class="item-details">
+          <p>
+            {{ item.product?.productName || '商品名稱加載中...' }} - 單價:
+            {{ item.product?.salePrice || 0 }}元 ×
+            <span>{{ item.quantity }}</span>
+          </p>
+          
+          <!-- 編輯數量輸入框 -->
+          <div class="quantity-container">
+            <input 
+              type="number" 
+              v-model.number="item.editQuantity" 
+              min="0" 
+              @input="validateInput(item)" 
+              class="quantity-input"
+              :placeholder="item.editQuantity || 0"
+            />
+            
+            <!-- 更新數量按鈕 -->
+            <button @click="syncQuantityWithDatabase(item)" class="update-btn">更新數量</button>
+          </div>
 
-      <!-- 刪除商品按鈕 -->
-      <button @click="removeItem(item.cartItemId)" class="remove-btn">刪除此商品</button>
+          <!-- 刪除商品按鈕 -->
+          <button @click="removeItem(item.cartItemId)" class="remove-btn">刪除此商品</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 顯示總金額 -->
+    <div>
+      <p>總金額: {{ totalPrice }}元</p>
+      <button @click="clearCart" class="clear-cart-btn">一鍵清空購物車</button>
+    </div>
+
+    <!-- 填寫交易資訊區塊 -->
+    <div>
+      <h3>填寫交易資訊</h3>
+      <label for="creditCard">信用卡號</label>
+      <input type="text" id="creditCard" v-model="creditCard" :placeholder="defaultCreditCard" />
+      
+      <label for="shippingAddress">寄送地址</label>
+      <input type="text" id="shippingAddress" v-model="shippingAddress" :placeholder="defaultShippingAddress" />
+      
+      <button @click="goToPayment" class="go-to-payment-btn">前往交易明細</button>
     </div>
   </div>
-</div>
-
-      <!-- 顯示總金額 -->
-      <div>
-        <p>總金額: {{ totalPrice }}元</p>
-        <button @click="clearCart" class="clear-cart-btn">一鍵清空購物車</button>
-      </div>
-
-      <!-- 填寫交易資訊區塊 -->
-      <div>
-        <h3>填寫交易資訊</h3>
-        <label for="creditCard">信用卡號</label>
-        <input type="text" id="creditCard" v-model="creditCard" :placeholder="defaultCreditCard" />
-        
-        <label for="shippingAddress">寄送地址</label>
-        <input type="text" id="shippingAddress" v-model="shippingAddress" :placeholder="defaultShippingAddress" />
-        
-        <button @click="goToPayment" class="go-to-payment-btn">前往交易明細</button>
-      </div>
-    </div>
-
 </template>
 
 <script setup>
@@ -102,7 +101,6 @@ const defaultCreditCard = '4311-9511-1111-1111';
 const defaultShippingAddress = '123 Main St';
 const creditCard = ref(defaultCreditCard);
 const shippingAddress = ref(defaultShippingAddress);
-
 
 // 計算總價格
 const totalPrice = computed(() => {
@@ -247,6 +245,40 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+/* 全域樣式 */
+.container {
+  background-color: #ffffff;
+  margin: 30px auto;
+  width: 90%; /* 讓白色背景更寬 */
+  max-width: 1200px; /* 設置最大寬度，避免過寬 */
+  padding: 20px; /* 讓內部元素更有間距 */
+  border-radius: 30px;
+}
+
+/* 當 `isFullWidth` 為 true，讓 `.container` 變成全寬而且不要有卷軸 */
+.full-width {
+  padding: 0;
+  margin: 0;
+  width: 100vw;
+  height: 100vh; /* ✅ 讓 `/pet/map` 和 `/advanced-settings` 頁面占滿全畫面 */
+  max-width: 100%;
+  max-height: 100%;
+  overflow: hidden none !important; /* ✅ 隱藏滾動條 */
+  background-image: none !important;
+}
+
+/*管理員頁面使用樣式*/
+.admin {
+  padding: 0;
+  margin: 0;
+  width: 100vw;
+  height: 100vh;
+  max-width: 100%;
+  max-height: 100%;
+  overflow: auto; /* ✅ 允許滾動 */
+  background-image: none !important;
+}
+
 /* 版面設定 */
 .cart-items-grid {
   display: grid;
@@ -270,7 +302,6 @@ onMounted(async () => {
   transform: scale(4); /* Make the checkbox 4 times larger */
   margin: 5px; /* Add 5px margin around the checkbox */
 }
-
 
 .image-container {
   flex: 1; /* 讓圖片區塊佔據一半 */
@@ -322,11 +353,12 @@ onMounted(async () => {
 }
 
 .update-btn {
-  background-color: #2196F3;
+  background-color: #3649f4;
   color: white;
   border: none;
-  padding: 10px 20px; /* 讓按鈕變大 */
+  padding: 5px 10px;
   cursor: pointer;
+  margin-top: 10px;
 }
 
 .clear-cart-btn {

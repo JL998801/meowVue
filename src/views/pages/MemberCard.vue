@@ -51,6 +51,7 @@ import { axiosapi } from '@/plugins/axios';
 import Swal from 'sweetalert2'; // 引入 SweetAlert2
 
 // State for storing member data
+const router = useRouter();
 const profileImage = ref("");
 const nickName = ref("");
 const name = ref("");

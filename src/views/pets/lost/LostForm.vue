@@ -21,7 +21,7 @@
 
       <!-- 品種 -->
       <div class="form-group">
-        <label for="breed">品種：</label>
+        <label for="breed">*品種：</label>
         <select v-model="form.breedId">
           <option value="">請選擇</option>
           <option v-for="breed in breedList" :key="breed.breedId" :value="breed.breedId">
@@ -32,7 +32,7 @@
 
       <!-- 毛色 -->
       <div class="form-group">
-        <label for="furColor">毛色：</label>
+        <label for="furColor">*毛色：</label>
         <select v-model="form.furColorId">
           <option value="">請選擇</option>
           <option v-for="fur in furColorList" :key="fur.furColorId" :value="fur.furColorId">
@@ -58,7 +58,7 @@
 
       <!-- 絕育狀態 -->
       <div class="form-group">
-        <label>*絕育狀態：</label>
+        <label>絕育狀態：</label>
         <select v-model="form.sterilization" required>
           <option value="已絕育">已絕育</option>
           <option value="未絕育">未絕育</option>
@@ -82,19 +82,19 @@
 
       <!-- 縣市與鄉鎮區 -->
       <div class="form-group">
-        <label for="city">城市：</label>
+        <label for="city">*城市：</label>
         <select v-model="form.cityId" @change="fetchDistrictAreas">
           <option value="">請選擇</option>
-          <option v-for="city in cityList" :key="city.cityId" :value="city.cityId">
+          <option v-for="city in cityList" :key="city.cityId" :value="city.cityId" required>
             {{ city.city }}
           </option>
         </select>
 
         <!-- 區域選擇 -->
-        <label for="district">區域：</label>
+        <label for="district">*區域：</label>
         <select v-model="form.districtAreaId">
           <option value="">請選擇</option>
-          <option v-for="district in districtAreaList" :key="district.districtAreaId" :value="district.districtAreaId">
+          <option v-for="district in districtAreaList" :key="district.districtAreaId" :value="district.districtAreaId" required>
             {{ district.districtAreaName }}
           </option>
         </select>
@@ -103,7 +103,7 @@
       <!-- 走失地點 -->
       <div class="form-group">
         <label>詳細地址：</label>
-        <input v-model="form.street" type="text" placeholder="請輸入街道名稱" />
+        <input v-model="form.street" type="text" placeholder="請輸入街道名稱或地標" />
       </div>
 
       <!-- 走失經過 -->

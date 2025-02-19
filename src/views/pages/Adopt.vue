@@ -100,11 +100,11 @@
     </div>
 
     <div class="info33">
-      <p><strong>動物種類：</strong>{{ searchResult.species ? searchResult.species.species : '未知' }}</p>
+      <p><strong>動物種類：</strong>{{ searchResult.species.species }}</p>
       <p><strong>動物名稱：</strong>{{ searchResult.name }}</p>
       <p><strong>動物性別：</strong>{{ searchResult.gender }}</p>
       <p><strong>有剪耳：</strong>{{ searchResult.sterilization }}</p>
-      <p><strong>可送養地點：</strong>{{ searchResult.TAG }}</p>
+      <p><strong>可送養地點：</strong>{{ searchResult.story }}</p>
     </div>
   </div>
 </div>

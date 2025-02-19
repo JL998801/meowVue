@@ -94,6 +94,7 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import useUserStore from "@/stores/user.js";
 import { axiosapi } from '@/plugins/axios';
 import Swal from 'sweetalert2';
 // Reactive state variables
@@ -103,7 +104,7 @@ const password = ref('');
 const confirmPassword = ref('');
 const name = ref('');
 const phone = ref('');
-
+const userStore = useUserStore();
 const address = ref('');
 const birthday = ref('2000-01-01');
 
@@ -164,7 +165,7 @@ const submitForm = () => {
             localStorage.setItem('email', email);
             localStorage.setItem('token', token);
             localStorage.setItem('nickname', nickname);
-
+            userStore.setToken(token); // 儲存 token 到 store
             // 設置 HTTP header
             axiosapi.defaults.headers.authorization = "Bearer " + token;
 

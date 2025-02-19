@@ -92,7 +92,7 @@
   import { ref, onMounted } from 'vue';
   import { useRouter } from 'vue-router';
   import SidebarMenu from "@/components/SidebarMenu.vue";
-  import { axiosapi } from '@/plugins/axios';
+  import { axiosapi2 } from '@/plugins/axios';
   const googleCredential = ref(localStorage.getItem('googleCredential')); 
   const selectedFiles = ref([null]);  // 儲存選擇的檔案
   const imagePreviews = ref([null]);  // 儲存圖片預覽
@@ -111,7 +111,7 @@
   const storedMemberId = localStorage.getItem('memberId');
   const storedClientId = localStorage.getItem('googleClientId');  // 取出 clientId
 
-  // 如果 localStorage 中有 googleClientId，將 googleClientId，設為memberId
+  // 如果 localStorage 中有 googleClientId，將 googleClientId 設為 nickname
   if (!storedNickname && storedClientId) {
     nickname.value = "Jude Chu";
     localStorage.setItem('nickname', "Jude Chu");  
@@ -119,11 +119,11 @@
     nickname.value = storedNickname;
   }
 
-  // 優先顯示 memberId，若不存在則顯示 googleClientId 的前 12 個字符
-  if (storedMemberId) {
-    memberId.value = storedMemberId;
-  } else if (storedClientId) {
+  // 優先顯示 googleClientId 的前 12 個字符，若不存在則顯示 memberId
+  if (storedClientId) {
     memberId.value = storedClientId.slice(0, 12);  // 取前 12 個字符
+  } else if (storedMemberId) {
+    memberId.value = storedMemberId;
   }
 
 
@@ -194,7 +194,7 @@ const submitForm = async () => {
 
   try {
     // 發送 POST 請求，上傳圖片
-    const imageResponse = await axiosapi.post('/Try/Up', formData, {
+    const imageResponse = await axiosapi2.post('/Try/Up', formData, {
       headers: {
         'Authorization': `Bearer ${token}`, // 添加 Authorization header 傳送 token
       },
@@ -239,7 +239,7 @@ const fetchAdoptionCases = async () => {
       return;
     }
 
-    const response = await axiosapi.get('/adoptionsearch/count', {
+    const response = await axiosapi2.get('/adoptionsearch/count', {
       params: {
         memberId: memberId,
       },

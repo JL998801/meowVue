@@ -467,15 +467,15 @@ body {
 
           /* 設置每個 input 使它們的寬度平均並略小於容器 */
           .image-upload input[type="file"] {
-            width: 33%; /* 每個 input 占容器寬度的32%，並留出空隙 */
+            width: 40%; /* 每個 input 占容器寬度的32%，並留出空隙 */
            
           }
 
           /* 預覽圖片容器 */
           .image-preview img {
-            max-width: 100px;  /* 設定預覽圖片的最大寬度 */
-            margin-top: 10px;
-            margin-right: 10px;
+            padding-top: 25px;  /* 設定預覽圖片的最大寬度 */
+            max-width: 149px;
+            max-height: 149px;
           }
 
         button {

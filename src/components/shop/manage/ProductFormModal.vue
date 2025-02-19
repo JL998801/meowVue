@@ -232,11 +232,6 @@ const submitForm = async () => {
     }
 
     // 2. 分類為必選
-    // if (!formData.value.categoryId) {
-    //     Swal.fire("提示 :", "請選擇分類！", "info");
-    //     return;
-    // }
-
     // 檢查分類（應該傳 categoryName，而非 categoryId）<< 不好的資料傳遞，暫用..之後再改
     if (!formData.value.categoryName) {
         Swal.fire("提示 :", "請選擇分類！", "info");
@@ -284,22 +279,28 @@ const submitForm = async () => {
     }
 
     // 9. 圖片上傳最少 1 張，最多 5 張
-
-    // 建立 FormData 來傳遞 `MultipartFile`
-    const formDataToSend = new FormData();
-
-    // 將 JSON 轉成 Blob（不包含圖片）
-    const productData = { ...formData.value };
-    delete productData.productImages; // 先移除 productImages
-
-    const productBlob = new Blob([JSON.stringify(productData)], { type: "application/json" });
-    formDataToSend.append("productRequest", productBlob);
-
-    // **附加圖片**
     if (formData.value.productImages.length < 1 || formData.value.productImages.length > 5) {
         Swal.fire("提示 :", "請至少上傳 1 張圖片，最多 5 張！", "info");
         return;
     }
+
+    // **建立商品數據物件**
+    const newProductData = { ...formData.value };
+
+    // **附加圖片名稱，確保 JSON 中有圖片資訊**
+    newProductData.productImages = formData.value.productImages.map(file => file.name);
+
+    // **刪除 categoryId**
+    delete newProductData.categoryId; // ✅ 確保不包含 `categoryId`
+
+    // **建立 FormData**
+    const formDataToSend = new FormData();
+
+    // **將 JSON 轉換成 Blob**
+    const productBlob = new Blob([JSON.stringify(newProductData)], { type: "application/json" });
+    formDataToSend.append("productRequest", productBlob);
+
+    // **附加圖片**
     formData.value.productImages.forEach((file) => {
         if (file instanceof File) {
             formDataToSend.append("productImages", file);
@@ -311,10 +312,12 @@ const submitForm = async () => {
     console.log("📷 送出圖片列表:", formData.value.productImages);
     console.log("📷 送出圖片名稱:", formData.value.productImages.map(file => file.name));
 
-    console.log("🚀 提交表單資料:", JSON.stringify({
-        ...formData.value,
-        productImages: formData.value.productImages.map(file => file.name) // 確保 File 正確存入
-    }, null, 2));
+    // console.log("🚀 提交表單資料:", JSON.stringify({
+    //     ...formData.value,
+    //     productImages: formData.value.productImages.map(file => file.name) // 確保 File 正確存入
+    // }, null, 2));
+
+    console.log("🚀 提交表單資料:", JSON.stringify(newProductData, null, 2));
 
     // 通過驗證，執行 API 請求
     try {

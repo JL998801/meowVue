@@ -244,55 +244,6 @@ onMounted(() => {
   fetchCaseStates();
   fetchCities();
 });
-
-// // ✅ 提交查詢請求（支援關鍵字 + ID 查詢）
-// const searchCases = async () => {
-//   const queryParams = {
-//     keyword: keyword.value.trim() || undefined, // ✅ 全域模糊查詢
-//     lostCaseId: lostCaseId.value ? Number(lostCaseId.value) : undefined, // ✅ 依照 ID 查詢
-//     caseStateId: selectedCaseStatement.value || undefined, // ✅ 案件狀態
-//     cityId: cityId.value || undefined, // ✅ 城市
-//     districtAreaId: district.value || undefined, // ✅ 鄉鎮區
-//     speciesId: filters.value.species || undefined, // ✅ 物種（狗/貓）
-//     gender: filters.value.gender || undefined, // ✅ 性別（男/女）
-//     sterilization: filters.value.sterilization ? "已絕育" : undefined, // 只篩選填寫過的絕育狀態 
-//     start: 0, // 預設從第 0 筆開始
-//     rows: 10, // 預設每頁 10 筆
-//     sort: "lostCaseId", // 預設排序欄位
-//     dir: true, // 預設升序
-//   };
-
-//   // **刪除 undefined 或空值的 key**
-//   Object.keys(queryParams).forEach(
-//     key => (queryParams[key] === undefined || queryParams[key] === "") && delete queryParams[key]
-//   );
-
-//   console.log("🔎 修正後的搜尋條件:", queryParams);
-
-//   try {
-//     const response = await axiosapi.post("/lostcases/search", queryParams);
-//     lostCases.value = response.data.content || [];
-//     console.log("✅ 搜尋結果:", lostCases.value);
-//   } catch (error) {
-//     console.error("❌ 查詢失敗:", error);
-//   }
-// };
-// // ✅ **使用 `defineExpose()` 讓其他組件可以使用此方法**
-// defineExpose({
-//   keyword,
-//   lostCaseId,
-//   selectedCaseStatement,
-//   caseStatements,
-//   cityId,
-//   cities,
-//   district,
-//   districts,
-//   filters,
-//   lostCases,
-//   fetchDistricts,
-//   reloadPage,
-//   searchCases,
-// });
 </script>
 
 <style scoped>
@@ -438,7 +389,7 @@ onMounted(() => {
 }
 
 .btn-confirm {
-  background-color: #28a745;
+  background-color: #ffd66f;
   color: white;
 }
 
@@ -449,7 +400,7 @@ onMounted(() => {
 }
 
 .btn-report {
-  background-color: #2ecc71;
+  background-color: #c6bc77;
   color: white;
   padding: 10px 15px;
   border-radius: 5px;
