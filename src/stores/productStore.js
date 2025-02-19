@@ -72,45 +72,6 @@ const useProductStore = defineStore("shop", () => {
     }
 
     // ✅ 添加商品
-    // async function addProduct(newProduct) {
-    //     loading.value = true;
-    //     errorMessage.value = null;
-    
-    //     try {
-    //         const formData = new FormData();
-    
-    //         // 將 `productRequest` 轉為 JSON 字串
-    //         formData.append("productRequest", JSON.stringify(newProduct));
-    
-    //         // 添加圖片檔案
-    //         if (newProduct.productImages) {
-    //             newProduct.productImages.forEach((file) => {
-    //                 formData.append("productImages", file);
-    //             });
-    //         }
-    
-    //         // 發送請求，確保 `Content-Type` 為 `multipart/form-data`
-    //         const response = await axios.post("http://localhost:8080/api/products", formData, {
-    //             headers: {
-    //                 "Content-Type": "multipart/form-data",
-    //                 "Authorization": `Bearer ${userStore.token}`, // 確保攜帶 `token`
-    //             },
-    //         });
-    
-    //         if (response.data.success) {
-    //             products.value.push(response.data.product);
-    //             Swal.fire("成功", "商品已成功新增！", "success");
-    //         } else {
-    //             throw new Error(response.data.message || "新增失敗");
-    //         }
-    //     } catch (err) {
-    //         errorMessage.value = "添加商品失敗：" + err.message;
-    //         Swal.fire("錯誤", errorMessage.value, "error");
-    //     } finally {
-    //         loading.value = false;
-    //     }
-    // }
-
     async function addProduct(newProduct) {
         try {
             const createdProduct = await ProductService.addProduct(newProduct);

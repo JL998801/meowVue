@@ -136,8 +136,8 @@ const formData = ref({
     productName: "",
     categoryName: "",
     tags: [],
-    originalPrice: 0,
-    salePrice: 0,
+    originalPrice: null,
+    salePrice: null,
     stockQuantity: 0,
     unit: "",
     description: "",
@@ -225,106 +225,76 @@ const removeImage = (index) => {
 
 // ✅ 送出表單: 後端將圖片和其他欄位分成兩組 @RequestPart，在前端回傳構建 FormData 也要分開處理
 const submitForm = async () => {
-    // 1. 商品名稱不可空白
-    if (!formData.value.productName.trim()) {
-        Swal.fire("提示 :", "商品名稱不可空白！", "info");
-        return;
-    }
-
-    // 2. 分類為必選
-    // 檢查分類（應該傳 categoryName，而非 categoryId）<< 不好的資料傳遞，暫用..之後再改
-    if (!formData.value.categoryName) {
-        Swal.fire("提示 :", "請選擇分類！", "info");
-        return;
-    }
-
-    // 3. 原價不可空白
-    if (!formData.value.originalPrice || formData.value.originalPrice <= 0) {
-        Swal.fire("提示 :", "原價不可為空或小於 0！", "info");
-        return;
-    }
-
-    // 4. 售價不可空白
-    if (!formData.value.salePrice || formData.value.salePrice <= 0) {
-        Swal.fire("提示 :", "售價不可為空或小於 0！", "info");
-        return;
-    }
-
-    // 5. 庫存數量不可空白
-    if (!formData.value.stockQuantity || formData.value.stockQuantity < 0) {
-        Swal.fire("提示 :", "庫存數量不可為空或小於 0！", "info");
-        return;
-    }
-
-    // 6. 單位根據分類預設，允許修改
-    const selectedCategory = categoryStore.categories.find(cat => cat.categoryId === formData.value.categoryId);
-    if (selectedCategory) {
-        formData.value.unit = formData.value.unit || selectedCategory.defaultUnit;
-    }
-
-    // 7. 描述不可空白
-    if (!formData.value.description.trim()) {
-        Swal.fire("提示 :", "描述不可空白！", "info");
-        return;
-    }
-
-    // 8. 到期日不可為空，且不可早於當下時間
-    const today = new Date().toISOString().split("T")[0]; // 取得 YYYY-MM-DD 格式
-    if (!formData.value.expire) {
-        Swal.fire("提示 :", "請選擇到期日！", "info");
-        return;
-    } else if (formData.value.expire < today) {
-        Swal.fire("提示 :", "到期日不可早於今天！", "info");
-        return;
-    }
-
-    // 9. 圖片上傳最少 1 張，最多 5 張
-    if (formData.value.productImages.length < 1 || formData.value.productImages.length > 5) {
-        Swal.fire("提示 :", "請至少上傳 1 張圖片，最多 5 張！", "info");
-        return;
-    }
-
-    // **建立商品數據物件**
-    const newProductData = { ...formData.value };
-
-    // **附加圖片名稱，確保 JSON 中有圖片資訊**
-    newProductData.productImages = formData.value.productImages.map(file => file.name);
-
-    // **刪除 categoryId**
-    delete newProductData.categoryId; // ✅ 確保不包含 `categoryId`
-
-    // **建立 FormData**
-    const formDataToSend = new FormData();
-
-    // **將 JSON 轉換成 Blob**
-    const productBlob = new Blob([JSON.stringify(newProductData)], { type: "application/json" });
-    formDataToSend.append("productRequest", productBlob);
-
-    // **附加圖片**
-    formData.value.productImages.forEach((file) => {
-        if (file instanceof File) {
-            formDataToSend.append("productImages", file);
-        } else {
-            console.warn("⚠️ 無效的圖片格式:", file);
-        }
-    });
-
-    console.log("📷 送出圖片列表:", formData.value.productImages);
-    console.log("📷 送出圖片名稱:", formData.value.productImages.map(file => file.name));
-
-    // console.log("🚀 提交表單資料:", JSON.stringify({
-    //     ...formData.value,
-    //     productImages: formData.value.productImages.map(file => file.name) // 確保 File 正確存入
-    // }, null, 2));
-
-    console.log("🚀 提交表單資料:", JSON.stringify(newProductData, null, 2));
-
-    // 通過驗證，執行 API 請求
     try {
+        // ✅ **驗證必填欄位**
+        if (!formData.value.productName.trim()) return Swal.fire("提示 :", "商品名稱不可空白！", "info");
+        if (!formData.value.categoryName) return Swal.fire("提示 :", "請選擇分類！", "info");
+        if (!formData.value.originalPrice || formData.value.originalPrice <= 0) return Swal.fire("提示 :", "原價不可為空或小於 0！", "info");
+        if (!formData.value.salePrice || formData.value.salePrice <= 0) return Swal.fire("提示 :", "售價不可為空或小於 0！", "info");
+        if (!formData.value.stockQuantity || formData.value.stockQuantity < 0) return Swal.fire("提示 :", "庫存數量不可為空或小於 0！", "info");
+        if (!formData.value.description.trim()) return Swal.fire("提示 :", "描述不可空白！", "info");
+
+        // ✅ **轉換 originalPrice 和 salePrice 為 BigDecimal 格式 (字串格式的數字)**: 配合後端設定
+        console.log("originalPrice 類型:", typeof formData.value.originalPrice);
+        console.log("salePrice 類型:", typeof formData.value.salePrice);
+        formData.value.originalPrice = formData.value.originalPrice ? parseFloat(formData.value.originalPrice.toFixed(2)) : null;
+        formData.value.salePrice = formData.value.salePrice ? parseFloat(formData.value.salePrice.toFixed(2)) : null;
+        // formData.value.originalPrice = formData.value.originalPrice ? parseFloat(formData.value.originalPrice.toFixed(2)) : 0;
+        // formData.value.salePrice = formData.value.salePrice ? parseFloat(formData.value.salePrice.toFixed(2)) : 0;
+        // formData.value.originalPrice = formData.value.originalPrice ? Number(parseFloat(formData.value.originalPrice).toFixed(2)) : 0;
+        // formData.value.salePrice = formData.value.salePrice ? Number(parseFloat(formData.value.salePrice).toFixed(2)) : 0;
+
+        // ✅ **驗證日期格式**
+        const today = new Date().toISOString().split("T")[0];
+        if (!formData.value.expire || formData.value.expire < today) return Swal.fire("提示 :", "請選擇有效的到期日！", "info");
+
+        // ✅ **圖片上傳至少 1 張，最多 5 張**
+        if (formData.value.productImages.length < 1 || formData.value.productImages.length > 5) {
+            return Swal.fire("提示 :", "請至少上傳 1 張圖片，最多 5 張！", "info");
+        }
+
+        // ✅ **構建符合後端需求的 `newProductData`**
+        const newProductData = {
+            productName: formData.value.productName,
+            description: formData.value.description,
+            originalPrice: formData.value.originalPrice,
+            salePrice: formData.value.salePrice,
+            stockQuantity: formData.value.stockQuantity,
+            expire: formData.value.expire,
+            categoryName: formData.value.categoryName,
+            unit: formData.value.unit,
+            tags: formData.value.tags.map(tag => ({ tagName: tag.tagName })),
+        };
+
+        console.log("✅ 提交的 JSON 數據:", JSON.stringify(newProductData, null, 2));
+
+        // ✅ 建立 `FormData`: 透過 stringify 轉成 string
+        // 但 JSON.stringify() 會將 所有數據轉換為字串，可能導致後端解析 originalPrice 變成 null
+        // spring boot 版本差異導致傳輸格式要求嚴格???
+        const formDataToSend = new FormData();
+        // formDataToSend.append("productRequest", JSON.stringify(newProductData));  // Spring Boot 3.4.1 適用
+        formDataToSend.append("productRequest", new Blob([JSON.stringify(newProductData)], { type: "application/json" })); // 其他Spring Boot版本適用
+
+        // ✅ 附加圖片
+        formData.value.productImages.forEach((file, index) => {
+            if (file instanceof File) {
+                formDataToSend.append("productImages", file);
+            } else {
+                console.warn(`⚠️ 第 ${index + 1} 張圖片不是 File 類型，忽略:`, file);
+            }
+        });
+
+        for (let pair of formDataToSend.entries()) {
+            console.log("📦 FormData 項目:", pair[0], pair[1]);
+        }
+
+        // ✅ **發送 API 請求**
         await productStore.addProduct(formDataToSend);
         Swal.fire("成功", "商品已成功新增！", "success");
+
     } catch (error) {
-        Swal.fire("錯誤", "新增商品失敗：" + error.message, "error");
+        console.error("🔴 新增商品失敗:", error.response?.data || error.message);
+        Swal.fire("錯誤", "新增商品失敗：" + (error.response?.data || error.message), "error");
     }
 };
 

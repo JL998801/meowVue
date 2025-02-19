@@ -125,7 +125,7 @@
 
                     <!-- 分類 -->
                     <td v-if="!editMode[product.productId]">
-                        {{ product.category.categoryName? product.category.categoryName : "無分類" }}
+                        {{ product.category?.categoryName || "無分類" }}
                     </td>
                     <td v-else class="editable-cell">
                         <div class="select-wrapper">

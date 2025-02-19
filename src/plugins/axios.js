@@ -68,9 +68,21 @@ export const jsonRequest = async (method, url, data = {}) => {
     }
 };
 
-// Form-Data 上傳圖片 (by Naomi)
-export const uploadFile = (url, formData) => {
-    return axiosapi.post(url, formData, {
-        headers: { "Content-Type": "multipart/form-data" }, // 確保 Form-Data 格式
-    });
+// Form-Data 格式的資料上傳: 文+圖 (by Naomi)
+export const uploadFile = async (url, formData) => {
+    try {
+        const response = await axiosapi.post(url, formData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+                "Accept": "application/json",
+            },
+            transformRequest: (data) => data,
+        });
+
+        console.log(`✅ 檔案上傳成功 [POST ${url}]`, response.data);
+        return response.data;
+    } catch (error) {
+        console.error(`🔴 檔案上傳失敗 [POST ${url}]`, error.response?.data || error.message);
+        throw error.response?.data || error;
+    }
 };

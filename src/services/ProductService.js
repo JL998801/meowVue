@@ -29,35 +29,38 @@ export const ProductService = {
 
   // ✅ 商品增刪改
   async addProduct(newProduct) {
-    const formData = new FormData();
-  
-    // **轉換 JSON 物件為 Blob**
-    const productBlob = new Blob([JSON.stringify({
-      ...newProduct,
-      productImages: undefined // ✅ 移除 `productImages`，避免 JSON 解析錯誤
-    })], { type: "application/json" });
-    formData.append("productRequest", productBlob); // `productRequest` 必須與後端對應
-  
-    // **附加圖片**
-    if (newProduct.productImages && newProduct.productImages.length > 0) {
-      newProduct.productImages.forEach((imageFile) => {
-        if (imageFile instanceof File) {
-          formData.append("productImages", imageFile); // ✅ 確保是 File
-        } else {
-          console.warn("⚠️ 無效的圖片格式:", imageFile);
-        }
-      });
-    }
-  
     try {
-      const response = await uploadFile("/products", formData);
-      console.log("✅ 商品新增成功:", response.data);
-      return response.data;
+        const formData = new FormData();
+    
+        // **轉換 JSON 物件為 Blob**
+        const productData = { ...newProduct };
+        delete productData.productImages; // ✅ 確保 `productImages` 不進 JSON
+
+        const productBlob = new Blob([JSON.stringify(productData)], { type: "application/json" });
+        formData.append("productRequest", productBlob); // **與後端 @RequestPart("productRequest") 對應**
+    
+        // **附加圖片**
+        if (newProduct.productImages && newProduct.productImages.length > 0) {
+            newProduct.productImages.forEach((imageFile) => {
+                if (imageFile instanceof File) {
+                    formData.append("productImages", imageFile); // ✅ 確保是 File
+                } else {
+                    console.warn("⚠️ 無效的圖片格式，將忽略:", imageFile);
+                }
+            });
+        }
+
+        // **發送請求**
+        const response = await uploadFile("/products", formData);
+
+        console.log("✅ 商品新增成功:", response.data);
+        return response.data;
+
     } catch (error) {
-      console.error("🔴 新增商品失敗:", error);
-      throw error;
+        console.error("🔴 新增商品失敗:", error.response?.data || error.message);
+        throw error.response?.data || error;
     }
-  },  
+  },
 
   async updateProductImages(productId, images) {
     const formData = new FormData();
