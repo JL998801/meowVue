@@ -1,10 +1,12 @@
 import { defineStore } from "pinia";
 import { ProductTagService } from "@/services/ProductTagService";
 import Swal from "sweetalert2";
+import { ref } from "vue";
 
 const useProductTagStore = defineStore("productTag", {
     state: () => ({
-        tags: []
+        tags: [],
+        selectedTags:[],
     }),
 
     actions: {
@@ -28,7 +30,10 @@ const useProductTagStore = defineStore("productTag", {
                     text: "無法獲取標籤，請稍後再試。",
                 });
             }
-        }        
+        },
+        setSelectedTags(tags) {
+            this.selectedTags = tags; // ✅ 更新選擇的標籤
+        },   
     }
 });
 export default useProductTagStore;

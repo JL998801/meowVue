@@ -18,7 +18,7 @@
     </div>
 
     <!-- 🔹 多選按鈕組 -->
-    <label class="form-label">選擇標籤篩選</label>
+    <label class="form-label">標籤篩選</label>
     
     <!-- ✅ 容器，確保按鈕能自動換行 -->
     <div class="tag-container">
@@ -29,7 +29,9 @@
               :value="tag.tagId"
               :id="'tag-' + tag.tagId"
               @click="toggleTag(tag.tagId)">
-        <label class="btn btn-outline-primary tag-button" :for="'tag-' + tag.tagId">
+        <label class="btn btn-outline-primary tag-button" 
+          :class="{ 'tag-selected': selectedTags.includes(tag.tagId) }"
+          :for="'tag-' + tag.tagId">
           {{ tag.tagName }}
         </label>
       </div>
@@ -37,16 +39,17 @@
 
     <!-- 價格範圍 -->
     <div class="price-container">
-      <label>最低價格：</label>
-      <input type="number" v-model="minPrice" placeholder="最低價格" />
-      
-      <label>最高價格：</label>
-      <input type="number" v-model="maxPrice" placeholder="最高價格"/>
+      <label class="form-label">最低價格：</label>
+      <input class="price-input" type="number" v-model="minPrice" placeholder="最低價格" />
+    </div>
+    <div class="price-container">
+      <label class="form-label">最高價格：</label>
+      <input class="price-input" type="number" v-model="maxPrice" placeholder="最高價格"/>
     </div>
 
-    <div>
-      <button class="btn btn-primary" @click="applyFilter">搜尋
-      </button>
+    <div class="button-group">
+      <button class="btn btn-primary " @click="applyFilter">搜尋</button>
+      <button class="btn btn-secondary reset-btn" @click="resetFilters">重置</button>
     </div>
   </aside>
 </template>
@@ -106,6 +109,14 @@ const applyFilter = async () => {
     console.error("篩選商品失敗", error);
   }
 };
+
+const resetFilters = () => {
+  searchQuery.value = "";
+  selectedCategory.value = null;
+  selectedTags.value = [];
+  minPrice.value = 0;
+  maxPrice.value = 5000; // 設定為最大值，視情況調整
+};
 </script>
 
 <style scoped>
@@ -113,21 +124,98 @@ const applyFilter = async () => {
   width: 300px;
   padding: 15px;
   margin: 5px;
-  background-color: #d0ccd0;
-  border-radius: 5%;
+  background-color: #f8f9fa;
+  box-shadow: 0 5px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 2%;
   row-gap: 10px;
   gap: 10px;
 }
+
 .search-bar {
   display: flex;
   gap: 10px;
   margin: 5px;
 }
 
+/* ✅ 讓按鈕排成一列 */
+.button-group {
+  display: flex;
+  justify-content: space-between; /* 讓按鈕之間保持間距 */
+  gap: 10px; /* 按鈕間的間距 */
+  margin-top: 10px;
+}
+
+/* ✅ 讓按鈕等寬 */
+.search-btn,
+.reset-btn {
+  flex: 1; /* 讓兩個按鈕平均分配空間 */
+  text-align: center;
+}
+
+/* ✅ 重置按鈕顏色 */
+.reset-btn {
+  background-color: #6c757d;
+  border-color: #6c757d;
+  color: white;
+  transition: all 0.3s ease-in-out;
+}
+
+.reset-btn:hover {
+  background-color: #5a6268;
+  border-color: #5a6268;
+}
+
+/* 預設標籤樣式 */
+.tag-button {
+  background-color: #f8f9fa;
+  border-color: #D2B48C;
+  color: #B8860B;
+  transition: all 0.3s ease-in-out;
+}
+
+/* 標籤被選取後的樣式 */
+.tag-selected {
+  background-color: #B8860B !important;
+  color: #f8f9fa !important;
+  border-color: #8B6508 !important;
+}
+
+/* ✅ hover 過去時變色 */
+.tag-button:hover {
+  background-color: #B8860B !important;
+  color: #f8f9fa !important;
+  border-color: #8B6508 !important;
+}
+
+/*篩選標題樣式 */
+.form-label{
+  font-size: 18px;
+  font-weight: bold;
+  margin-top: 15px;
+}
+
+/* 預設按鈕樣式 */
+.btn-primary {
+  height: 38px;
+  width: 200px;
+  text-align: center; /* 讓按鈕內文字置中 */
+  background-color: #D2B48C !important;
+  border-color: #D2B48C !important;
+  color: white;
+  transition: all 0.3s ease-in-out; /* ✅ 平滑變色效果 */
+}
+
+/* ✅ `hover` 時變色 */
+.btn-primary:hover {
+  background-color: #B8860B !important;
+  border-color: #B8860B !important;
+  color: white;
+}
+
 .tag-container {
   display: flex;
   flex-wrap: wrap;  /* ✅ 當按鈕超過寬度時自動換行 */
-  gap: 10px;  /* ✅ 設定按鈕之間的間距 */
+  gap: 2px;  /* ✅ 設定按鈕之間的間距 */
 }
 
 .tag-item {
@@ -142,7 +230,19 @@ const applyFilter = async () => {
   margin: 5px;
 }
 
+/* ✅ 設定輸入框樣式 */
+.price-input {
+  width: 100%; /* 讓輸入框撐滿容器 */
+  padding: 8px 12px; /* 內邊距，讓內容更有空間 */
+  border: 2px solid #dfe2e6; /* 邊框顏色 */
+  border-radius: 8px; /* 圓角 */
+  font-size: 16px; /* 文字大小 */
+  outline: none; /* 去掉點擊時的預設藍色外框 */
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
 .price-container{
+  width: 100%;
   gap: 10px;
   margin: 5px;
 }

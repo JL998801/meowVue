@@ -12,6 +12,7 @@ const useProductStore = defineStore("shop", () => {
     const loading = ref(false); // 是否正在載入
     const errorMessage = ref(null); // 錯誤訊息
     const selectedFilter = ref(null); // 選擇的篩選條件
+    const selectedTags = ref({});
 
     // ✅ 獲取所有商品
     async function fetchProducts() {
@@ -101,6 +102,10 @@ const useProductStore = defineStore("shop", () => {
     // ✅ 修改商品欄位 (圖片欄位單獨處理)
     async function modifyProduct(id, productData, productImages = []) {
         try {
+            // 多選標籤從子組件 TagModal 傳來篩選結果
+            const selectedTagsForProduct = selectedTags.value[id] || [];
+            productData.tags = selectedTagsForProduct; 
+
             // ✅ 先更新商品資訊
             const response = await ProductService.modifyProducts(id, productData);
             console.log("✅ 商品資訊更新成功:", response);
@@ -139,6 +144,35 @@ const useProductStore = defineStore("shop", () => {
         }
     }        
 
+    // async function updateImages(id, newImages) {
+    //     try {
+    //         const formData = new FormData();
+    
+    //         // ✅ 確保多張圖片都加入 FormData
+    //         newImages.forEach((file, index) => {
+    //             if (file instanceof File) {
+    //                 formData.append("productImages", file);
+    //             } else {
+    //                 console.warn(`⚠️ 第 ${index + 1} 張圖片不是 File 類型，忽略:`, file);
+    //             }
+    //         });
+    
+    //         // ✅ 發送 API 請求
+    //         const response = await ProductService.updateProductImages(id, formData);
+            
+    //         if (response.success) {
+    //             Swal.fire("成功!", "商品圖片已更新!", "success");
+    //             return true;
+    //         } else {
+    //             throw new Error(response.message || "圖片更新失敗");
+    //         }
+    //     } catch (error) {
+    //         Swal.fire("錯誤!", "圖片更新失敗：" + error.message, "error");
+    //         return false;
+    //     }
+    // }
+    
+
     // ✅ 讓以下方法和參數，可以被 Vue 組件使用
     return {
         products,
@@ -148,6 +182,7 @@ const useProductStore = defineStore("shop", () => {
         loading,
         errorMessage,
         selectedFilter,
+        selectedTags,
         fetchProducts,
         fetchPagedProducts,
         fetchFilteredProducts,

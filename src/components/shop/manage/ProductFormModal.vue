@@ -223,6 +223,8 @@ const removeImage = (index) => {
     formData.value.productImages.splice(index, 1);
 };
 
+const emit = defineEmits(["close"]); // ✅ 定義 emit 事件；傳給父組件關閉彈窗
+
 // ✅ 送出表單: 後端將圖片和其他欄位分成兩組 @RequestPart，在前端回傳構建 FormData 也要分開處理
 const submitForm = async () => {
     try {
@@ -239,10 +241,6 @@ const submitForm = async () => {
         console.log("salePrice 類型:", typeof formData.value.salePrice);
         formData.value.originalPrice = formData.value.originalPrice ? parseFloat(formData.value.originalPrice.toFixed(2)) : null;
         formData.value.salePrice = formData.value.salePrice ? parseFloat(formData.value.salePrice.toFixed(2)) : null;
-        // formData.value.originalPrice = formData.value.originalPrice ? parseFloat(formData.value.originalPrice.toFixed(2)) : 0;
-        // formData.value.salePrice = formData.value.salePrice ? parseFloat(formData.value.salePrice.toFixed(2)) : 0;
-        // formData.value.originalPrice = formData.value.originalPrice ? Number(parseFloat(formData.value.originalPrice).toFixed(2)) : 0;
-        // formData.value.salePrice = formData.value.salePrice ? Number(parseFloat(formData.value.salePrice).toFixed(2)) : 0;
 
         // ✅ **驗證日期格式**
         const today = new Date().toISOString().split("T")[0];
@@ -290,7 +288,17 @@ const submitForm = async () => {
 
         // ✅ **發送 API 請求**
         await productStore.addProduct(formDataToSend);
-        Swal.fire("成功", "商品已成功新增！", "success");
+        // Swal.fire("成功", "商品已成功新增！", "success");
+        Swal.fire({
+                title: "成功",
+                text: "商品已成功新增！",
+                icon: "success",
+                timer: 2000,
+                showConfirmButton: false,
+                timerProgressBar: true
+            });
+
+            emit("close"); // ✅ 新增成功後發送關閉事件
 
     } catch (error) {
         console.error("🔴 新增商品失敗:", error.response?.data || error.message);

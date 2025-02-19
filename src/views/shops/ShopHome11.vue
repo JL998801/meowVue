@@ -181,7 +181,6 @@ select.form-select {
 .pagination {
   display: flex;
   justify-content: center;
-  margin-top: 5px;
 }
 
 .carousel-container {

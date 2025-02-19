@@ -13,9 +13,15 @@
                 <input v-model="searchQuery" type="text" class="form-control" placeholder="輸入商品關鍵字..." @keyup.enter="applyFilter" />
             </div>
 
+            <div class="pagination">
+                <Pagination 
+                v-if="productStore.totalPages"
+                />
+            </div>
+
             <!-- ✅ 新增商品按鈕 -->
             <!-- 引入 Modal 組件 -->
-            <ProductFormModal ref="productFormRef" />
+            <ProductFormModal ref="productFormRef" @close="closeModal" />
             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#productFormModal">
             <!-- <button class="btn btn-success add-product-btn" @click="addProduct"> -->
                 + 新增商品
@@ -23,7 +29,7 @@
         </div>
 
         <!-- 商品列表 -->
-        <table class="table table-hover">
+        <table class="table">
             <thead>
                 <tr>
                     <th scope="col">編號</th>
@@ -143,25 +149,13 @@
                             {{ tag.tagName }}
                         </span>
                     </td>
-                    <td v-else class="tag-cell">
-                        <label class="form-label">標籤</label>
-                        <div class="checkbox-group">
-                            <div v-for="tag in tagStore.tags" :key="tag.tagId" class="form-check form-check-inline">
-                                <input
-                                    class="form-check-input"
-                                    type="checkbox"
-                                    :id="'tag_' + tag.tagId"
-                                    :value="tag"
-                                    :checked="isSelected(product, tag)"
-                                    @change="toggleTag(product, tag)"
-                                />
-                                <label class="form-check-label" :for="'tag_' + tag.tagId">
-                                    {{ tag.tagName }}
-                                </label>
-                            </div>
-                        </div>
+                    <td v-else>
+                        <!-- 父組件（ProductList.vue） -->
+                        <TagModal ref="tagModalRef" />
+                        <button class="btn btn-outline-primary" @click="tagModalRef.openModal(product)">
+                        選擇標籤
+                        </button>
                     </td>
-
 
                     <!-- 原價 -->
                     <td v-if="!editMode[product.productId]">{{ product.originalPrice }}</td>
@@ -229,6 +223,8 @@
 import { ref, onMounted } from "vue";
 import Swal from "sweetalert2";
 import ProductFormModal from "@/components/shop/manage/ProductFormModal.vue";
+import TagModal from "@/components/shop/manage/TagModal.vue";
+import Pagination from "@/components/shop/home/Pagination11.vue";
 import useProductStore from "@/stores/productStore";
 import useCategoryStore from "@/stores/categoryStore";
 import useTagStore from "@/stores/productTagStore";
@@ -241,6 +237,8 @@ const originalProductData = ref({}); // 備份原始商品數據（當修改狀�
 
 const editMode = ref({}); // 追蹤每個 product 是否處於編輯狀態
 const placeholderImage = "https://via.placeholder.com/100"; // 預設空白圖片
+
+const selectedTags = ref([]); // 存放選中的標籤
 
 // ✅ 格式化日期函數: 建立時間、更新時間
 const formatDate = (dateString) => {
@@ -293,6 +291,15 @@ const modifyProduct = (productId) => {
 
     // 備份原始數據（確保每個 `productId` 都有對應的備份）
     originalProductData.value[productId] = JSON.parse(JSON.stringify(productStore.products.find(p => p.productId === productId)));
+};
+
+// 新增商品完成後，自動關閉 Modal
+const closeModal = () => {
+  const modalElement = document.getElementById("productFormModal");
+  if (modalElement) {
+    const modal = bootstrap.Modal.getInstance(modalElement);
+    modal.hide(); // ✅ 使用 Bootstrap API 手動關閉 Modal
+  }
 };
 
 //  修改商品圖片
@@ -360,7 +367,7 @@ const saveProduct = async (product) => {
     const updatedData = {
         productName: product.productName,
         categoryId: product.categoryId,
-        tags: product.tags,
+        tags: productStore.selectedTags[product.productId], // 改為從 store 讀取 selectedTags
         expire: product.expire,
         originalPrice: product.originalPrice,
         salePrice: product.salePrice,
@@ -372,24 +379,34 @@ const saveProduct = async (product) => {
 
     const images = product.selectedImages || [];
 
-    let updateSuccess = true;
-
     try {
-        // ✅ 先判斷是否要更新商品資訊
-        if (Object.keys(updatedData).length > 0) {
-            const productUpdateSuccess = await productStore.modifyProduct(product.productId, updatedData);
-            if (!productUpdateSuccess) {
-                updateSuccess = false;
-            }
-        }
+        const success = await productStore.modifyProduct(product.productId, updatedData);
+    if (success) {
+        Swal.fire({ title: "修改成功!", text: "成功修改商品資訊。", icon: "success" });
+         editMode.value[product.productId] = false;
+    } else {
+         throw new Error("部分更新失敗");
+    }
+    } catch (error) {
+        Swal.fire({ title: "修改失敗!", text: "發生錯誤，請稍後再試。", icon: "error" });
+    }
 
-        // ✅ 再判斷是否要更新圖片
-        if (images.length > 0) {
-            const imageUpdateSuccess = await productStore.updateImages(product.productId, images);
-            if (!imageUpdateSuccess) {
-                updateSuccess = false;
-            }
-        }
+    // try {
+    //     // ✅ 先判斷是否要更新商品資訊
+    //     if (Object.keys(updatedData).length > 0) {
+    //         const productUpdateSuccess = await productStore.modifyProduct(product.productId, updatedData);
+    //         if (!productUpdateSuccess) {
+    //             updateSuccess = false;
+    //         }
+    //     }
+
+    //     // ✅ 再判斷是否要更新圖片
+    //     if (images.length > 0) {
+    //         const imageUpdateSuccess = await productStore.updateImages(product.productId, images);
+    //         if (!imageUpdateSuccess) {
+    //             updateSuccess = false;
+    //         }
+    //     }
 
          // ✅ 再上傳圖片
         // if (product.selectedImages && product.selectedImages.length > 0) {
@@ -405,28 +422,28 @@ const saveProduct = async (product) => {
         // }
 
         // ✅ 結果處理
-        if (updateSuccess) {
-            Swal.fire({
-                title: "修改成功!",
-                text: "成功修改商品資訊。",
-                icon: "success",
-                timer: 2000,
-                showConfirmButton: false,
-                timerProgressBar: true
-            });
+    //     if (updateSuccess) {
+    //         Swal.fire({
+    //             title: "修改成功!",
+    //             text: "成功修改商品資訊。",
+    //             icon: "success",
+    //             timer: 2000,
+    //             showConfirmButton: false,
+    //             timerProgressBar: true
+    //         });
 
-            editMode.value[product.productId] = false; // 關閉編輯模式
-        } else {
-            throw new Error("部分更新失敗");
-        }
-    } catch (error) {
-        console.error("🔴 商品修改失敗:", error);
-        Swal.fire({
-            title: "修改失敗!",
-            text: "發生錯誤，請稍後再試。",
-            icon: "error"
-        });
-    }
+    //         editMode.value[product.productId] = false; // 關閉編輯模式
+    //     } else {
+    //         throw new Error("部分更新失敗");
+    //     }
+    // } catch (error) {
+    //     console.error("🔴 商品修改失敗:", error);
+    //     Swal.fire({
+    //         title: "修改失敗!",
+    //         text: "發生錯誤，請稍後再試。",
+    //         icon: "error"
+    //     });
+    // }
 };
 
 // ✅ 刪除商品: 跳出提醒訊息
@@ -494,11 +511,16 @@ onMounted(() => {
 html, body {
     overflow: auto; /* ✅ 允許滾動 */
     scrollbar-width: none; /* ✅ 隱藏 Firefox 滾動條 */
-    /* -ms-overflow-style: none; ✅ 隱藏 IE/Edge 滾動條 */
+    -ms-overflow-style: none; /*✅ 隱藏 IE/Edge 滾動條*/
 }
 
 body::-webkit-scrollbar {
     display: none; /* ✅ 隱藏 Chrome/Safari 滾動條 */
+}
+
+.page-title{
+    margin-left: 30px;
+    font-weight: bold;
 }
 
 /* ✅ 讓標題、搜尋欄、新增按鈕在同一行 */
@@ -509,30 +531,20 @@ body::-webkit-scrollbar {
     gap: 20px;
     padding: 15px;
     border-radius: 90px;
-    /* box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); */
 }
-
-/* ✅ 美化標題 */
-.page-title {
-    font-size: 30px;
-    font-weight: bold;
-    color: #feba07;
-    margin-left: 100px;
-    white-space: nowrap; /* 防止換行 */
-    text-shadow: #d0ccd0 ;
-}
-
 .table{
     width: 100%;
     border-radius: 50px; /* 讓邊框成為橢圓形 */
+    border: #dfe2e6;
     background-color: #f3d89f;
     table-layout: auto; /* 允許表格根據內容調整寬度 */
-    /* overflow: hidden; 防止內容溢出 */
     overflow: visible; /*允許內容超出 `table` 顯示*/
+    border-collapse: collapse !important; /*跳過 Bootstrap 背景色限制 */
 }
 
 .table th{
     background-color: #d0ccd0;
+    border: #dfe2e6;
     color: #000000;
 }
 
@@ -668,14 +680,7 @@ td.expire-cell {
     white-space: normal; /* ✅ 允許換行 */
 }
 
-/* 固定按鈕大小 */
-.action-buttons .btn {
-    display: flex;
-    gap: 8px;
-    justify-content: center;
-    min-width: 50px; /* 讓按鈕大小一致 */
-    max-width: 100%; /* ✅ 限制按鈕區域不能超出表格 */
-}
+
 
 /* 搜尋欄樣式 */
 .search-bar {
@@ -729,36 +734,6 @@ td.expire-cell {
     width: 100%;
 }
 
-/* 主圖片樣式 */
-.main-image {
-    height: calc(100% - 4px); /* 確保圖片填滿 td，高度減去 margin */
-    max-width: calc(100% - 60px); /* 確保不超出 figure，預留縮略圖空間 */
-    object-fit: cover; /* 保持圖片比例，不變形 */
-    border-radius: 8px;
-    margin: 2px; /* 設定 2px 間距 */
-}
-
-/* 縮略圖容器：垂直排列，放置在主圖右側 */
-.thumbnail-container {
-    display: flex;
-    flex-direction: column; /* 讓縮略圖垂直排列 */
-    gap: 3px;
-    justify-content: flex-start;
-    width: 60px; /* 設定縮略圖區域 */
-    height: 100%; /* 確保縮略圖區域與 `figure` 一致 */
-    overflow: hidden; /* 避免超出 */
-}
-
-/* 縮略圖樣式 */
-.thumbnail {
-    width: 100%;
-    height: auto;
-    max-height: 15px; /* 限制縮略圖高度 */
-    border-radius: 5px;
-    object-fit: cover;
-    cursor: pointer;
-}
-
 /* 讓上傳圖片的 label 具有點擊效果 */
 .upload-label {
     cursor: pointer;
@@ -805,14 +780,6 @@ td .btn {
     margin: 2px; /* 確保按鈕間有間距 */
     white-space: nowrap; /* 避免按鈕換行 */
     display: inline-block;
-}
-
-/* 調整按鈕區塊的彈性佈局，確保不擠壓 */
-.action-buttons {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 8px; /* 確保按鈕之間有空間 */
 }
 
 </style>

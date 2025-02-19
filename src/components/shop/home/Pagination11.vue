@@ -40,7 +40,7 @@ const updatePage = (page) => {
 
 <template>
   <div class="pagination">
-    <nav v-if="productStore.totalPages" aria-label="商品分頁">
+    <div v-if="productStore.totalPages" aria-label="商品分頁">
       <ul class="pagination">
         
         <!-- 上一頁按鈕 -->
@@ -63,7 +63,7 @@ const updatePage = (page) => {
         </li>
       
       </ul>
-    </nav>
+    </div>
   </div>
 </template>
 
@@ -74,7 +74,7 @@ const updatePage = (page) => {
   margin-top: 20px;
 }
 .page-item.active .page-link {
-  background-color: #007bff;
+  background-color: #D2B48C;
   color: white;
 }
 .page-item .page-link {
@@ -95,7 +95,7 @@ const updatePage = (page) => {
   padding: 8px 12px;
   text-decoration: none;
   border: 1px solid #ddd;
-  color: #007bff;
+  color: #8B6508;
   border-radius: 5px;
 }
 
@@ -105,7 +105,7 @@ const updatePage = (page) => {
 }
 
 .page-item.active .page-link {
-  background-color: #007bff;
+  background-color: #8B6508;
   color: white;
 }
 </style>
