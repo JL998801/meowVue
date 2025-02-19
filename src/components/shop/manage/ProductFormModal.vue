@@ -272,8 +272,8 @@ const submitForm = async () => {
         // 但 JSON.stringify() 會將 所有數據轉換為字串，可能導致後端解析 originalPrice 變成 null
         // spring boot 版本差異導致傳輸格式要求嚴格???
         const formDataToSend = new FormData();
-        // formDataToSend.append("productRequest", JSON.stringify(newProductData));  // Spring Boot 3.4.1 適用
-        formDataToSend.append("productRequest", new Blob([JSON.stringify(newProductData)], { type: "application/json" })); // 其他Spring Boot版本適用
+        formDataToSend.append("productRequest", JSON.stringify(newProductData));  // Spring Boot 3.4.1 適用
+        // formDataToSend.append("productRequest", new Blob([JSON.stringify(newProductData)], { type: "application/json" })); // 其他Spring Boot版本適用
 
         // ✅ 附加圖片
         formData.value.productImages.forEach((file, index) => {

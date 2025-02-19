@@ -494,7 +494,7 @@ onMounted(() => {
 html, body {
     overflow: auto; /* ✅ 允許滾動 */
     scrollbar-width: none; /* ✅ 隱藏 Firefox 滾動條 */
-    -ms-overflow-style: none; /* ✅ 隱藏 IE/Edge 滾動條 */
+    /* -ms-overflow-style: none; ✅ 隱藏 IE/Edge 滾動條 */
 }
 
 body::-webkit-scrollbar {

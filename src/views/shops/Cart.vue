@@ -1,13 +1,14 @@
 <template>
   <div class="container">
-    <h2>我的購物車</h2>
-
-    <!-- 顯示購物車空或非空 -->
-    <div v-if="cart.length === 0">
-      <p>購物車是空的！</p>
-    </div>
-    
+   <!-- ✅ 購物車列表（左側） -->
     <div class="cart-items-grid">
+      <h2>我的購物車</h2>
+
+      <!-- 顯示購物車空或非空 -->
+      <div v-if="cart.length === 0">
+        <p>購物車是空的！</p>
+      </div>
+    
       <div v-for="item in cart" :key="item.cartItemId" class="cart-item">
         <input type="checkbox" v-model="selectedItems" :value="item.cartItemId" class="cart-checkbox" />
         
@@ -49,39 +50,38 @@
               class="quantity-input"
               :placeholder="item.editQuantity || 0"
             />
-            
-            <!-- 更新數量按鈕 -->
-            <button @click="syncQuantityWithDatabase(item)" class="update-btn">更新數量</button>
+            <div  class="button-group">
+              <button @click="syncQuantityWithDatabase(item)" class="update-btn">更新數量</button>
+              <button @click="removeItem(item.cartItemId)" class="remove-btn">刪除此商品</button>
+            </div>
           </div>
-
-          <!-- 刪除商品按鈕 -->
-          <button @click="removeItem(item.cartItemId)" class="remove-btn">刪除此商品</button>
         </div>
+      </div>
+
+      <!-- 顯示總金額 -->
+      <div>
+        <p class="total-price">選取商品總金額: {{ totalPrice }} 元</p>
+        <button @click="clearCart" class="clear-cart-btn">一鍵清空購物車</button>
       </div>
     </div>
 
-    <!-- 顯示總金額 -->
-    <div>
-      <p>總金額: {{ totalPrice }}元</p>
-      <button @click="clearCart" class="clear-cart-btn">一鍵清空購物車</button>
-    </div>
-
-    <!-- 填寫交易資訊區塊 -->
-    <div>
+     <!-- ✅ 交易資訊（右側） -->
+    <div class="trade-content">
       <h3>填寫交易資訊</h3>
-      <label for="creditCard">信用卡號</label>
-      <input type="text" id="creditCard" v-model="creditCard" :placeholder="defaultCreditCard" />
-      
-      <label for="shippingAddress">寄送地址</label>
-      <input type="text" id="shippingAddress" v-model="shippingAddress" :placeholder="defaultShippingAddress" />
-      
-      <button @click="goToPayment" class="go-to-payment-btn">前往交易明細</button>
+        <label for="creditCard">信用卡號</label>
+        <input type="text" id="creditCard" v-model="creditCard" :placeholder="defaultCreditCard" />
+        
+        <label for="shippingAddress">寄送地址</label>
+        <input type="text" id="shippingAddress" v-model="shippingAddress" :placeholder="defaultShippingAddress" />
+        
+        <button @click="goToPayment" class="go-to-payment-btn">前往交易明細</button>
     </div>
   </div>
 </template>
 
+
 <script setup>
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useCartStore } from '@/stores/cartStore'; // 使用 Pinia Store
 import { useRouter } from 'vue-router';
 import { axiosapi3 } from "@/plugins/axios.js";
@@ -103,11 +103,19 @@ const creditCard = ref(defaultCreditCard);
 const shippingAddress = ref(defaultShippingAddress);
 
 // 計算總價格
+// const totalPrice = computed(() => {
+//   return cart.value
+//     .filter(item => selectedItems.value.includes(item.cartItemId))
+//     .reduce((total, item) => total + (item.product?.salePrice || 0) * item.quantity, 0);
+// });
+
+// 考慮 使用者更新數量後的總價格變化
 const totalPrice = computed(() => {
   return cart.value
     .filter(item => selectedItems.value.includes(item.cartItemId))
-    .reduce((total, item) => total + (item.product?.salePrice || 0) * item.quantity, 0);
+    .reduce((total, item) => total + (item.product?.salePrice || 0) * (item.editQuantity || 0), 0);
 });
+
 
 // 獲取商品圖片
 const productImages = ref({}); // 存儲商品圖片 URL
@@ -144,8 +152,20 @@ const syncQuantityWithDatabase = async (item) => {
       quantity: item.editQuantity,
       cartId: cartId, // 使用動態 cartId
     });
-    cartStore.updateQuantity({ cartId: item.cartItemId, quantity: item.editQuantity });
-    await cartStore.fetchCartDataFromServer();
+      // ✅ 更新購物車內的數量
+      item.quantity = item.editQuantity;
+
+      // ✅ 確保圖片不會被清空
+      if (!item.product.imageUrls || item.product.imageUrls.length === 0) {
+        const productData = productStore.products.find(p => p.productId === item.product.productId);
+        if (productData) {
+          item.product.imageUrls = productData.imageUrls;
+        }
+      }
+    
+      // ✅ 重新計算總金額
+      cartStore.updateQuantity({ cartId: item.cartItemId, quantity: item.editQuantity });
+      await cartStore.fetchCartDataFromServer();
   } catch (error) {
     console.error('更新購物車數量失敗:', error);
     alert('更新購物車數量失敗，請稍後重試！');
@@ -242,144 +262,229 @@ onMounted(async () => {
     alert('獲取購物車數據失敗，請稍後重試！');
   }
 });
+
+// 若 imageUrls 丟失，重新取得
+watch(cart, async () => {
+  cart.value.forEach(item => {
+    if (!item.product?.imageUrls || item.product.imageUrls.length === 0) {
+      const productData = productStore.products.find(p => p.productId === item.product.productId);
+      if (productData) {
+        item.product.imageUrls = productData.imageUrls;
+      }
+    }
+  });
+});
+
 </script>
 
 <style scoped>
-/* 全域樣式 */
+/* ✅ 主要容器：讓購物車列表和交易資訊並排 */
 .container {
+  display: flex;
+  justify-content: space-between; /* 左右排列 */
+  align-items: flex-start;
   background-color: #ffffff;
   margin: 30px auto;
-  width: 90%; /* 讓白色背景更寬 */
-  max-width: 1200px; /* 設置最大寬度，避免過寬 */
-  padding: 20px; /* 讓內部元素更有間距 */
-  border-radius: 30px;
+  width: 90%;
+  max-width: 1200px;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  gap: 20px; /* 左右區塊之間的間距 */
 }
 
-/* 當 `isFullWidth` 為 true，讓 `.container` 變成全寬而且不要有卷軸 */
-.full-width {
-  padding: 0;
-  margin: 0;
-  width: 100vw;
-  height: 100vh; /* ✅ 讓 `/pet/map` 和 `/advanced-settings` 頁面占滿全畫面 */
-  max-width: 100%;
-  max-height: 100%;
-  overflow: hidden none !important; /* ✅ 隱藏滾動條 */
-  background-image: none !important;
-}
-
-/*管理員頁面使用樣式*/
-.admin {
-  padding: 0;
-  margin: 0;
-  width: 100vw;
-  height: 100vh;
-  max-width: 100%;
-  max-height: 100%;
-  overflow: auto; /* ✅ 允許滾動 */
-  background-image: none !important;
-}
-
-/* 版面設定 */
+/* ✅ 購物車項目區塊（左側） */
 .cart-items-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr); /* 九宮格布局 */
-  gap: 20px;
+  flex: 2; /* 佔據 2 倍的空間 */
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
   padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-.cart-item {
-  border-radius: 8px; 
-  background-color: #c6bc77;
+/* ✅ 交易資訊區塊（右側） */
+.trade-content {
+  flex: 1; /* 佔據 1 倍的空間 */
   padding: 20px;
-  position: relative;
+  background-color: #fdf5e6;
+  border-radius: 12px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   display: flex;
-  flex-direction: row; /* 使用 row 來水平排列圖片與文字 */
-  align-items: flex-start; /* 將圖片和文字對齊 */
-  text-align: left;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* ✅ 總金額樣式 */
+.total-price {
+  font-size: 18px;
+  font-weight: bold;
+  margin-top: 15px;
 }
 
 .cart-checkbox {
-  transform: scale(4); /* Make the checkbox 4 times larger */
-  margin: 5px; /* Add 5px margin around the checkbox */
+  transform: scale(1.8); /* ✅ 放大 1.8 倍 */
+  margin-right: 15px;
+  cursor: pointer; /* 增加可點擊感 */
 }
 
+/* ✅ 單個商品的卡片 */
+.cart-item {
+  display: flex;
+  align-items: center;
+  background-color: #f8f9fa;
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease-in-out;
+}
+.cart-item:hover {
+  transform: scale(1.02);
+}
+
+/* ✅ 左側圖片區塊 */
 .image-container {
-  flex: 1; /* 讓圖片區塊佔據一半 */
-  margin-right: 20px; /* Add space to the right side of the image container */
-  margin-left: 120px;  /* Add space to the left side of the image container */
+  flex: 1;
+  max-width: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
+/* ✅ 主圖片 */
 .product-image {
   width: 100px;
   height: 100px;
-  margin-bottom: 10px;
+  border-radius: 8px;
+  object-fit: cover;
+  margin-bottom: 5px;
 }
 
+/* ✅ 預覽縮圖 */
 .thumbnail-container {
   display: flex;
   gap: 5px;
-  margin-top: 10px;
 }
-
 .thumbnail {
-  width: 50px;
-  height: 50px;
+  width: 40px;
+  height: 40px;
+  border-radius: 5px;
+  object-fit: cover;
+  border: 1px solid #ddd;
 }
 
+/* ✅ 右側商品資訊 */
 .item-details {
-  flex: 2; /* 讓文字和按鈕區塊佔據另一半 */
-  padding-left: 20px;
+  flex: 2;
+  padding-left: 15px;
 }
 
+.item-details p {
+  margin: 5px 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.total-price{
+  font-size: larger;
+  text-align: center;
+}
+
+/* ✅ 數量調整區 */
 .quantity-container {
   display: flex;
   align-items: center;
   gap: 10px;
   margin-top: 10px;
 }
-
 .quantity-input {
-  width: 60px;
+  width: 50px;
+  text-align: center;
   padding: 5px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
 }
 
+
+/* ✅ 操作按鈕區塊（橫向排列） */
+.button-group {
+  display: flex;
+  justify-content: flex-end; /* 讓按鈕靠右對齊 */
+  gap: 15px; /* 讓按鈕之間有更大的間距 */
+  margin-top: 10px;
+}
+
+/* ✅ 操作按鈕 */
+.update-btn,
 .remove-btn {
-  background-color: #F44336;
-  color: white;
+  padding: 6px 12px;
+  border-radius: 5px;
   border: none;
-  padding: 5px 10px;
   cursor: pointer;
-  margin-top: 10px;
+  transition: background 0.2s;
 }
-
 .update-btn {
-  background-color: #3649f4;
+  background-color: #007bff;
   color: white;
-  border: none;
-  padding: 5px 10px;
-  cursor: pointer;
-  margin-top: 10px;
+}
+.remove-btn {
+  background-color: #dc3545;
+  color: white;
+}
+.update-btn:hover {
+  background-color: #0056b3;
+}
+.remove-btn:hover {
+  background-color: #c82333;
 }
 
-.clear-cart-btn {
-  background-color: #D0CCD0;
-  color: black;
-  border: none;
-  padding: 5px 10px;
-  cursor: pointer;
-  margin-top: 20px;
+/* ✅ 購物車總金額 */
+.total-price-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  font-size: 18px;
+  font-weight: bold;
 }
 
+/* ✅ 底部結帳按鈕 */
+.clear-cart-btn,
 .go-to-payment-btn {
-  background-color: #FFFD77;
-  color: black;
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
   border: none;
-  padding: 5px 10px;
   cursor: pointer;
-  margin-top: 20px;
+  font-size: 16px;
+  margin-top: 10px;
+  transition: background 0.2s;
+}
+.clear-cart-btn {
+  background-color: #6c757d;
+  color: white;
+}
+.go-to-payment-btn {
+  background-color: #ffc107;
+  color: black;
+}
+.clear-cart-btn:hover {
+  background-color: #5a6268;
+}
+.go-to-payment-btn:hover {
+  background-color: #e0a800;
 }
 
-button:hover {
-  opacity: 0.8;
+/* ✅ 響應式設計：當螢幕較小時，改為垂直排列 */
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+  }
+
+  .cart-items-grid, .trade-content {
+    width: 100%; /* 讓兩個區塊佔滿整個畫面 */
+  }
 }
 </style>

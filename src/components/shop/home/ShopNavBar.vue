@@ -206,6 +206,7 @@ const cartQuantity = computed(() => {
 
 // 前往購物車頁面
 const goToCart = () => {
+  showCart.value = false; // 關閉購物車
   router.push("/shop/cart"); // 確保路由正確
 };
 const goToShopDetail = () => {

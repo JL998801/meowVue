@@ -8,6 +8,6 @@ export const shopRoutes = [
   { path: '', name: 'ShopHome', component: ShopHome },
   { path: 'product/:id', name: 'ProductDetails', component: ProductDetails },
   { path: 'details/:id?', name: 'ShopDetails', component: ShopDetails, props: true },
-  { path: 'cart', name: 'Cart', component: Cart },
+  { path: '/shop/cart', name: 'Cart', component: Cart },
   { path: 'payment', name: 'Payment', component: Payment }
 ]; 
