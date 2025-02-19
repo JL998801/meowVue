@@ -88,8 +88,6 @@ onMounted(fetchAllCases);
 </script>
 
 <style scoped>
-.admin-case-management {
-}
 .map-container {
   height: 400px;
   margin-top: 20px;

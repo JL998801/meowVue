@@ -71,7 +71,7 @@ const props = defineProps({
 });
 
 const pictureUrls = ref([]);
-const defaultImage = "/images/default.png"; // 預設圖片
+const defaultImage = "@/images/default.png"; // 預設圖片
 // const memberNickName = ref(""); // 預設發文者名稱
 
 // 獲取環境變數 API Base URL
@@ -112,21 +112,30 @@ const getCasePictures = async () => {
 const convertBackendPath = (path) => {
   if (!path) return defaultImage;
 
-  // 避免 URL 重複轉換
+  // ✅ 避免 URL 重複轉換
   if (path.startsWith("http")) {
     return path;
   }
 
-  // 兼容本機與雲端存儲路徑
+  // ✅ 兼容 Windows 本機存儲路徑
   if (path.startsWith("C:/upload/final/")) {
-    return path.replace("C:/upload/final/", `${API_BASE_URL}/upload/final/`);
+    return path.replace(
+      "C:/upload/final/",
+      `${API_BASE_URL}/upload/final/pet/`
+    );
   }
 
-  // 如果是本機開發環境的預設圖片，轉換為雲端預設圖片
+  // ✅ 兼容 Linux (Tomcat) 存儲路徑 `/usr/local/tomcat/upload/`
+  if (path.startsWith("/usr/local/tomcat/upload/")) {
+    return path.replace("/usr/local/tomcat/upload", API_BASE_URL);
+  }
+
+  // ✅ 如果是本機開發環境的預設圖片，轉換為雲端預設圖片
   if (path.includes("localhost:8080/images/default.png")) {
-    return `${API_BASE_URL}/upload/final/images/default.png`;
+    return `${API_BASE_URL}/upload/final/pet/images/default.png`;
   }
 
+  // ✅ 確保 `/upload/final/` 這類相對路徑可以拼接 `API_BASE_URL`
   return `${API_BASE_URL}${path}`;
 };
 

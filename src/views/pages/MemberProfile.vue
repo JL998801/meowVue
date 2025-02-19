@@ -1,55 +1,62 @@
 <template>
   <div class="member-container">
-    <div class="profile-card">
-      <img :src="profileImage" class="profile-img" />
-      <h3>{{ nickName }}</h3>
-      <p>會員 ID：{{ memberId }}</p>
-    </div>
+    <div class="profile-section">
+      <div class="profile-card">
+        <img :src="profileImage" class="profile-img" />
+        <h3>{{ nickName }}</h3>
+        <p>會員 ID：{{ memberId }}</p>
 
-    <div class="case-stats">
-      <div class="stat-box">
-        <p class="stat-number">{{ rescueCases }}</p>
-        <p>救援案件數</p>
-      </div>
-      <div class="stat-box">
-        <p class="stat-number">{{ fosterCases }}</p>
-        <p>送養案件數</p>
-      </div>
-      <div class="stat-box">
-        <p class="stat-number">{{ lostCases }}</p>
-        <p>遺失案件數</p>
-      </div>
-      <div class="stat-box">
-        <p class="stat-number">{{ adoptionCases }}</p>
-        <p>領養案件數</p>
+        <div class="contact-info">
+          <label>電子郵件</label>
+          <p class="contact-text">{{ email }}</p>
+
+          <label>手機號碼</label>
+          <p class="contact-text">{{ phone }}</p>
+        </div>
       </div>
     </div>
 
-    <form @submit.prevent="updateProfile" class="profile-form">
-      <label>姓名</label>
-      <input type="text" v-model="name" readonly />
-
-      <label>電子郵件</label>
-      <input type="email" v-model="email" readonly />
-
-      <label>手機號碼</label>
-      <input type="text" v-model="phone" />
-    </form>
+    <div class="info-section">
+      <div class="case-stats">
+        <div class="stat-box">
+          <p class="stat-number">{{ rescueCases }}</p>
+          <p>救援案件數</p>
+        </div>
+        <div class="stat-box">
+          <p class="stat-number">{{ fosterCases }}</p>
+          <p>送養案件數</p>
+        </div>
+        <div class="stat-box">
+          <p class="stat-number">{{ lostCases }}</p>
+          <p>遺失案件數</p>
+        </div>
+        <div class="stat-box">
+          <p class="stat-number">{{ adoptionCases }}</p>
+          <p>領養案件數</p>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
-import { axiosapi } from "@/plugins/axios";
+import { ref, onMounted, computed } from "vue";
+import { axiosapi2 } from "@/plugins/axios";
 import Swal from "sweetalert2";
+import useUserStore from "@/stores/user";
 
-const memberId = localStorage.getItem("memberId");
+const userStore = useUserStore();
+
+const memberId = computed(() => userStore.memberId);
 const profileImage = ref("defaultProfilePic.jpg");
 const nickName = ref("");
 const name = ref("");
 const email = ref("");
 const ob = ref("");
+const address = ref("");
 const phone = ref("");
+const notifyExchange = ref("啟用");
+const notifyEvent = ref("啟用");
 const rescueCases = ref(0);
 const fosterCases = ref(0);
 const lostCases = ref(0);
@@ -58,7 +65,7 @@ const adoptionCases = ref(0);
 const fetchMemberData = async () => {
   if (!memberId) return;
   try {
-    const { data } = await axiosapi.get(`/members/${memberId}`);
+    const { data } = await axiosapi2.get(`/members/${memberId}`);
     if (data) {
       nickName.value = data.nickName || "未設定";
       name.value = data.name || "未設定";
@@ -79,36 +86,19 @@ const fetchMemberData = async () => {
   }
 };
 
-const updateProfile = async () => {
-  try {
-    const updatedData = {
-      birthday: dob.value,
-      address: address.value,
-      phone: phone.value,
-      notifyExchange: notifyExchange.value,
-      notifyEvent: notifyEvent.value,
-    };
-    await axiosapi.put(`/members/${memberId}`, updatedData);
-    Swal.fire({
-      icon: "success",
-      title: "資料更新成功",
-    });
-  } catch (error) {
-    Swal.fire({
-      icon: "error",
-      title: "更新失敗",
-    });
-  }
-};
-
 onMounted(fetchMemberData);
 </script>
 
 <style scoped>
 .member-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
   width: 80%;
   margin: auto;
-  text-align: center;
+}
+.profile-section {
+  flex: 1;
 }
 .profile-card {
   display: flex;
@@ -124,29 +114,32 @@ onMounted(fetchMemberData);
   height: 80px;
   border-radius: 50%;
 }
+.contact-info {
+  margin-top: 15px;
+  text-align: center;
+}
+.contact-info label {
+  font-weight: bold;
+  display: block;
+}
+.contact-text {
+  background: #f8f8f8;
+  padding: 5px;
+  border-radius: 5px;
+  margin: 5px 0;
+}
+.info-section {
+  flex: 2;
+}
 .case-stats {
-  display: flex;
-  justify-content: center;
-  margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
 }
 .stat-box {
   background: #f8f8f8;
   padding: 10px;
-  margin: 5px;
   border-radius: 5px;
   text-align: center;
-}
-.profile-form {
-  margin-top: 20px;
-}
-button {
-  background: #007bff;
-  color: white;
-  border: none;
-  padding: 10px;
-  cursor: pointer;
-}
-button:hover {
-  background: #0056b3;
 }
 </style>

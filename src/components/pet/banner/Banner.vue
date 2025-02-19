@@ -45,9 +45,6 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { axiosapi2 } from "@/plugins/axios.js";
-import defaultImage from "@/assets/default.png";
-
-let imageUrl11 = defaultImage; // 預設圖片
 
 // **案件分類**
 const caseCategories = ref([
@@ -75,7 +72,7 @@ const fetchBannerData = async () => {
   try {
     const response = await axiosapi2.get(`/banners`);
     let banners = response.data;
-
+    console.log("Banner Data:", banners);
     console.log("✅ 獲取的 banners:", banners);
 
     // 過濾掉 `isHidden: true` 的 Banner
@@ -90,7 +87,7 @@ const fetchBannerData = async () => {
         import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "") ||
         "https://petfinder.duckdns.org";
 
-      let imageUrl = imageUrl11; // ✅ 預設雲端圖片
+      let imageUrl = `${baseURL}/upload/final/pet/images/default.png`; // ✅ 預設雲端圖片
 
       // ✅ 如果 `casePictures` 陣列內有圖片，則取第一張
       if (banner.casePictures && banner.casePictures.length > 0) {
@@ -98,16 +95,20 @@ const fetchBannerData = async () => {
 
         if (!filePath || filePath.trim() === "") {
           // ✅ 若 `pictureUrl` 為空，則使用雲端預設圖片
-          imageUrl = imageUrl11;
+          imageUrl = `${baseURL}/upload/final/pet/images/default.png`;
         } else if (filePath.startsWith("http://localhost:8080")) {
           // ✅ 轉換 `localhost` 本機 URL 為雲端 URL
           filePath = filePath.replace("http://localhost:8080", baseURL);
           imageUrl = filePath;
         } else if (filePath.startsWith("C:/upload/final/")) {
           // ✅ 轉換 Windows 本機路徑為雲端 URL
-          filePath = filePath.replace("C:/upload/final", "/upload/final/pet/");
+          filePath = filePath.replace("C:/upload/final", "/upload/final");
           imageUrl = `${baseURL}${filePath}`;
-        } else if (filePath.startsWith("/upload/final/pet/")) {
+        } else if (filePath.startsWith("/usr/local/tomcat/upload/final/")) {
+          // ✅ 轉換 Tomcat 存放路徑為雲端 URL
+          filePath = filePath.replace("/usr/local/tomcat/upload", "");
+          imageUrl = `${baseURL}${filePath}`;
+        } else if (filePath.startsWith("/upload/final/")) {
           // ✅ 如果是相對路徑，補上 baseURL
           imageUrl = `${baseURL}${filePath}`;
         } else if (filePath.startsWith("http")) {
