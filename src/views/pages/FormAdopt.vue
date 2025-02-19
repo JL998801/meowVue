@@ -8,7 +8,7 @@
     <div class="section-title">
       <h6>送養通報表單</h6>
     </div>
-    <form @submit.prevent="submitForm">
+    <form @submit.prevent="submitForm" class="member-form">
       <label for="caseTitle">*項目標題</label>
       <input type="text" id="caseTitle" v-model="caseTitle" placeholder="請輸入標題，愛牠先有保障！">
 
@@ -385,10 +385,10 @@ body {
             font-family: 'Noto Sans KR', sans-serif;
             background: rgb(233, 233, 233);
             padding: 20px;
-            
+            max-width: 530px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 30%;
+            
         }
         h6 { 
           
