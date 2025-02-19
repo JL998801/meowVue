@@ -27,8 +27,17 @@
       <!-- 案件趨勢圖表 -->
       <div class="chart-container">
         <h3>單一案件瀏覽趨勢</h3>
-        <input v-model="singleCaseId" placeholder="輸入案件 ID" type="number" />
-        <button @click="fetchCaseTrend">查詢</button>
+        <div class="trend-controls">
+          <input
+            v-model="singleCaseId"
+            placeholder="輸入案件 ID"
+            type="number"
+          />
+          <button @click="fetchCaseTrend" class="btn">查詢</button><span></span>
+          <button @click="openCasePage" v-if="singleCaseId" class="btn">
+            查看該案件
+          </button>
+        </div>
         <canvas ref="trendChart"></canvas>
       </div>
 
@@ -460,6 +469,16 @@ const renderTrendChart = () => {
   });
 };
 
+//打開案件詳細資訊的新視窗
+const openCasePage = () => {
+  if (!singleCaseId.value) {
+    alert("請先輸入案件 ID");
+    return;
+  }
+  const caseUrl = `/pet/rescueCase/${singleCaseId.value}`;
+  window.open(caseUrl, "_blank"); // 在新視窗開啟案件頁面
+};
+
 // **載入數據**
 onMounted(() => {
   fetchStats();
@@ -510,14 +529,51 @@ input {
 }
 
 button {
-  padding: 5px 10px;
-  background-color: #007bff;
+  padding: 10px 16px; /* 增加內邊距，讓按鈕更大更好點 */
+  background-color: #007bff; /* 標準藍色 */
   color: white;
   border: none;
   cursor: pointer;
+  font-size: 16px; /* 文字大小 */
+  font-weight: bold;
+  border-radius: 6px; /* 圓角 */
+  transition: all 0.1s ease-in-out; /* 平滑過渡 */
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15); /* 陰影增加立體感 */
 }
 
 button:hover {
-  background-color: #0056b3;
+  background-color: #d3dde8; /* 懸停時加深顏色 */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* 增強懸停時的陰影 */
+}
+
+button:active {
+  transform: scale(0.95); /* 點擊時微縮放 */
+}
+
+.charts {
+  gap: 20px;
+  width: 80%;
+  height: 300px;
+  max-width: 1200px;
+  margin: 0 auto; /* 讓圖表置中 */
+}
+
+/* 第一行：救援案件瀏覽人次分析 & 單一案件瀏覽趨勢 */
+.chart-container:nth-child(1) {
+  grid-column: 1 / 2; /* 佔據左側 */
+}
+.chart-container:nth-child(2) {
+  grid-column: 2 / 3; /* 佔據右側 */
+}
+
+/* 第二行：案件追蹤人次分析 */
+.chart-container:nth-child(3) {
+  grid-column: 1 / 3; /* 橫跨整行 */
+}
+
+/* 第三行：圓餅圖（各縣市案件 & 狗 vs 貓） */
+.chart-container:nth-child(4),
+.chart-container:nth-child(5) {
+  height: 400px; /* 圓餅圖縮小 */
 }
 </style>
