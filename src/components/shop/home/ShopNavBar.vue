@@ -18,24 +18,20 @@
           <BadgeCounter icon="🛒" :count="cartQuantity" @click="toggleCart" />
         </li>
 
+        <!-- ❤️ 願望清單 -->
         <li class="nav-item" v-if="isUserLoggedIn">
           <BadgeCounter
             icon="❤️"
             :count="wishlistCount"
-            modalTarget="#"
+            modalTarget="#wishListModal"
             :updateOnClick="true"
             @open-modal="openModal"
           />
         </li>
 
+        <!-- 🔔 訂單通知 (點擊後跳轉) -->
         <li class="nav-item" v-if="isUserLoggedIn">
-          <BadgeCounter
-            icon="🔔"
-            :count="notificationCount"
-            modalTarget="#"
-            :updateOnClick="true"
-            @open-modal="openModal"
-          />
+          <BadgeCounter icon="🔔" :count="notificationOrderCount" @click="goToShopDetail" />
         </li>
 
         <!-- 🔹 登出 -->
@@ -83,7 +79,7 @@
   <div
     v-show="isUserLoggedIn"
     class="modal fade"
-    id=""
+    id="wishlistModal"
     tabindex="-1"
     aria-hidden="true"
   >
@@ -108,7 +104,7 @@
   <div
     v-show="isUserLoggedIn"
     class="modal fade"
-    id=""
+    id="notificationModal"
     tabindex="-1"
     aria-hidden="true"
   >
@@ -136,9 +132,11 @@ import { useRouter } from "vue-router";
 import Swal from "sweetalert2";
 import petLogo from "@/assets/petLogo.png"; // Logo 圖示
 import useProductStore from "@/stores/productStore";
+	const productStore = useProductStore();
 import useUserStore from "@/stores/user";
 import { storeToRefs } from "pinia";
 import useCartStore from "@/stores/cartStore";
+
 import useWishListStore from "@/stores/wishListStore";
 import useNotificationStore from "@/stores/wishListStore";
 import BadgeCounter from "@/components/BadgeCounter.vue"; // 確保引入 BadgeCounter 組件
@@ -155,7 +153,6 @@ const router = useRouter();
 const cartStore = useCartStore();
 
 // 初始化: Store、空陣列
-const productStore = useProductStore();
 const userStore = useUserStore();
 const wishListStore = useWishListStore();
 const notificationStore = useNotificationStore();
@@ -173,7 +170,12 @@ const showCart = ref(false);
 // 獲取購物車資料
 const cart = computed(() => cartStore.cart || []);
 
-// 計算總金額
+// 計算通知 (訂單) 數量
+const notificationOrderCount = computed(() => {
+  return notificationStore.notifications?.length || 0; // 以 `orderId` 計算數量
+});
+
+// 總金額計算
 const totalPrice = computed(() => {
   if (!cart.value.length) return 0;
   return cart.value.reduce(
@@ -195,9 +197,11 @@ const cartQuantity = computed(() => {
 // 前往購物車頁面
 const goToCart = () => {
   router.push("/shop/cart"); // 確保路由正確
+};const goToShopDetail = () => {
+  router.push("/shop/details?cart");
 };
 
-// ✅ 登出確認
+// 登出功能
 const handleLogout = async () => {
   const result = await Swal.fire({
     title: "登出確認",
