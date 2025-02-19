@@ -2,7 +2,10 @@
   <div class="member-container">
     <div class="profile-section">
       <div class="profile-card">
-        <img :src="profileImage" class="profile-img" />
+        <img
+          :src="profileImage || 'defaultProfilePic.jpg'"
+          class="profile-img"
+        />
         <h3>{{ nickName }}</h3>
         <p>會員 ID：{{ memberId }}</p>
 
@@ -40,51 +43,51 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from "vue";
-import { axiosapi2 } from "@/plugins/axios";
-import Swal from "sweetalert2";
-import useUserStore from "@/stores/user";
+import { ref, onMounted, watch } from "vue";
+import { axiosapi2 } from "@/plugins/axios.js"; // 直接用 axios，確保請求正常發送
 
-const userStore = useUserStore();
+import { useRoute } from "vue-router";
+// ✅ 取得當前路由
+const route = useRoute();
+const memberId = ref(route.params.memberId); // 透過路由參數獲取 memberId
 
-const memberId = computed(() => userStore.memberId);
-const profileImage = ref("defaultProfilePic.jpg");
+const profileImage = ref("");
 const nickName = ref("");
-const name = ref("");
 const email = ref("");
-const ob = ref("");
-const address = ref("");
 const phone = ref("");
-const notifyExchange = ref("啟用");
-const notifyEvent = ref("啟用");
 const rescueCases = ref(0);
 const fosterCases = ref(0);
 const lostCases = ref(0);
 const adoptionCases = ref(0);
 
 const fetchMemberData = async () => {
-  if (!memberId) return;
+  if (!memberId.value) {
+    console.error("會員 ID 未定義");
+    return;
+  }
+
   try {
-    const { data } = await axiosapi2.get(`/members/${memberId}`);
+    const response = await axiosapi2.get(`/register/${memberId.value}/profile`);
+    const data = response.data;
+
     if (data) {
-      nickName.value = data.nickName || "未設定";
-      name.value = data.name || "未設定";
-      email.value = data.email || "未設定";
-      phone.value = data.phone || "未設定";
-      address.value = data.address || "未設定";
-      dob.value = data.birthday || "1990-01-01";
-      profileImage.value = data.profileImage || "defaultProfilePic.jpg";
-      notifyExchange.value = data.notifyExchange || "啟用";
-      notifyEvent.value = data.notifyEvent || "啟用";
-      rescueCases.value = data.rescueCases || 0;
-      fosterCases.value = data.fosterCases || 0;
-      lostCases.value = data.lostCases || 0;
-      adoptionCases.value = data.adoptionCases || 0;
+      profileImage.value = data.linePicture || "defaultProfilePic.jpg";
+      nickName.value = data.lineName || "未知";
+      email.value = data.email || "無";
     }
   } catch (error) {
-    console.error("載入會員資料失敗", error);
+    console.error("載入會員資料時發生錯誤:", error);
   }
 };
+
+// ✅ 監聽路由變化，如果 `memberId` 改變就重新加載資料
+watch(
+  () => route.params.memberId,
+  (newMemberId) => {
+    memberId.value = newMemberId;
+    fetchMemberData();
+  }
+);
 
 onMounted(fetchMemberData);
 </script>

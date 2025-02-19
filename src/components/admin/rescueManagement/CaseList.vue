@@ -40,7 +40,7 @@
               查看
             </button>
             <button
-              @click="deleteCase(caseItem.rescueCaseId)"
+              @click="$emit('deleteCase', caseItem.rescueCaseId)"
               class="btn-delete"
             >
               刪除

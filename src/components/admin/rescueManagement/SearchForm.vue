@@ -139,8 +139,9 @@ const resetForm = () => {
     suspLost: suspLost.value,
   };
   console.log("搜尋參數：", searchParams);
+  const caseIdNumber = searchParams.caseId ? Number(searchParams.caseId) : null;
   // 傳遞給父組件
-  emit("search", searchParams);
+  emit("search", { ...searchParams.value, caseId: caseIdNumber });
 };
 </script>
 
