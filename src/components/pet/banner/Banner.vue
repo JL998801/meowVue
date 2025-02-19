@@ -45,6 +45,9 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { axiosapi2 } from "@/plugins/axios.js";
+import defaultImage from "@/assets/default.png";
+
+let imageUrl11 = defaultImage; // 預設圖片
 
 // **案件分類**
 const caseCategories = ref([
@@ -87,7 +90,7 @@ const fetchBannerData = async () => {
         import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "") ||
         "https://petfinder.duckdns.org";
 
-      let imageUrl = `${baseURL}/upload/final/images/default.png`; // ✅ 預設雲端圖片
+      let imageUrl = imageUrl11; // ✅ 預設雲端圖片
 
       // ✅ 如果 `casePictures` 陣列內有圖片，則取第一張
       if (banner.casePictures && banner.casePictures.length > 0) {
@@ -95,16 +98,16 @@ const fetchBannerData = async () => {
 
         if (!filePath || filePath.trim() === "") {
           // ✅ 若 `pictureUrl` 為空，則使用雲端預設圖片
-          imageUrl = `${baseURL}/upload/final/images/default.png`;
+          imageUrl = imageUrl11;
         } else if (filePath.startsWith("http://localhost:8080")) {
           // ✅ 轉換 `localhost` 本機 URL 為雲端 URL
           filePath = filePath.replace("http://localhost:8080", baseURL);
           imageUrl = filePath;
         } else if (filePath.startsWith("C:/upload/final/")) {
           // ✅ 轉換 Windows 本機路徑為雲端 URL
-          filePath = filePath.replace("C:/upload/final", "/upload/final");
+          filePath = filePath.replace("C:/upload/final", "/upload/final/pet/");
           imageUrl = `${baseURL}${filePath}`;
-        } else if (filePath.startsWith("/upload/final/")) {
+        } else if (filePath.startsWith("/upload/final/pet/")) {
           // ✅ 如果是相對路徑，補上 baseURL
           imageUrl = `${baseURL}${filePath}`;
         } else if (filePath.startsWith("http")) {

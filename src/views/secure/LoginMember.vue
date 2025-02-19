@@ -49,7 +49,6 @@
         <div>
           <RouterLink class="link" to="/pages/Register">註冊會員</RouterLink>
         </div>
-        <RouterLink class="nav-link" to="/secure/loginadmin">切換</RouterLink>
       </div>
     </div>
   </form>
@@ -374,7 +373,7 @@ body {
   background-color: #fffcec;
   padding: 20px;
   border-radius: 10px;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0px 4px 10px rgba(26, 26, 26, 0.1);
   text-align: center;
   display: flex;
   flex-direction: column;

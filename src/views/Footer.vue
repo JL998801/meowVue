@@ -10,6 +10,7 @@
         <a href="/contact" class="footer-link">聯絡我們</a>/
         <a href="/privacy" class="footer-link">隱私政策</a>/
         <a href="/terms" class="footer-link">使用條款</a>
+        <RouterLink class="nav-link" to="/secure/loginadmin">切換</RouterLink>
       </div>
 
       <div class="footer-social">
@@ -114,5 +115,9 @@ body {
 .footer-bottom {
   font-size: 13px;
   opacity: 0.8;
+}
+
+.nav-link {
+  color: #c6bc77;
 }
 </style>
