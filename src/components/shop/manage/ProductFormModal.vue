@@ -1,11 +1,10 @@
-<!-- ✅ ProductFormModal.vue -->
 <template>
     <div class="modal fade" ref="productModal" id="productFormModal" tabindex="-1" aria-labelledby="productFormLabel" aria-hidden="true">
         <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="productFormLabel">新增商品<span class="input-hint">*所有欄位皆為必填</span></h5>
-                <button type="button" class="btn-close" @click="closeModal"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"/>
             </div>
     
             <div class="modal-body">
@@ -20,8 +19,8 @@
                 <!-- ✅ 分類 -->
                 <div class="mb-3">
                     <label class="form-label">分類</label>
-                    <select class="form-select" v-model="formData.categoryId">
-                        <option v-for="category in categoryStore.categories" :key="category.categoryId" :value="category.categoryId">
+                    <select class="form-select" v-model="formData.categoryName">
+                        <option v-for="category in categoryStore.categories" :key="category.categoryId" :value="category.categoryName" @change="updateCategory">
                         {{ category.categoryName }}
                         </option>
                     </select>
@@ -105,11 +104,11 @@
                 </div>
     
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" @click="closeModal">取消</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
                     <button 
                         type="submit" 
                         class="btn btn-primary"  
-                        @keydown.enter.exact.prevent="submitForm"
+                        @keydown.prevent="submitForm"
                     >儲存</button>
                 </div>
             </form>
@@ -120,14 +119,12 @@
 </template>
     
 <script setup>
-import { ref, watch, onMounted, defineExpose, nextTick } from "vue";
+import { ref, watch } from "vue";
 import Swal from "sweetalert2";
 import useProductStore from "@/stores/productStore";
 import useCategoryStore from "@/stores/categoryStore";
 import useTagStore from "@/stores/productTagStore";
 
-const productModal = ref(null);
-let modalInstance = null;
 const previewImages = ref([]); // 存放圖片預覽
 
 const productStore = useProductStore();
@@ -135,22 +132,35 @@ const categoryStore = useCategoryStore();
 const tagStore = useTagStore();
 
 const formData = ref({
-productId: "",
-productImages: [],
-productName: "",
-categoryId: null,
-tags: [],
-originalPrice: 0,
-salePrice: 0,
-stockQuantity: 0,
-unit: "",
-description: "",
-expire: "",
+    productImages: [],
+    productName: "",
+    categoryName: "",
+    tags: [],
+    originalPrice: 0,
+    salePrice: 0,
+    stockQuantity: 0,
+    unit: "",
+    description: "",
+    expire: "",
 });
 
 // ✅ 描述視窗允許 Shift+Enter 換行
 const allowNewLine = (event) => {
     event.target.value += "\n";
+};
+
+// ✅ 切換分類
+const updateCategory = () => {
+    const selectedCategory = categoryStore.categories.find(
+        cat => cat.categoryName === formData.value.categoryName
+    );
+
+    if (selectedCategory) {
+        formData.value.categoryId = selectedCategory.categoryId; // ✅ 存 categoryId 供未來使用
+        formData.value.unit = selectedCategory.unit || ""; // ✅ 自動填充單位
+    }
+
+    console.log("✅ 選擇的分類:", formData.value.categoryName, " (ID:", formData.value.categoryId, ") 單位:", formData.value.unit);
 };
 
 // ✅ 檢查標籤是否已選取
@@ -168,46 +178,44 @@ const toggleTag = (tag) => {
     }
 };
 
-// ✅ 手動初始化 Bootstrap Modal
-onMounted(() => {
-    nextTick(() => {
-        if (productModal.value) {
-            modalInstance = new bootstrap.Modal(productModal.value);
-        }
-    });
-});
-
-// 手動開啟
-const openModal = () => {
-    modalInstance?.show();
-};
-
-// 手動關閉
-const closeModal = () => {
-    modalInstance?.hide();
-};
-
 // ✅ 處理圖片上傳
 const handleFileUpload = (event) => {
     const files = Array.from(event.target.files);
 
-    // 檢查是否超過 5 張
-    if (formData.value.productImages.length + files.length > 5) {
-        Swal.fire("提示 :", "最多只能上傳 5 張圖片！", "error");
-        return;
-    }
-
-    // 讀取圖片並預覽
     files.forEach(file => {
+        // ✅ 確保是 `File` 類型
+        if (!(file instanceof File)) {
+            console.warn("⚠️ 非 File 類型，將忽略:", file);
+            return;
+        }
+
+        // ✅ 限制最多 5 張
+        if (formData.value.productImages.length >= 5) {
+            Swal.fire("提示 :", "最多只能上傳 5 張圖片！", "error");
+            return;
+        }
+
+        // ✅ 檢查是否已存在相同檔案（避免重複）
+        if (formData.value.productImages.some(existingFile => existingFile.name === file.name)) {
+            Swal.fire("提示 :", "圖片已存在，請選擇其他圖片！", "info");
+            return;
+        }
+
+        // ✅ 讀取圖片並預覽
         const reader = new FileReader();
         reader.onload = (e) => {
-            previewImages.value.push(e.target.result);
+            previewImages.value.push(e.target.result); // ✅ 存入 Base64 預覽圖
         };
         reader.readAsDataURL(file);
+
+        // ✅ 存入 `File`（確保傳到後端）
+        formData.value.productImages.push(file);
     });
 
-    formData.value.productImages = [...formData.value.productImages, ...files]; // ✅ 保持文件列表
+    // ✅ 確保數據正確
+    console.log("📷 已選擇的圖片:", formData.value.productImages);
 };
+
 
 // 刪除預覽圖片
 const removeImage = (index) => {
@@ -215,7 +223,7 @@ const removeImage = (index) => {
     formData.value.productImages.splice(index, 1);
 };
 
-// ✅ 送出表單
+// ✅ 送出表單: 後端將圖片和其他欄位分成兩組 @RequestPart，在前端回傳構建 FormData 也要分開處理
 const submitForm = async () => {
     // 1. 商品名稱不可空白
     if (!formData.value.productName.trim()) {
@@ -224,7 +232,13 @@ const submitForm = async () => {
     }
 
     // 2. 分類為必選
-    if (!formData.value.categoryId) {
+    // if (!formData.value.categoryId) {
+    //     Swal.fire("提示 :", "請選擇分類！", "info");
+    //     return;
+    // }
+
+    // 檢查分類（應該傳 categoryName，而非 categoryId）<< 不好的資料傳遞，暫用..之後再改
+    if (!formData.value.categoryName) {
         Swal.fire("提示 :", "請選擇分類！", "info");
         return;
     }
@@ -270,31 +284,56 @@ const submitForm = async () => {
     }
 
     // 9. 圖片上傳最少 1 張，最多 5 張
+
+    // 建立 FormData 來傳遞 `MultipartFile`
+    const formDataToSend = new FormData();
+
+    // 將 JSON 轉成 Blob（不包含圖片）
+    const productData = { ...formData.value };
+    delete productData.productImages; // 先移除 productImages
+
+    const productBlob = new Blob([JSON.stringify(productData)], { type: "application/json" });
+    formDataToSend.append("productRequest", productBlob);
+
+    // **附加圖片**
     if (formData.value.productImages.length < 1 || formData.value.productImages.length > 5) {
         Swal.fire("提示 :", "請至少上傳 1 張圖片，最多 5 張！", "info");
         return;
     }
+    formData.value.productImages.forEach((file) => {
+        if (file instanceof File) {
+            formDataToSend.append("productImages", file);
+        } else {
+            console.warn("⚠️ 無效的圖片格式:", file);
+        }
+    });
+
+    console.log("📷 送出圖片列表:", formData.value.productImages);
+    console.log("📷 送出圖片名稱:", formData.value.productImages.map(file => file.name));
+
+    console.log("🚀 提交表單資料:", JSON.stringify({
+        ...formData.value,
+        productImages: formData.value.productImages.map(file => file.name) // 確保 File 正確存入
+    }, null, 2));
 
     // 通過驗證，執行 API 請求
     try {
-        await productStore.addProduct(formData.value);
+        await productStore.addProduct(formDataToSend);
         Swal.fire("成功", "商品已成功新增！", "success");
-        console.log("🚀 提交表單資料", formData.value);
-        closeModal();
     } catch (error) {
         Swal.fire("錯誤", "新增商品失敗：" + error.message, "error");
     }
 };
 
-// 讓父組件 ProductManagement 可以調用
-defineExpose({ openModal, closeModal });
-
-
 // 監聽分類變化，當分類變更時，自動填入 defaultUnit
-watch(() => formData.value.categoryId, (newCategoryId) => {
-    const selectedCategory = categoryStore.categories.find(cat => cat.categoryId === newCategoryId);
+watch(() => formData.value.categoryName, (newCategoryName) => {
+    const selectedCategory = categoryStore.categories.find(
+        cat => cat.categoryName === newCategoryName
+    );
+
     if (selectedCategory) {
-        formData.value.unit = selectedCategory.defaultUnit; // 自動帶入
+        formData.value.categoryId = selectedCategory.categoryId; // ✅ 儲存 `categoryId`
+        formData.value.unit = selectedCategory.unit || ""; // ✅ 自動填充 `unit`
     }
 });
 </script>

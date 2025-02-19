@@ -70,7 +70,7 @@ export const jsonRequest = async (method, url, data = {}) => {
 
 // Form-Data 上傳圖片 (by Naomi)
 export const uploadFile = (url, formData) => {
-    return axiosapi.patch(url, formData, {
+    return axiosapi.post(url, formData, {
         headers: { "Content-Type": "multipart/form-data" }, // 確保 Form-Data 格式
     });
 };

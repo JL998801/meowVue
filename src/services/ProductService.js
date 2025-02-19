@@ -28,29 +28,36 @@ export const ProductService = {
   },
 
   // ✅ 商品增刪改
-   async addProducts(newProduct) {
+  async addProduct(newProduct) {
     const formData = new FormData();
-
-    // 轉換 JSON 物件為 Blob
-    const productBlob = new Blob([JSON.stringify(newProduct)], { type: "application/json" });
+  
+    // **轉換 JSON 物件為 Blob**
+    const productBlob = new Blob([JSON.stringify({
+      ...newProduct,
+      productImages: undefined // ✅ 移除 `productImages`，避免 JSON 解析錯誤
+    })], { type: "application/json" });
     formData.append("productRequest", productBlob); // `productRequest` 必須與後端對應
-
-    // 附加圖片
+  
+    // **附加圖片**
     if (newProduct.productImages && newProduct.productImages.length > 0) {
-        newProduct.productImages.forEach((image) => {
-            formData.append("productImages", image); // 確保圖片的 `key` 與後端一致
-        });
+      newProduct.productImages.forEach((imageFile) => {
+        if (imageFile instanceof File) {
+          formData.append("productImages", imageFile); // ✅ 確保是 File
+        } else {
+          console.warn("⚠️ 無效的圖片格式:", imageFile);
+        }
+      });
     }
-
+  
     try {
-        const response = await uploadFile("/products", formData);
-        console.log("✅ 商品新增成功:", response.data);
-        return response.data;
+      const response = await uploadFile("/products", formData);
+      console.log("✅ 商品新增成功:", response.data);
+      return response.data;
     } catch (error) {
-        console.error("🔴 新增商品失敗:", error);
-        throw error;
+      console.error("🔴 新增商品失敗:", error);
+      throw error;
     }
-  },
+  },  
 
   async updateProductImages(productId, images) {
     const formData = new FormData();
@@ -61,7 +68,7 @@ export const ProductService = {
     });
 
     try {
-        const response = await axiosapi.patch(`/products/${productId}/images`, formData, {
+        const response = await axiosapi.post(`/products/${productId}/images`, formData, {
             headers: {
                 "Content-Type": "multipart/form-data", // ✅ 確保請求標頭正確
             },

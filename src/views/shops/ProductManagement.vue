@@ -16,8 +16,8 @@
             <!-- ✅ 新增商品按鈕 -->
             <!-- 引入 Modal 組件 -->
             <ProductFormModal ref="productFormRef" />
-
-            <button class="btn btn-success add-product-btn" @click="addProduct">
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#productFormModal">
+            <!-- <button class="btn btn-success add-product-btn" @click="addProduct"> -->
                 + 新增商品
             </button>
         </div>
