@@ -37,10 +37,15 @@ import { ref, onMounted, computed } from "vue";
 import { axiosapi2 } from "@/plugins/axios.js";
 import SearchForm from "@/components/admin/rescueManagement/SearchForm.vue";
 import CaseList from "@/components/admin/rescueManagement/CaseList.vue";
+import Swal from "sweetalert2";
+
 //此為案件條件表單和caseList的父組件
 
 // 搜尋參數
 const searchParams = ref({});
+
+const cases = ref([]);
+const userToken = ref(""); // 用戶的 Token
 
 // 初始化獲取所有案件
 const fetchAllCases = async () => {
@@ -66,10 +71,45 @@ const sortOrder = ref("desc");
 // 刪除案件
 const deleteCase = async (caseId) => {
   try {
-    await axiosapi2.delete(`/RescueCase/delete/${caseId}`);
-    cases.value = cases.value.filter((c) => c.rescueCaseId !== caseId);
+    // 顯示 SweetAlert 確認對話框
+    const result = await Swal.fire({
+      title: "確定要刪除此案件嗎？",
+      text: "此操作不可恢復！",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "刪除",
+      cancelButtonText: "取消",
+    });
+
+    // 如果使用者按下確認刪除
+    if (result.isConfirmed) {
+      const user = localStorage.getItem("user");
+      const parsedUser = JSON.parse(user);
+      const userToken = parsedUser?.token;
+      console.log;
+
+      if (!userToken) {
+        Swal.fire("錯誤", "無法取得授權 Token，請重新登入", "error");
+        return;
+      }
+
+      await axiosapi2.delete(`/RescueCase/delete/${caseId}`, {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+        },
+      });
+
+      // 更新案件列表
+      cases.value = cases.value.filter((c) => c.rescueCaseId !== caseId);
+
+      // 顯示成功訊息
+      Swal.fire("已刪除！", "案件已成功刪除。", "success");
+    }
   } catch (error) {
     console.error("刪除案件失敗:", error);
+    Swal.fire("錯誤", "刪除案件失敗，請稍後再試。", "error");
   }
 };
 
