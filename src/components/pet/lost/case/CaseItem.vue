@@ -1,17 +1,21 @@
 <template>
   <div class="post">
     <div class="post-image">
-    <img
-      :src="pictureUrls.length > 0 ? pictureUrls[0] : defaultImage"
-      :alt="caseItem.caseTitle"
-    />
-  </div>
+      <img
+        :src="pictureUrls.length > 0 ? pictureUrls[0] : defaultImage"
+        :alt="caseItem.caseTitle"
+      />
+    </div>
     <div class="post-details">
       <div class="info">
         <div class="post-id">
-          遺失案件編號 : {{ caseItem.lostCaseId || caseItem.rescueCaseId || "未知" }}
+          遺失案件編號 :
+          {{ caseItem.lostCaseId || caseItem.rescueCaseId || "未知" }}
         </div>
-        <div class="case-status" :class="statusClass(caseItem.caseState.caseStatement)">
+        <div
+          class="case-status"
+          :class="statusClass(caseItem.caseState.caseStatement)"
+        >
           {{ caseItem.caseState.caseStatement }}
         </div>
       </div>
@@ -29,7 +33,7 @@
         <p>寵物姓名：{{ caseItem.name }}</p>
         <p>寵物性別：{{ caseItem.gender }}</p>
         <p>寵物品種：{{ caseItem.breed.breed }}</p>
-        <p>絕育狀態：{{ caseItem.sterilization || '未知' }}</p>
+        <p>絕育狀態：{{ caseItem.sterilization || "未知" }}</p>
         <p>附近地標：{{ caseItem.street }}</p>
       </div>
       <div class="case-footer">
@@ -56,7 +60,7 @@
 <script setup>
 import { ref, onMounted, watch } from "vue";
 import followButton from "@/components/pet/rescue/follow/followButton.vue";
-import {axiosapi} from "@/plugins/axios.js";
+import { axiosapi } from "@/plugins/axios.js";
 
 // 父組件傳遞的案件資訊
 const props = defineProps({
@@ -71,7 +75,8 @@ const defaultImage = "/images/default.png"; // 預設圖片
 // const memberNickName = ref(""); // 預設發文者名稱
 
 // 獲取環境變數 API Base URL
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080"; 
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "https://petfinder.duckdns.org"; // 改為你的雲端 API 網址
 
 const getCasePictures = async () => {
   try {
@@ -81,11 +86,19 @@ const getCasePictures = async () => {
     }
 
     // 向後端請求案件圖片數據
-    const response = await axiosapi.get(`/lostcases/${props.caseItem.lostCaseId}`);
+    const response = await axiosapi.get(
+      `/lostcases/${props.caseItem.lostCaseId}`
+    );
 
-    if (response.data && response.data.casePictures && response.data.casePictures.length > 0) {
-      // 從 casePictures 陣列中提取圖片 URL，並轉換為可用的 URL
-      pictureUrls.value = response.data.casePictures.map(pic => convertBackendPath(pic.pictureUrl));
+    if (
+      response.data &&
+      response.data.casePictures &&
+      response.data.casePictures.length > 0
+    ) {
+      // 轉換後端返回的圖片路徑
+      pictureUrls.value = response.data.casePictures.map((pic) =>
+        convertBackendPath(pic.pictureUrl)
+      );
     } else {
       pictureUrls.value = [defaultImage]; // 若無圖片，使用預設圖片
     }
@@ -98,13 +111,23 @@ const getCasePictures = async () => {
 // 將後端的本機路徑轉換為前端可讀取的 URL
 const convertBackendPath = (path) => {
   if (!path) return defaultImage;
-  
+
   // 避免 URL 重複轉換
   if (path.startsWith("http")) {
     return path;
   }
 
-  return path.replace("C:/upload/final/pet/images/", `${API_BASE_URL}/upload/final/pet/images/`);
+  // 兼容本機與雲端存儲路徑
+  if (path.startsWith("C:/upload/final/")) {
+    return path.replace("C:/upload/final/", `${API_BASE_URL}/upload/final/`);
+  }
+
+  // 如果是本機開發環境的預設圖片，轉換為雲端預設圖片
+  if (path.includes("localhost:8080/images/default.png")) {
+    return `${API_BASE_URL}/upload/final/images/default.png`;
+  }
+
+  return `${API_BASE_URL}${path}`;
 };
 
 // 組件載入時請求圖片數據
@@ -133,7 +156,6 @@ const statusClass = (caseState) => {
   }
 };
 </script>
-
 
 <style scoped>
 a {

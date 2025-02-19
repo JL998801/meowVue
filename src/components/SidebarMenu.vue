@@ -22,6 +22,7 @@ import { useRouter } from "vue-router";
 
 const router = useRouter();
 const menuItems = [
+  { label: "會員個人頁面", link: "/pages/MemberProfile" },
   { label: "會員基本資料", link: "/pages/MemberCard" },
   { label: "追蹤通知設定", link: "/advanced-settings" },
   { label: "流浪救援管理", link: "/member-center/rescueCase" },

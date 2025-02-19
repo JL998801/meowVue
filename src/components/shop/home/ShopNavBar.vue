@@ -3,7 +3,9 @@
   <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container-fluid">
       <RouterLink class="navbar-brand" aria-current="page" to="/">
-        <img :src="petLogo" alt="Logo圖示" width="80" title="首頁" />壁爐之家
+        <img :src="petLogo" alt="Logo圖示" width="80" title="首頁" />
+        <span class="site-title"><img src="@/assets/logowords.png" /></span>
+        <!-- ✅ 用 <span> 包起來 -->
       </RouterLink>
 
       <ul class="navbar-nav ms-auto">
@@ -31,7 +33,11 @@
 
         <!-- 🔔 訂單通知 (點擊後跳轉) -->
         <li class="nav-item" v-if="isUserLoggedIn">
-          <BadgeCounter icon="🔔" :count="notificationOrderCount" @click="goToShopDetail" />
+          <BadgeCounter
+            icon="🔔"
+            :count="notificationOrderCount"
+            @click="goToShopDetail"
+          />
         </li>
 
         <!-- 🔹 登出 -->
@@ -55,7 +61,11 @@
       <p>購物車是空的！</p>
     </div>
     <div v-else>
-      <div v-for="item in cartStore.cart" :key="item.cartItemId" class="cart-item">
+      <div
+        v-for="item in cartStore.cart"
+        :key="item.cartItemId"
+        class="cart-item"
+      >
         <!-- 更新商品圖片邏輯 -->
         <img
           :src="item.product?.imageUrls?.[0] || '/images/lostcat5.png'"
@@ -132,7 +142,7 @@ import { useRouter } from "vue-router";
 import Swal from "sweetalert2";
 import petLogo from "@/assets/petLogo.png"; // Logo 圖示
 import useProductStore from "@/stores/productStore";
-	const productStore = useProductStore();
+const productStore = useProductStore();
 import useUserStore from "@/stores/user";
 import { storeToRefs } from "pinia";
 import useCartStore from "@/stores/cartStore";
@@ -197,7 +207,8 @@ const cartQuantity = computed(() => {
 // 前往購物車頁面
 const goToCart = () => {
   router.push("/shop/cart"); // 確保路由正確
-};const goToShopDetail = () => {
+};
+const goToShopDetail = () => {
   router.push("/shop/details?cart");
 };
 
@@ -225,7 +236,7 @@ const openModal = (modalId) => {
 };
 </script>
 
-<style scoped>
+<style>
 .cart-content {
   position: fixed;
   top: 60px;
@@ -254,6 +265,20 @@ const openModal = (modalId) => {
 .total {
   margin-top: 10px;
   font-weight: bold;
+}
+
+.navbar-brand {
+  margin-left: 30px;
+  display: flex;
+  align-items: center;
+  gap: 10px; /* 確保 Logo 和標題有間距 */
+  text-decoration: none; /* 取消底線 */
+}
+
+.site-title img {
+  margin-left: 0;
+  width: 200px;
+  color: #333 !important; /* 文字顏色 */
 }
 
 .go-to-cart-btn {

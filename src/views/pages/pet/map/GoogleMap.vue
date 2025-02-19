@@ -316,7 +316,7 @@ const initMap = () => {
 const fetchAllCases = async () => {
   try {
     clearMarkers();
-    const caseTypesList = ["RescueCase", "lostCase", "adoptCase"];
+    const caseTypesList = ["RescueCase", "lostcases", "adoptCase"];
     //三種案件請求後端拿座標
     for (const caseType of caseTypesList) {
       const response = await axiosapi2.get(`/${caseType}/getLocations`);
@@ -486,6 +486,30 @@ const addMarker = (
   // 轉換 caseType 為中文
   const caseTypeZh = translateCaseType(caseType);
 
+  // **根據案件類型設定不同顏色**
+  let pinColor;
+  switch (caseTypeZh) {
+    case "救援案件":
+      pinColor = "#E16A54"; // 紅色
+      break;
+    case "遺失案件":
+      pinColor = "#FFA726"; // 橙色
+      break;
+    case "認養案件":
+      pinColor = "#42A5F5"; // 藍色
+      break;
+    default:
+      pinColor = "#9E9E9E"; // 灰色
+  }
+
+  // **建立 PinElement 來設定標記顏色**
+  const pin = new google.maps.marker.PinElement({
+    background: pinColor, // 設定標記背景顏色
+    borderColor: "#333", // 設定邊框顏色
+    glyphColor: "#FFF", // 設定字體顏色
+    scale: 1.0, // **預設大小**
+  });
+
   // 設定不同案件類型的背景顏色
   const caseTypeStyle = (() => {
     switch (caseTypeZh) {
@@ -574,6 +598,7 @@ const addMarker = (
     map,
     title: caseTitle, // 讓 Google Maps 內建 hover 顯示標題
     gmpClickable: true, //開啟滑鼠點擊屬性
+    content: pin.element, // 設定 PinElement 作為標記
   });
   console.log("新marker的案件圖片", casePictures);
 
@@ -594,11 +619,15 @@ const addMarker = (
   // 監聽 `mouseenter` (滑鼠懸停) 來顯示 `InfoWindow`，AdvancedMarkerElement 沒有內建 mouseover 事件，但可以透過 marker.element 來監聽 DOM 事件
   marker.element.addEventListener("mouseenter", () => {
     infoWindow.open(map, marker);
+    pin.scale = 1.5; // **標記放大**
+    marker.content = pin.element; // 重新套用
   });
 
   // 監聽 `mouseleave` (滑鼠離開) 來關閉 `InfoWindow`
   marker.element.addEventListener("mouseleave", () => {
     infoWindow.close();
+    pin.scale = 1.0; // **標記恢復原大小**
+    marker.content = pin.element; // 重新套用
   });
 
   // 滑鼠點擊時，開啟新分頁案件頁面

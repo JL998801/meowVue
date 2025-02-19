@@ -6,9 +6,9 @@
           src="../assets/petLogo.png"
           alt="Logo圖示"
           width="80"
-          title="首頁"
-        />壁爐之家</RouterLink
-      >
+          title="首頁" /><span class="site-title"
+          ><img src="@/assets/logowords.png" /></span
+      ></RouterLink>
       <button
         class="navbar-toggler"
         type="button"
@@ -21,7 +21,7 @@
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarNavDropdown">
-        <ul class="navbar-nav ms-auto">
+        <ul class="navbar-nav ms-auto nav-links">
           <li class="nav-item dropdown" title="浪浪案件">
             <span
               class="nav-link dropdown-toggle"
@@ -50,10 +50,7 @@
             </ul>
           </li>
           <li class="nav-item" title="寵物商城">
-            <RouterLink
-              class="nav-link active"
-              aria-current="page"
-              to="/shop"
+            <RouterLink class="nav-link active" aria-current="page" to="/shop"
               >寵物商城</RouterLink
             >
           </li>
@@ -70,7 +67,7 @@
               class="nav-link active"
               aria-current="page"
               to="/pet/map"
-              >
+              >案件地圖
               <font-awesome-icon
                 :icon="['fas', 'map-location-dot']"
                 size="xl"
@@ -104,4 +101,17 @@ const userStore = useUserStore();
 const isLoggedIn = computed(() => userStore.isLogin); //直接從 Store 獲取
 </script>
 
-<style></style>
+<style scoped>
+.site-title img {
+  margin-left: 0;
+  width: 200px;
+  color: #333 !important; /* 文字顏色 */
+}
+
+.nav-links .nav-item {
+  font-size: 1.1rem; /* 增大字體 */
+  font-weight: 600;
+  margin-right: 20px; /* 增加與右邊的距離 */
+  color: #333 !important; /* 文字顏色 */
+}
+</style>

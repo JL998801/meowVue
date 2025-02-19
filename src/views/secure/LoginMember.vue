@@ -1,7 +1,7 @@
 <template>
-  <form class="aa" @submit.prevent="submitForm">
-    <div class="container">
-      <div class="register-box">
+  <form class="aa-login" @submit.prevent="submitForm">
+    <div class="container-login">
+      <div class="register-box-login">
         <h3>會員登入</h3>
 
         <div class="input-group">
@@ -49,7 +49,6 @@
         <div>
           <RouterLink class="link" to="/pages/Register">註冊會員</RouterLink>
         </div>
-        <RouterLink class="nav-link" to="/secure/loginadmin">切換</RouterLink>
       </div>
     </div>
   </form>
@@ -170,7 +169,6 @@ function googleLoginSuccess(response) {
             localStorage.setItem("nickname", nickname);
             userStore.setToken(token); // 儲存 token 到 store
             // 儲存 token 到 Pinia 的 userStore
-            
 
             // 顯示 SweetAlert 登入成功訊息
 
@@ -196,7 +194,6 @@ function googleLoginSuccess(response) {
       });
     });
 }
-
 
 // 儲存用戶資訊到 localStorage 和 Vuex
 function saveUserInfoToLocalStorage(user, token) {
@@ -341,47 +338,53 @@ async function submitForm() {
 .google-login-btn {
   flex: 1; /* 確保兩個按鈕大小一致 */
 }
-.aa {
+.aa-login {
+  margin-top: 100px;
   margin: auto;
   padding: 20px;
   width: 300px; /* 設置表單寬度 */
   width: 100%;
   max-width: 400px;
-  background-color: white;
+  /* background-color: white; */
   padding: 20px;
   border-radius: 10px;
   text-align: center;
 }
 
 /* 全局樣式 */
-* {
+/* * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
   font-family: "Noto Sans KR", sans-serif;
-}
-
+} */
+/* 
 body {
   background-color: #f4f4f4;
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
-}
+} */
 
 /* 註冊表單容器 */
-.container {
+.container-login {
   width: 100%;
-  max-width: 400px;
   background-color: #fffcec;
   padding: 20px;
   border-radius: 10px;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0px 4px 10px rgba(26, 26, 26, 0.1);
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* 讓內容在垂直方向置中 */
+  align-items: center; /* 讓內容在水平方向置中 */
+  height: 100%; /* 讓容器高度填滿整個視窗 */
+  margin: 0 auto; /* 確保水平方向也是置中的 */
 }
 
 /* 標題 */
-.register-box h3 {
+.register-box-login h3 {
   font-family: "Noto Sans KR", sans-serif;
   margin-bottom: 0px;
   color: #655806;

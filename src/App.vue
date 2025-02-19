@@ -45,6 +45,7 @@ const fullWidthRoutes = [
   "/pages/MemberCenter",
   "/pet/map",
   "/advanced-settings",
+  "/secure/login",
   "/admin",
   "/shop",
   "/shop/product", // 這是動態路徑的前綴，完整路徑為"/shop/product/:id"；使用 some() 來判斷動態路由
