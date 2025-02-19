@@ -515,21 +515,21 @@ const addMarker = (
       case "待救援":
         return "background-color: #ed6c6c; color: white; border-radius: 10px; padding: 3px 4px; font-weight: bold;width: 62px; text-align: center;";
       case "已救援":
-        return "background-color: #feba07; color: white; border-radius: 10px; padding: 5px 10px; font-weight: bold;";
+        return "background-color: #feba07; color: white; border-radius: 10px; padding: 5px 10px; font-weight: bold;width: 65px; text-align: center;";
       case "待認養":
-        return "background-color: #ed6c6c; color: white; border-radius: 10px; padding: 5px 10px; font-weight: bold;";
+        return "background-color: #ed6c6c; color: white; border-radius: 10px; padding: 5px 10px; font-weight: bold;width: 65px; text-align: center;";
       case "已認養":
-        return "background-color: #feba07; color: white; border-radius: 10px; padding: 5px 10px; font-weight: bold;";
+        return "background-color: #feba07; color: white; border-radius: 10px; padding: 5px 10px; font-weight: bold;width: 65px; text-align: center;";
       case "待協尋":
-        return "background-color: #ed6c6c; color: white; border-radius: 10px; padding: 5px 10px; font-weight: bold;";
+        return "background-color: #ed6c6c; color: white; border-radius: 10px; padding: 5px 10px; font-weight: bold;width: 65px; text-align: center;";
       case "已尋回":
-        return "background-color: #feba07; color: white; border-radius: 10px; padding: 5px 10px; font-weight: bold;";
+        return "background-color: #feba07; color: white; border-radius: 10px; padding: 5px 10px; font-weight: bold;width: 65px; text-align: center;";
       case "變成小天使":
-        return "background-color: #feba07; color: white; border-radius: 10px; padding: 5px 10px; font-weight: bold;";
+        return "background-color: #feba07; color: white; border-radius: 10px; padding: 5px 10px; font-weight: bold;width: 65px; text-align: center;";
       case "案件失敗":
-        return "background-color: #feba07; color: white; border-radius: 10px; padding: 5px 10px; font-weight: bold;";
+        return "background-color: #feba07; color: white; border-radius: 10px; padding: 5px 10px; font-weight: bold;width: 65px; text-align: center;";
       default:
-        return "background-color: #9e9e9e; color: white; border-radius: 20px; padding: 5px 10px; font-weight: bold;";
+        return "background-color: #9e9e9e; color: white; border-radius: 20px; padding: 5px 10px; font-weight: bold;width: 65px; text-align: center;";
     }
   })();
 
