@@ -4,7 +4,7 @@
     <div class="container-fluid">
       <RouterLink class="navbar-brand" aria-current="page" to="/">
         <img :src="petLogo" alt="Logo圖示" width="80" title="首頁" />
-        <span class="site-title">壁爐之家</span>
+        <span class="site-title"><img src="@/assets/logowords.png" /></span>
         <!-- ✅ 用 <span> 包起來 -->
       </RouterLink>
 
@@ -268,15 +268,16 @@ const openModal = (modalId) => {
 }
 
 .navbar-brand {
+  margin-left: 30px;
   display: flex;
   align-items: center;
   gap: 10px; /* 確保 Logo 和標題有間距 */
   text-decoration: none; /* 取消底線 */
 }
 
-.site-title {
-  font-size: 32px !important; /* ✅ 放大標題 */
-  font-weight: bold !important; /* ✅ 加粗 */
+.site-title img {
+  margin-left: 0;
+  width: 200px;
   color: #333 !important; /* 文字顏色 */
 }
 

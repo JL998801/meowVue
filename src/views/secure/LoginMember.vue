@@ -1,6 +1,6 @@
 <template>
   <form class="aa" @submit.prevent="submitForm">
-    <div class="container">
+    <div class="container-login">
       <div class="register-box">
         <h3>會員登入</h3>
 
@@ -170,7 +170,6 @@ function googleLoginSuccess(response) {
             localStorage.setItem("nickname", nickname);
             userStore.setToken(token); // 儲存 token 到 store
             // 儲存 token 到 Pinia 的 userStore
-            
 
             // 顯示 SweetAlert 登入成功訊息
 
@@ -196,7 +195,6 @@ function googleLoginSuccess(response) {
       });
     });
 }
-
 
 // 儲存用戶資訊到 localStorage 和 Vuex
 function saveUserInfoToLocalStorage(user, token) {
@@ -342,12 +340,13 @@ async function submitForm() {
   flex: 1; /* 確保兩個按鈕大小一致 */
 }
 .aa {
+  /* margin-top: 100px; */
   margin: auto;
   padding: 20px;
   width: 300px; /* 設置表單寬度 */
   width: 100%;
   max-width: 400px;
-  background-color: white;
+  /* background-color: white; */
   padding: 20px;
   border-radius: 10px;
   text-align: center;
@@ -370,7 +369,8 @@ body {
 }
 
 /* 註冊表單容器 */
-.container {
+.container-login {
+  margin-top: auto;
   width: 100%;
   max-width: 400px;
   background-color: #fffcec;
