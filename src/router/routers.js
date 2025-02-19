@@ -16,6 +16,7 @@ import Register from '@/views/pages/Register.vue';
 import MemberCenter from '@/views/pages/MemberCenter.vue';
 import MemberCard from '@/views/pages/MemberCard.vue';
 import AdminCard from '../views/AdminCard.vue';
+import MemberProfile from '@/views/pages/MemberProfile.vue';
 //冠
 import LineMessage from '@/views/secure/LineMessage.vue';
 import FollowCase from '@/views/secure/FollowCase.vue';
@@ -93,6 +94,7 @@ const routes = [
 
   //會員中心功能
   { path: "/pages/Register", component: Register, name: "register-link" },
+  { path: "/pages/MemberProfile", component: MemberProfile, name: "MemberProfile-link" },
   //林
   { path: "/pet/lost/member", component: LostMember, name: "pets-LostMember-link" },
   //冠
