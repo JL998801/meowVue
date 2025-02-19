@@ -156,10 +156,25 @@ const shareOnLine = () => {
   window.open(lineShareUrl, "_blank");
 };
 
+// 進入案件詳情時，更新 `rescueCase.viewCount`
+const updateViewCount = async () => {
+  try {
+    const caseId = route.params.id;
+    await axiosapi2.post(`/RescueCase/${caseId}/updateViewCount`);
+    console.log("更新案件瀏覽數成功");
+    // await fetchViewCount(); // 更新前端顯示的 `viewCount`
+  } catch (error) {
+    console.error("更新案件瀏覽數失敗", error);
+  }
+};
+
 onMounted(async () => {
   window.scrollTo(0, 0); // 強制滾動回到頂部
+  updateViewCount(); //更新案件瀏覽數
   fetchRescueProgress(); //向後端拿救援案件進度
   const caseId = route.params.id;
+
+  //拿取案件資料
   try {
     const response = await axiosapi2.get(`/RescueCase/search/${caseId}`);
     rescueCase.value = response.data || {}; //確保 rescueCase 不為 null，會導致傳遞給子組件報錯
@@ -177,7 +192,7 @@ onMounted(async () => {
       caseType: "rescue", // 這裡可以改成 "lost" 或 "adoption"
       caseId: rescueCaseId,
     });
-    console.log("成功記錄案件瀏覽:", caseId);
+    console.log("成功記錄案件id瀏覽:", caseId);
   } catch (error) {
     console.error("記錄案件瀏覽失敗:", error);
   }
