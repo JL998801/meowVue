@@ -233,6 +233,11 @@ const updateSuspLost = (event) => {
 
 //送出搜尋
 const onSearch = () => {
+  // 找到對應的品種 ID
+  const matchedBreed = breeds.value.find(
+    (breed) => breed.breed === selectedBreed.value
+  );
+
   const searchParams = {
     keyword: keyword.value,
     furColorId: furColorId.value,
@@ -241,7 +246,7 @@ const onSearch = () => {
     districtAreaId: districtId.value,
     speciesId: selectedSpecies.value,
     suspLost: suspLost.value,
-    breedId: selectedBreed.value,
+    breedId: matchedBreed ? matchedBreed.breedId : null, // 若找不到則傳 null
   };
   console.log("搜尋參數：", searchParams);
   // 傳遞給父組件
@@ -257,6 +262,12 @@ const resetForm = () => {
   districtId.value = "";
   selectedSpecies.value = [];
   suspLost.value = 0;
+  selectedBreed.value = "";
+
+  // 找到對應的品種 ID
+  const matchedBreed = breeds.value.find(
+    (breed) => breed.breed === selectedBreed.value
+  );
 
   //除了重製搜尋條件外，也讓所有案件重製(變回查詢全部案件)
   const searchParams = {
@@ -267,7 +278,7 @@ const resetForm = () => {
     districtAreaId: districtId.value,
     speciesId: selectedSpecies.value,
     suspLost: suspLost.value,
-    breedId: selectedBreed.value,
+    breedId: matchedBreed ? matchedBreed.breedId : null, // 若找不到則傳 null
   };
   console.log("搜尋參數：", searchParams);
   // 傳遞給父組件
