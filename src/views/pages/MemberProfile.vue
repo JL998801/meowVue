@@ -43,12 +43,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, watch } from "vue";
 import { axiosapi2 } from "@/plugins/axios.js"; // 直接用 axios，確保請求正常發送
-import useUserStore from "@/stores/user";
 
-const userStore = useUserStore();
-const memberId = computed(() => userStore.memberId);
+import { useRoute } from "vue-router";
+// ✅ 取得當前路由
+const route = useRoute();
+const memberId = ref(route.params.memberId); // 透過路由參數獲取 memberId
 
 const profileImage = ref("");
 const nickName = ref("");
@@ -78,6 +79,15 @@ const fetchMemberData = async () => {
     console.error("載入會員資料時發生錯誤:", error);
   }
 };
+
+// ✅ 監聽路由變化，如果 `memberId` 改變就重新加載資料
+watch(
+  () => route.params.memberId,
+  (newMemberId) => {
+    memberId.value = newMemberId;
+    fetchMemberData();
+  }
+);
 
 onMounted(fetchMemberData);
 </script>

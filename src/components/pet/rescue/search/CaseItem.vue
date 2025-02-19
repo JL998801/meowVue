@@ -39,7 +39,13 @@
           <font-awesome-icon
             icon="fa-solid fa-circle-user"
             class="user-icon"
-          />發文者：<span class="author">{{ caseItem.memberNickName }}</span>
+          />發文者：
+          <router-link
+            :to="`/pages/MemberProfile/${caseItem.memberId}`"
+            class="author-link"
+          >
+            <span class="author">{{ caseItem.memberNickName }}</span>
+          </router-link>
         </p>
         <div class="views-and-follows">
           <div class="viewCount">

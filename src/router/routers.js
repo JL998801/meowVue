@@ -94,7 +94,7 @@ const routes = [
 
   //會員中心功能
   { path: "/pages/Register", component: Register, name: "register-link" },
-  { path: "/pages/MemberProfile", component: MemberProfile, name: "MemberProfile-link" },
+  { path: "/pages/MemberProfile/:memberId", component: MemberProfile, name: "MemberProfile-link" },
   //林
   { path: "/pet/lost/member", component: LostMember, name: "pets-LostMember-link" },
   //冠
@@ -161,15 +161,14 @@ router.beforeEach(async (to, from, next) => {
     '/pages/FormAdopt',
     '/pages/AdoptTwo',
     '/advanced-settings',
-    '/pages/Adopt' ,
-
-
+    '/pages/Adopt',
+    '/pages/MemberProfile'
   ];  // 不需要驗證的路由
 
   console.log("userStore", userStore);
   console.log("to.path", to.path);
   
-  const isPublicPage = publicPages.includes(to.path) || to.path.startsWith("/shop");
+  const isPublicPage = publicPages.includes(to.path) || to.path.startsWith("/shop") || to.path.startsWith("/pages/MemberProfile/");
   console.log("isPublicPage", isPublicPage);
  
   // ✅ 改用 `.some()` 來判斷是否為公開頁面；配合部分頁面:id的設計
