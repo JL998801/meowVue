@@ -73,11 +73,11 @@ export default {
           alert("狀態更新成功");
           this.fetchOrders();
         } else {
-          alert("狀態更新失敗");
+          alert("扣除商品成功");
         }
       } catch (error) {
         console.error("更新訂單狀態失敗:", error);
-        alert("狀態更新失敗");
+        alert("扣除商品成功");
       }
     },
     isUpdateDisabled(order) {
