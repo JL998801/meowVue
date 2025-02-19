@@ -307,6 +307,15 @@ const renderViewChart = () => {
           },
         },
       },
+      onClick: (event, elements) => {
+        if (elements.length > 0) {
+          const index = elements[0].index; // 取得點擊的索引
+          const selectedCaseId = caseList.value[index].caseId; // 取得案件 ID
+
+          singleCaseId.value = selectedCaseId; // 更新輸入框
+          fetchCaseTrend(); // 自動查詢案件趨勢
+        }
+      },
     },
   });
 };
