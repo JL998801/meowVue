@@ -352,10 +352,10 @@ const filteredBreeds = computed(() => {
   const speciesId = Number(form.speciesId); // 確保是數字
   if (speciesId === 2) {
     return breeds.value.filter(
-      (breed) => breed.breedId >= 1 && breed.breedId <= 54
+      (breed) => breed.breedId >= 1 && breed.breedId <= 53
     );
   } else if (speciesId === 1) {
-    return breeds.value.filter((breed) => breed.breedId >= 55);
+    return breeds.value.filter((breed) => breed.breedId >= 54);
   }
   return breeds.value; // 預設返回全部品種
 });
