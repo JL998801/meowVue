@@ -61,6 +61,7 @@
 import { ref, onMounted, watch } from "vue";
 import followButton from "@/components/pet/rescue/follow/followButton.vue";
 import { axiosapi } from "@/plugins/axios.js";
+import defaultImageSrc from "@/assets/default.png";
 
 // 父組件傳遞的案件資訊
 const props = defineProps({
@@ -71,13 +72,13 @@ const props = defineProps({
 });
 
 const pictureUrls = ref([]);
-const defaultImage = "@/images/default.png"; // 預設圖片
-// const memberNickName = ref(""); // 預設發文者名稱
+const defaultImage = defaultImageSrc; // 預設圖片
 
-// 獲取環境變數 API Base URL
+// ✅ 獲取 API Base URL，使用雲端網址
 const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "https://petfinder.duckdns.org"; // 改為你的雲端 API 網址
+  import.meta.env.VITE_API_BASE_URL || "https://petfinder.duckdns.org";
 
+// ✅ 取得案件圖片（不需要轉換 URL，因為後端已經處理了）
 const getCasePictures = async () => {
   try {
     if (!props.caseItem?.lostCaseId) {
@@ -95,9 +96,9 @@ const getCasePictures = async () => {
       response.data.casePictures &&
       response.data.casePictures.length > 0
     ) {
-      // 轉換後端返回的圖片路徑
-      pictureUrls.value = response.data.casePictures.map((pic) =>
-        convertBackendPath(pic.pictureUrl)
+      // ✅ 直接使用後端返回的圖片 URL（不需要轉換）
+      pictureUrls.value = response.data.casePictures.map(
+        (pic) => pic.pictureUrl
       );
     } else {
       pictureUrls.value = [defaultImage]; // 若無圖片，使用預設圖片
@@ -108,42 +109,12 @@ const getCasePictures = async () => {
   }
 };
 
-// 將後端的本機路徑轉換為前端可讀取的 URL
-const convertBackendPath = (path) => {
-  if (!path) return defaultImage;
-
-  // ✅ 避免 URL 重複轉換
-  if (path.startsWith("http")) {
-    return path;
-  }
-
-  // ✅ 兼容 Windows 本機存儲路徑
-  if (path.startsWith("C:/upload/final/")) {
-    return path.replace(
-      "C:/upload/final/",
-      `${API_BASE_URL}/upload/final/pet/`
-    );
-  }
-
-  // ✅ 兼容 Linux (Tomcat) 存儲路徑 `/usr/local/tomcat/upload/`
-  if (path.startsWith("/usr/local/tomcat/upload/")) {
-    return path.replace("/usr/local/tomcat/upload", API_BASE_URL);
-  }
-
-  // ✅ 如果是本機開發環境的預設圖片，轉換為雲端預設圖片
-  if (path.includes("localhost:8080/images/default.png")) {
-    return `${API_BASE_URL}/upload/final/pet/images/default.png`;
-  }
-
-  // ✅ 確保 `/upload/final/` 這類相對路徑可以拼接 `API_BASE_URL`
-  return `${API_BASE_URL}${path}`;
-};
-
 // 組件載入時請求圖片數據
 onMounted(() => {
   getCasePictures();
   // fetchAllCasesAndSetNickName();
   console.log("caseItem 數據:", props.caseItem);
+  console.log(pictureUrls);
 });
 
 // 格式化日期函數
