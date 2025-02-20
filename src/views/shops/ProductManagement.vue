@@ -41,7 +41,7 @@
                     <th scope="col">售價</th>
                     <th scope="col">庫存數量</th>
                     <th scope="col">單位</th>
-                    <th scope="col">描述</th>
+                    <!-- <th scope="col">描述</th> -->
                     <th scope="col">到期日</th>
                     <th scope="col">建立時間</th>
                     <th scope="col">更新時間</th>
@@ -65,7 +65,7 @@
                                         alt="主商品圖片"
                                         class="figure-img img-fluid main-image"
                                     />
-                                    <div class="thumbnail-container">
+                                    <!-- <div class="thumbnail-container">
                                         <img
                                             v-for="(image, index) in product.imageUrls.slice(1, 5)"
                                             :key="index"
@@ -73,7 +73,7 @@
                                             :alt="`商品圖片 ${index + 1}`"
                                             class="figure-img img-fluid thumbnail"
                                         />
-                                    </div>
+                                    </div> -->
                                 </template>
 
                                 <!-- 🔹 編輯模式 (可更換圖片) -->
@@ -95,7 +95,7 @@
 
                                     <!-- 其他圖片 (最多 4 張，可更換) -->
                                     <div class="thumbnail-container">
-                                        <label v-for="(image, index) in product.imageUrls.slice(1, 5)" :key="index" class="upload-label">
+                                        <!-- <label v-for="(image, index) in product.imageUrls.slice(1, 5)" :key="index" class="upload-label">
                                             <img
                                                 :src="image"
                                                 :alt="`商品圖片 ${index + 1}`"
@@ -107,9 +107,9 @@
                                                 class="d-none"
                                                 @change="handleImageUpload($event, product, index + 1)"
                                             />
-                                        </label>
+                                        </label> -->
                                         <!-- 如果圖片不足 4 張，補上空白可上傳 -->
-                                        <label v-for="i in Math.max(0, 4 - (product.imageUrls.length - 1))"
+                                        <!-- <label v-for="i in Math.max(0, 4 - (product.imageUrls.length - 1))"
                                             :key="'placeholder' + i"
                                             class="thumbnail placeholder upload-label">
                                             <input
@@ -118,7 +118,7 @@
                                                 class="d-none"
                                                 @change="handleImageUpload($event, product, product.imageUrls.length)"
                                             />
-                                        </label>
+                                        </label> -->
                                     </div>
                                 </template>
                             </figure>
@@ -126,7 +126,7 @@
                     </td>
 
                     <!-- 名稱 -->
-                    <td v-if="!editMode[product.productId]">{{ product.productName }}</td>
+                    <td v-if="!editMode[product.productId]" class="product-name">{{ product.productName }}</td>
                     <td v-else><input type="text" v-model="product.productName" class="form-control" /></td>
 
                     <!-- 分類 -->
@@ -174,8 +174,8 @@
                     <td v-else><input type="text" v-model="product.unit" class="form-control" /></td>
 
                     <!-- 商品描述 -->
-                    <td v-if="!editMode[product.productId]">{{ product.description }}</td>
-                    <td v-else><textarea v-model="product.description" class="form-control"></textarea></td>
+                    <!-- <td v-if="!editMode[product.productId]"  class="product-description">{{ product.description }}</td>
+                    <td v-else><textarea v-model="product.description" class="form-control"></textarea></td> -->
 
                     <!-- 到期日 -->
                     <td v-if="!editMode[product.productId]">{{ product.expire }}</td>
@@ -536,10 +536,10 @@ body::-webkit-scrollbar {
     width: 100%;
     border-radius: 50px; /* 讓邊框成為橢圓形 */
     border: #dfe2e6;
-    background-color: #f3d89f;
-    table-layout: auto; /* 允許表格根據內容調整寬度 */
     overflow: visible; /*允許內容超出 `table` 顯示*/
     border-collapse: collapse !important; /*跳過 Bootstrap 背景色限制 */
+    /* table-layout: auto; 允許表格根據內容調整寬度 */
+    table-layout: fixed; /* ✅ 強制表格按照指定寬度分配 */
 }
 
 .table th{
@@ -558,15 +558,39 @@ body::-webkit-scrollbar {
     vertical-align: middle;
     white-space: nowrap; /* ✅ 除非 `textarea`，否則不允許換行 */
     /* overflow: hidden; ✅ 避免表格變形，但允許內容顯示(除了到期日欄位) */
-
     height: auto; /* ✅ 允許 `td` 在 `editMode` 時增高 */
-    min-height: 40px; /* ✅ 設定最小高度，避免過度壓縮 */
 }
+
+/* 商品描述欄位 */
+.fixed-width{
+    width: 100px; /* 固定寬度 */
+    overflow: hidden; /* 隱藏超出的文字 */
+    white-space: nowrap; /* 禁止換行 */
+    text-overflow: ellipsis; /* 超出時顯示省略號 */
+}
+
+/* 商品名稱 */
+td.product-name {
+    max-width: 150px; /* 固定寬度 */
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+/* 商品描述 */
+td.product-description {
+    max-width: 200px; /* ✅ 確保固定寬度 */
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    display: block; /* ✅ 確保 `text-overflow` 有效 */
+}
+
 
 /* 設定固定寬度（可根據實際內容調整） */
 th:nth-child(1), td:nth-child(1) { width: 50px; }  /* 商品編號 */
-th:nth-child(2), td:nth-child(2) { width: 180px; } /* 商品圖片 */
-th:nth-child(3), td:nth-child(3) { width: 120px; } /* 名稱 */
+th:nth-child(2), td:nth-child(2) { width: 150px; } /* 商品圖片 */
+th:nth-child(3), td:nth-child(3) { width: 150px; } /* 名稱 */
 th:nth-child(4), td:nth-child(4) { width: 100px; } /* 分類 */
 th:nth-child(5), td:nth-child(5) { width: 100px; } /* 標籤 */
 th:nth-child(6), td:nth-child(6) { width: 90px; } /* 原價 */

@@ -236,7 +236,7 @@ const submitForm = async () => {
           'Content-Type': 'application/json' // 設置 Content-Type 為 application/json
         },
       });
-
+      console.log("adoptionResponse"+adoptionResponse);
       if (adoptionResponse.data && adoptionResponse.data.success) {
         // 顯示 SweetAlert 成功訊息
         Swal.fire({
@@ -385,7 +385,7 @@ body {
             font-family: 'Noto Sans KR', sans-serif;
             background: rgb(233, 233, 233);
             padding: 20px;
-            max-width: 530px;
+            max-width: 700px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             
@@ -433,21 +433,21 @@ body {
             min-width: 20%;
         }
         .checkbox-group {
-            
+          
             display: flex;
            
            
         }
         .checkbox-group input {
-            
+          
             display: flex;
             width: 20px; 
            
         }
         .checkbox-group label{
             
-            margin-right: 10px;
-            font-size: 9px;
+            margin-right: 15px;
+            font-size: 15px;
             display: flex;
             writing-mode: horizontal-tb;
            
@@ -473,9 +473,9 @@ body {
 
           /* 預覽圖片容器 */
           .image-preview img {
-            padding-top: 25px;  /* 設定預覽圖片的最大寬度 */
-            max-width: 149px;
-            max-height: 149px;
+            padding-top: 0px;  /* 設定預覽圖片的最大寬度 */
+            max-width: 150px;
+            max-height: 160px;
           }
 
         button {

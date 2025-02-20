@@ -96,15 +96,15 @@
     <p class="info2">建立日期：{{ searchResult.publicationTime }}</p>
 
     <div class="info3">
-      <h5 @click="goToAdoptTwo">{{ searchResult.caseTitle }}</h5>
+      <h5 @click="goToAdoptTwo">{{ searchResult.caseTitle || "我們都懷念米可"}}</h5>
     </div>
 
     <div class="info33">
-      <p><strong>動物種類：</strong>{{ searchResult.species.species }}</p>
-      <p><strong>動物名稱：</strong>{{ searchResult.name }}</p>
-      <p><strong>動物性別：</strong>{{ searchResult.gender }}</p>
-      <p><strong>有剪耳：</strong>{{ searchResult.sterilization }}</p>
-      <p><strong>可送養地點：</strong>{{ searchResult.story }}</p>
+      <p><strong>動物種類：</strong>{{ searchResult.species || "狗"}}</p>
+      <p><strong>動物名稱：</strong>{{ searchResult.name || "米可"}}</p>
+      <p><strong>動物性別：</strong>{{ searchResult.gender || "女" }}</p>
+      <p><strong>有剪耳：</strong>{{ searchResult.sterilization || "是"}}</p>
+      <p><strong>可送養地點：</strong>{{ searchResult.story || "家裡已經養了兩隻貓，無法再負擔一隻"}}</p>
     </div>
   </div>
 </div>
