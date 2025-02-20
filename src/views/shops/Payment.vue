@@ -1,5 +1,5 @@
 <template>
-  <div id="payment">
+  <div class="payment-container">
     <h2>支付頁面</h2>
     <p>請確認訂單內容，點擊「立即支付」進行付款。</p>
 
@@ -8,14 +8,16 @@
     </div>
 
     <div v-else>
-      <p><strong>訂單編號:</strong> {{ selectedOrder.orderId }}</p>
-      <p><strong>總金額:</strong> {{ selectedOrder.finalPrice }} 元</p>
-      <ul>
-        <li v-for="item in selectedOrder.orderItems" :key="item.orderItemId">
-          {{ item.productName }} - 單價: {{ item.purchasedPrice }} 元，數量: {{ item.orderQuantity }}
-        </li>
-      </ul>
-      
+      <div class="order-details">
+        <p><strong>訂單編號:</strong> {{ selectedOrder.orderId }}</p>
+        <p><strong>總金額:</strong> {{ selectedOrder.finalPrice }} 元</p>
+        <ul>
+          <li v-for="item in selectedOrder.orderItems" :key="item.orderItemId">
+            {{ item.productName }} - 單價: {{ item.purchasedPrice }} 元，數量: {{ item.orderQuantity }}
+          </li>
+        </ul>
+      </div>
+
       <form @submit.prevent="sendPayment">
         <button type="submit" :disabled="!selectedOrder">立即支付</button>
       </form>
@@ -25,7 +27,7 @@
 
 <script setup>
 import { computed } from "vue";
-import { useOrderStore } from "@/stores/order"; // Import Pinia store
+import { useOrderStore } from "@/stores/order"; // 引入 Pinia store
 import { axiosapi3 } from "@/plugins/axios.js";
 
 const orderStore = useOrderStore();
@@ -117,21 +119,48 @@ const sendPayment = async () => {
 </script>
 
 <style scoped>
-#payment {
+/* ✅ 支付頁面容器 */
+.payment-container {
+  max-width: 1200px; /* 設定最大寬度 */
+  width: 90%; /* 在小螢幕時佔 90% */
+  margin: 0 auto; /* 讓內容置中 */
   padding: 20px;
-  background-color: #fff;
-  border: 1px solid #ccc;
+  background: white;
+  border-radius: 10px; /* 增加圓角 */
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* ✅ 訂單詳情區塊 */
+.order-details {
+  margin-bottom: 20px;
+}
+
+.order-details p {
+  margin: 10px 0;
+}
+
+.order-details ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.order-details li {
+  margin: 5px 0;
+  padding: 10px;
+  background-color: #f9f9f9;
   border-radius: 5px;
 }
 
+/* ✅ 按鈕樣式 */
 button {
   background-color: #28a745;
   color: white;
-  padding: 10px 20px;
+  padding: 12px 24px;
   font-size: 16px;
   border: none;
-  border-radius: 5px;
+  border-radius: 8px;
   cursor: pointer;
+  transition: background-color 0.3s ease-in-out;
 }
 
 button:hover {
@@ -143,7 +172,21 @@ button:disabled {
   cursor: not-allowed;
 }
 
+/* ✅ 錯誤訊息樣式 */
 .error {
   color: red;
+  font-weight: bold;
+}
+
+/* ✅ 響應式設計 */
+@media (max-width: 768px) {
+  .payment-container {
+    padding: 15px;
+  }
+
+  button {
+    width: 100%; /* 手機版按鈕佔滿寬度 */
+    padding: 10px;
+  }
 }
 </style>

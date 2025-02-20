@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-   <!-- ✅ 購物車列表（左側） -->
+    <!-- ✅ 購物車列表（左側） -->
     <div class="cart-items-grid">
       <h2>我的購物車</h2>
 
@@ -8,77 +8,79 @@
       <div v-if="cart.length === 0">
         <p>購物車是空的！</p>
       </div>
-    
-      <div v-for="item in cart" :key="item.cartItemId" class="cart-item">
-        <input type="checkbox" v-model="selectedItems" :value="item.cartItemId" class="cart-checkbox" />
-        
-        <!-- 顯示商品圖片 -->
-        <div class="image-container">
-          <template v-if="item.product">
-            <img
-              :src="item.product.imageUrls?.length > 0 ? item.product.imageUrls[0] : placeholderImage"
-              alt="主商品圖片"
-              class="product-image"
-            />
-            <div class="thumbnail-container">
+
+      <!-- 購物車商品列表 -->
+      <div class="cart-items-container">
+        <div v-for="item in cart" :key="item.cartItemId" class="cart-item">
+          <input type="checkbox" v-model="selectedItems" :value="item.cartItemId" class="cart-checkbox" />
+
+          <!-- 顯示商品圖片 -->
+          <div class="image-container">
+            <template v-if="item.product">
               <img
-                v-for="(image, index) in item.product.imageUrls?.slice(1, 5)"
-                :key="index"
-                :src="image"
-                :alt="`商品圖片 ${index + 1}`"
-                class="thumbnail"
+                :src="item.product.imageUrls?.length > 0 ? item.product.imageUrls[0] : placeholderImage"
+                alt="主商品圖片"
+                class="product-image"
               />
-            </div>
-          </template>
-        </div>
-        
-        <!-- 右邊商品文字與數量按鈕區塊 -->
-        <div class="item-details">
-          <p>
-            {{ item.product?.productName || '商品名稱加載中...' }} - 單價:
-            {{ item.product?.salePrice || 0 }}元 ×
-            <span>{{ item.quantity }}</span>
-          </p>
-          
-          <!-- 編輯數量輸入框 -->
-          <div class="quantity-container">
-            <input 
-              type="number" 
-              v-model.number="item.editQuantity" 
-              min="0" 
-              @input="validateInput(item)" 
-              class="quantity-input"
-              :placeholder="item.editQuantity || 0"
-            />
-            <div  class="button-group">
-              <button @click="syncQuantityWithDatabase(item)" class="update-btn">更新數量</button>
-              <button @click="removeItem(item.cartItemId)" class="remove-btn">刪除此商品</button>
+              <div class="thumbnail-container">
+                <img
+                  v-for="(image, index) in item.product.imageUrls?.slice(1, 5)"
+                  :key="index"
+                  :src="image"
+                  :alt="`商品圖片 ${index + 1}`"
+                  class="thumbnail"
+                />
+              </div>
+            </template>
+          </div>
+
+          <!-- 右邊商品文字與數量按鈕區塊 -->
+          <div class="item-details">
+            <p>
+              {{ item.product?.productName || '商品名稱加載中...' }} - 單價:
+              {{ item.product?.salePrice || 0 }}元 ×
+              <span>{{ item.quantity }}</span>
+            </p>
+
+            <!-- 編輯數量輸入框 -->
+            <div class="quantity-container">
+              <input
+                type="number"
+                v-model.number="item.editQuantity"
+                min="0"
+                @input="validateInput(item)"
+                class="quantity-input"
+                :placeholder="item.editQuantity || 0"
+              />
+              <div class="button-group">
+                <button @click="syncQuantityWithDatabase(item)" class="update-btn">更新數量</button>
+                <button @click="removeItem(item.cartItemId)" class="remove-btn">刪除此商品</button>
+              </div>
             </div>
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- 顯示總金額 -->
-      <div>
+    <!-- ✅ 交易資訊（右側） -->
+    <div class="trade-content">
+      <!-- 選取商品總金額和一鍵清除按鈕 -->
+      <div class="cart-summary">
         <p class="total-price">選取商品總金額: {{ totalPrice }} 元</p>
         <button @click="clearCart" class="clear-cart-btn">一鍵清空購物車</button>
       </div>
-    </div>
 
-     <!-- ✅ 交易資訊（右側） -->
-    <div class="trade-content">
       <h3>填寫交易資訊</h3>
-        <label for="creditCard">信用卡號</label>
-        <input type="text" id="creditCard" v-model="creditCard" :placeholder="defaultCreditCard" />
-        
-        <label for="shippingAddress">寄送地址</label>
-        <input type="text" id="shippingAddress" v-model="shippingAddress" :placeholder="defaultShippingAddress" />
-        
-        <button @click="goToPayment" class="go-to-payment-btn">前往交易明細</button>
+      <label for="creditCard">信用卡號</label>
+      <input type="text" id="creditCard" v-model="creditCard" :placeholder="defaultCreditCard" />
+
+      <label for="shippingAddress">寄送地址</label>
+      <input type="text" id="shippingAddress" v-model="shippingAddress" :placeholder="defaultShippingAddress" />
+
+      <button @click="goToPayment" class="go-to-payment-btn">前往交易明細</button>
     </div>
   </div>
 </template>
-
 
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue';
@@ -103,38 +105,11 @@ const creditCard = ref(defaultCreditCard);
 const shippingAddress = ref(defaultShippingAddress);
 
 // 計算總價格
-// const totalPrice = computed(() => {
-//   return cart.value
-//     .filter(item => selectedItems.value.includes(item.cartItemId))
-//     .reduce((total, item) => total + (item.product?.salePrice || 0) * item.quantity, 0);
-// });
-
-// 考慮 使用者更新數量後的總價格變化
 const totalPrice = computed(() => {
   return cart.value
     .filter(item => selectedItems.value.includes(item.cartItemId))
     .reduce((total, item) => total + (item.product?.salePrice || 0) * (item.editQuantity || 0), 0);
 });
-
-
-// 獲取商品圖片
-const productImages = ref({}); // 存儲商品圖片 URL
-const getProductImage = async (productId) => {
-  if (productImages.value[productId]) {
-    return productImages.value[productId]; // 如果已經有圖片 URL，直接返回
-  }
-  try {
-    const response = await axiosapi3.get(`/product/images/${productId}`);
-    const primaryImage = response.data.find(image => image.isPrimary);
-    if (primaryImage) {
-      productImages.value[productId] = primaryImage.imageUrl; // 存儲圖片 URL
-      return primaryImage.imageUrl;
-    }
-  } catch (error) {
-    console.error('獲取商品圖片失敗:', error);
-  }
-  return ''; // 如果沒有圖片，返回空字符串
-};
 
 // 同步數量到後端
 const syncQuantityWithDatabase = async (item) => {
@@ -152,20 +127,20 @@ const syncQuantityWithDatabase = async (item) => {
       quantity: item.editQuantity,
       cartId: cartId, // 使用動態 cartId
     });
-      // ✅ 更新購物車內的數量
-      item.quantity = item.editQuantity;
+    // ✅ 更新購物車內的數量
+    item.quantity = item.editQuantity;
 
-      // ✅ 確保圖片不會被清空
-      if (!item.product.imageUrls || item.product.imageUrls.length === 0) {
-        const productData = productStore.products.find(p => p.productId === item.product.productId);
-        if (productData) {
-          item.product.imageUrls = productData.imageUrls;
-        }
+    // ✅ 確保圖片不會被清空
+    if (!item.product.imageUrls || item.product.imageUrls.length === 0) {
+      const productData = productStore.products.find(p => p.productId === item.product.productId);
+      if (productData) {
+        item.product.imageUrls = productData.imageUrls;
       }
-    
-      // ✅ 重新計算總金額
-      cartStore.updateQuantity({ cartId: item.cartItemId, quantity: item.editQuantity });
-      await cartStore.fetchCartDataFromServer();
+    }
+
+    // ✅ 重新計算總金額
+    cartStore.updateQuantity({ cartId: item.cartItemId, quantity: item.editQuantity });
+    await cartStore.fetchCartDataFromServer();
   } catch (error) {
     console.error('更新購物車數量失敗:', error);
     alert('更新購物車數量失敗，請稍後重試！');
@@ -214,7 +189,7 @@ const goToPayment = async () => {
     }
 
     // 從後端或本地存儲中獲取 cartId (可能是購物車的 ID)
-    const cartId = localStorage.getItem('cartId') || sessionStorage.getItem('cartId') || 1;  // 若無 cartId，則使用默認值
+    const cartId = localStorage.getItem('cartId') || sessionStorage.getItem('cartId') || 1; // 若無 cartId，則使用默認值
 
     const orderData = {
       cartId: cartId, // 確保 cartId 為從本地存儲獲得的動態值
@@ -274,7 +249,6 @@ watch(cart, async () => {
     }
   });
 });
-
 </script>
 
 <style scoped>
@@ -305,36 +279,18 @@ watch(cart, async () => {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-/* ✅ 交易資訊區塊（右側） */
-.trade-content {
-  flex: 1; /* 佔據 1 倍的空間 */
-  padding: 20px;
-  background-color: #fdf5e6;
-  border-radius: 12px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-/* ✅ 總金額樣式 */
-.total-price {
-  font-size: 18px;
-  font-weight: bold;
-  margin-top: 15px;
-}
-
-.cart-checkbox {
-  transform: scale(1.8); /* ✅ 放大 1.8 倍 */
-  margin-right: 15px;
-  cursor: pointer; /* 增加可點擊感 */
+/* ✅ 購物車商品列表（兩列布局） */
+.cart-items-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* 兩列 */
+  gap: 15px; /* 商品之間的間距 */
 }
 
 /* ✅ 單個商品的卡片 */
 .cart-item {
   display: flex;
-  align-items: center;
-  background-color: #f8f9fa;
+  flex-direction: column;
+  background-color: #ffffff;
   padding: 15px;
   border-radius: 12px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
@@ -346,8 +302,6 @@ watch(cart, async () => {
 
 /* ✅ 左側圖片區塊 */
 .image-container {
-  flex: 1;
-  max-width: 120px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -387,11 +341,6 @@ watch(cart, async () => {
   font-weight: 600;
 }
 
-.total-price{
-  font-size: larger;
-  text-align: center;
-}
-
 /* ✅ 數量調整區 */
 .quantity-container {
   display: flex;
@@ -406,7 +355,6 @@ watch(cart, async () => {
   border-radius: 5px;
   border: 1px solid #ccc;
 }
-
 
 /* ✅ 操作按鈕區塊（橫向排列） */
 .button-group {
@@ -441,13 +389,13 @@ watch(cart, async () => {
 }
 
 /* ✅ 購物車總金額 */
-.total-price-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15px;
+.cart-summary {
+  margin-bottom: 20px;
+}
+.total-price {
   font-size: 18px;
   font-weight: bold;
+  text-align: center;
 }
 
 /* ✅ 底部結帳按鈕 */
@@ -477,6 +425,18 @@ watch(cart, async () => {
   background-color: #e0a800;
 }
 
+/* ✅ 交易資訊區塊（右側） */
+.trade-content {
+  flex: 1; /* 佔據 1 倍的空間 */
+  padding: 20px;
+  background-color: #fdf5e6;
+  border-radius: 12px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
 /* ✅ 響應式設計：當螢幕較小時，改為垂直排列 */
 @media (max-width: 768px) {
   .container {
@@ -485,6 +445,10 @@ watch(cart, async () => {
 
   .cart-items-grid, .trade-content {
     width: 100%; /* 讓兩個區塊佔滿整個畫面 */
+  }
+
+  .cart-items-container {
+    grid-template-columns: 1fr; /* 單列布局 */
   }
 }
 </style>

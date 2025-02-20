@@ -16,26 +16,20 @@
         </li>
 
         <!-- 使用 BadgeCounter 顯示購物車圖示 -->
-        <li class="nav-item" v-if="isUserLoggedIn">
-          <BadgeCounter icon="🛒" :count="cartQuantity" @click="toggleCart" />
+        <li class="nav-item" v-if="isUserLoggedIn" :class="'me-2'">
+          <font-awesome-icon :icon="['fas', 'cart-shopping']" style="color: #c6bc77; font-size: 36px;" @click="toggleCart" />
         </li>
 
         <!-- ❤️ 願望清單 -->
-        <li class="nav-item" v-if="isUserLoggedIn">
-          <BadgeCounter
-            icon="❤️"
-            :count="wishlistCount"
-            modalTarget="#wishListModal"
-            :updateOnClick="true"
+        <li class="nav-item" v-if="isUserLoggedIn" :class="'me-2'">
+          <font-awesome-icon :icon="['fas', 'heart']" style="color: #c6bc77; font-size: 36px;" 
             @open-modal="openModal"
           />
         </li>
 
         <!-- 🔔 訂單通知 (點擊後跳轉) -->
-        <li class="nav-item" v-if="isUserLoggedIn">
-          <BadgeCounter
-            icon="🔔"
-            :count="notificationOrderCount"
+        <li class="nav-item" v-if="isUserLoggedIn" :class="'me-2'">
+          <font-awesome-icon :icon="['fas', 'circle-user']" style="color: #c6bc77; font-size: 36px;" 
             @click="goToShopDetail"
           />
         </li>

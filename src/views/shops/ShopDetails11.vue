@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="container">
     <h2>訂單資訊</h2>
     <div v-if="loading">
       <p>正在加載訂單信息...</p>
@@ -32,7 +32,7 @@
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useOrderStore } from "@/stores/order"; // 引入 Pinia store
-import { axiosapi3} from "@/plugins/axios.js";
+import { axiosapi3 } from "@/plugins/axios.js";
 
 const router = useRouter();
 const orderStore = useOrderStore(); // 使用 Pinia store
@@ -167,22 +167,37 @@ onMounted(() => {
   font-weight: bold;
 }
 
-/* 新增樣式：訂單列表顯示兩列，並加入白色背景 */
+/* 訂單列表置中顯示並做四項一組的樣式 */
 .order-container {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* 每行顯示兩個訂單，並根據大小調整 */
-  gap: 20px; /* 訂單間距 */
+  grid-template-columns: repeat(4, 1fr); /* 每行顯示四個訂單項目 */
+  gap: 20px;
+  justify-items: center; /* 設置每個訂單項目居中顯示 */
+  padding: 20px;
 }
 
+/* 訂單項目的樣式 */
 .order-item {
   background-color: white;
   padding: 20px;
   border: 1px solid #ddd;
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  width: 100%; /* 確保每個訂單框寬度相等 */
+  max-width: 300px; /* 設置每個訂單框最大寬度 */
 }
 
 .order-item button {
   margin-top: 10px;
+}
+
+.container {
+  background-color: #ffffff;
+  margin: 30px auto;
+  width: 90%;
+  max-width: 1200px;
+  padding: 20px;
+  border-radius: 30px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* 添加陰影效果 */
 }
 </style>
