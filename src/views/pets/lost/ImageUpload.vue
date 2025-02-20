@@ -41,6 +41,8 @@ const closeUploadModal = () => {
 
 // 處理裁剪後的圖片
 const handleImageUploaded = ({ frontTmpUrl, backTmpUrl }) => {
+  console.log("給前端呼叫圖片 URL:", frontTmpUrl);
+  console.log("後端儲存的圖片 URL:", backTmpUrl);
   image.value = frontTmpUrl; // 每次上傳都會覆蓋之前的圖片，導致最終只有一張
   emit("image-uploaded", backTmpUrl); //傳遞給父組件新增案件contoller使用的圖片URL
   closeUploadModal();
