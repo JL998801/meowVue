@@ -78,7 +78,7 @@ const defaultImage = defaultImageSrc; // 預設圖片
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "https://petfinder.duckdns.org";
 
-// ✅ 取得案件圖片（不需要轉換 URL，因為後端已經處理了）
+// ✅ 取得案件圖片
 const getCasePictures = async () => {
   try {
     if (!props.caseItem?.lostCaseId) {
@@ -96,9 +96,9 @@ const getCasePictures = async () => {
       response.data.casePictures &&
       response.data.casePictures.length > 0
     ) {
-      // ✅ 直接使用後端返回的圖片 URL（不需要轉換）
-      pictureUrls.value = response.data.casePictures.map(
-        (pic) => pic.pictureUrl
+      // ✅ 轉換後端返回的圖片路徑
+      pictureUrls.value = response.data.casePictures.map((pic) =>
+        convertBackendPath(pic.pictureUrl)
       );
     } else {
       pictureUrls.value = [defaultImage]; // 若無圖片，使用預設圖片
@@ -107,6 +107,36 @@ const getCasePictures = async () => {
     console.error("獲取圖片失敗：", error);
     pictureUrls.value = [defaultImage]; // 失敗時使用預設圖片
   }
+};
+// ✅ 轉換後端返回的 URL
+const convertBackendPath = (path) => {
+  if (!path) return defaultImage;
+
+  // ✅ 避免重複轉換
+  if (path.startsWith("http")) {
+    return path;
+  }
+
+  // ✅ 兼容 Tomcat 存儲路徑 `/usr/local/tomcat/upload/`
+  if (path.startsWith("/usr/local/tomcat/upload/")) {
+    return path.replace("/usr/local/tomcat/upload", `${API_BASE_URL}/upload`);
+  }
+
+  // ✅ 兼容 Windows 本機存儲路徑 `C:/upload/final/...`
+  if (path.startsWith("C:/upload/final/")) {
+    return path.replace(
+      "C:/upload/final/",
+      `${API_BASE_URL}/upload/final/pet/`
+    );
+  }
+
+  // ✅ 如果是 `localhost` 的 `default.png`，轉換為雲端的 `default.png`
+  if (path.includes("localhost:8080/assets/default.png")) {
+    return `${API_BASE_URL}/assets/default.png`;
+  }
+
+  // ✅ 確保 `/upload/final/` 這類相對路徑可以拼接 `API_BASE_URL`
+  return `${API_BASE_URL}${path}`;
 };
 
 // 組件載入時請求圖片數據
