@@ -2,10 +2,16 @@
   <div class="member-container">
     <div class="profile-section">
       <div class="profile-card">
-        <img
-          :src="profileImage || 'defaultProfilePic.jpg'"
-          class="profile-img"
-        />
+        <!-- 如果有 profileImage，就顯示圖片，否則顯示 FontAwesome Icon -->
+        <template v-if="profileImage">
+          <img :src="profileImage" class="profile-img" />
+        </template>
+        <template v-else>
+          <font-awesome-icon
+            :icon="['fas', 'circle-user']"
+            class="profile-icon"
+          />
+        </template>
         <h3>{{ nickName }}</h3>
         <p>會員 ID：{{ memberId }}</p>
 
@@ -71,8 +77,8 @@ const fetchMemberData = async () => {
     const data = response.data;
 
     if (data) {
-      profileImage.value = data.linePicture || "defaultProfilePic.jpg";
-      nickName.value = data.lineName || "未知";
+      profileImage.value = data.linePicture || ""; // 空字串表示沒有圖片
+      nickName.value = data.lineName || "";
       email.value = data.email || "無";
     }
   } catch (error) {
@@ -102,6 +108,12 @@ onMounted(fetchMemberData);
 }
 .profile-section {
   flex: 1;
+  margin-right: 50px;
+}
+
+.profile-icon {
+  font-size: 90px;
+  color: #c4ca83;
 }
 .profile-card {
   display: flex;
@@ -143,6 +155,15 @@ onMounted(fetchMemberData);
   background: #f8f8f8;
   padding: 10px;
   border-radius: 5px;
+  text-align: center;
+  box-shadow: 0 0 5px rgba(39, 39, 39, 0.1);
+  height: 150px;
+  text-align: center;
+}
+.stat-number {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 5px;
   text-align: center;
 }
 </style>

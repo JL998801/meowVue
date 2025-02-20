@@ -102,11 +102,14 @@ const fetchBannerData = async () => {
           imageUrl = filePath;
         } else if (filePath.startsWith("C:/upload/final/")) {
           // ✅ 轉換 Windows 本機路徑為雲端 URL
-          filePath = filePath.replace("C:/upload/final", "/upload/final");
+          filePath = filePath.replace("C:/upload/final", "/upload/final/");
           imageUrl = `${baseURL}${filePath}`;
         } else if (filePath.startsWith("/usr/local/tomcat/upload/final/")) {
           // ✅ 轉換 Tomcat 存放路徑為雲端 URL
-          filePath = filePath.replace("/usr/local/tomcat/upload", "");
+          filePath = filePath.replace(
+            "/usr/local/tomcat/upload",
+            "/upload/final/"
+          );
           imageUrl = `${baseURL}${filePath}`;
         } else if (filePath.startsWith("/upload/final/")) {
           // ✅ 如果是相對路徑，補上 baseURL
