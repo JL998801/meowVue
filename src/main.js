@@ -1,20 +1,16 @@
-import { createApp } from 'vue';
-import App from './App.vue';
-import router from './router';
-import { createPinia } from 'pinia';
-import { store } from './store/cart';  // 確保 Vuex store 正確引入
+import { createApp } from 'vue'
+import App from './App.vue'
+import routes from './router/routers.js'
+import { createPinia } from 'pinia'
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
+import FontAwesomeIcon from './plugins/fontawesome.js'
+import "@/assets/petmain.css";
 
-const app = createApp(App);
-
-// 註冊 Pinia
 const pinia = createPinia();
-app.use(pinia);
+pinia.use(piniaPluginPersistedstate)
 
-// 註冊 Vuex store（如果有使用）
-app.use(store);
-
-// 註冊 Vue Router
-app.use(router);
-
-// 掛載應用至 #app
-app.mount('#app');
+createApp(App)
+    .use(pinia)
+    .use(routes)
+    .component('font-awesome-icon', FontAwesomeIcon)
+    .mount('#app')
