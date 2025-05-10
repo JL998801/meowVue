@@ -1,0 +1,548 @@
+<template>
+  <div>
+    <!-- Header Section -->
+    <div class="title">
+      <h2>動物認養</h2>
+      <div class="dots">
+        <span class="dot dot-green"></span>
+        <span class="dot dot-beige"></span>
+        <span class="dot dot-pink"></span>
+      </div>
+    </div>
+
+    <!-- Ad Section -->
+    <div class="ad">
+      <button type="button" @click="goToFormAdopt">新增送養通報</button>
+    </div>
+
+    <!-- Search Form -->
+    <form @submit.prevent="searchCases">
+      <div class="container">
+        <div class="search-section">
+          <input class="ww" type="text" placeholder="輸入關鍵字" v-model="keyword" />
+
+          <div class="search-conditions">
+            <input type="text" placeholder="案件編號" v-model="caseId" />
+
+            <select v-model="selectedCaseStatement">
+              <option value="" disabled selected hidden>選擇案件狀態</option>
+              <option v-for="caseStatement in caseStatements" :key="caseStatement.caseStateId" :value="caseStatement.caseStateId">
+                {{ caseStatement.caseStatement }}
+              </option>
+            </select>
+
+            <div>
+              <select v-model="cityId" @change="fetchDistricts" :disabled="cities.length === 0">
+                <option value="" disabled selected hidden>縣市</option>
+                <option v-for="city in cities" :key="city.cityId" :value="city.cityId">
+                  {{ city.city }}
+                </option>
+              </select>
+            </div>
+
+            <div>
+              <select v-model="district">
+                <option value="" disabled hidden>鄉鎮區</option>
+                <option v-for="district in districts" :key="district.districtAreaId" :value="district.districtAreaName">
+                  {{ district.districtAreaName }}
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Filters (Checkboxes) -->
+          <div class="checkbox-container">
+            <input type="checkbox" class="custom-checkbox" id="cat" v-model="filters.cat" />
+            <label for="cat">貓</label>
+
+            <input type="checkbox" class="custom-checkbox" id="dog" v-model="filters.dog" />
+            <label for="dog">狗</label>
+
+            <input type="checkbox" class="custom-checkbox" id="male" v-model="filters.male" />
+            <label for="male">男</label>
+
+            <input type="checkbox" class="custom-checkbox" id="female" v-model="filters.female" />
+            <label for="female">女</label>
+
+            <input type="checkbox" class="custom-checkbox" id="neutered" v-model="filters.neutered" />
+            <label for="neutered">已結紮</label>
+          </div>
+        </div>
+
+        <!-- Buttons Section -->
+        <div class="b2">
+          <button class="btn btn-reset" @click="reloadPage">重設</button>
+          <button type="submit" class="btn btn-confirm">確定搜尋</button>
+        </div>
+
+        <!-- Note Section -->
+        <div class="note">
+          小提醒：如果找不到想要的案件，可以外加不填寫「縣市鄉鎮區」，這樣可以擴大搜尋範圍！
+        </div>
+
+        <!-- Separator -->
+        <div class="separator"></div>
+      </div>
+
+      <!-- Search Result Section -->
+      <div class="result" v-for="searchResult in searchResults" :key="searchResult.adoptionCaseId">
+  <!-- Displaying dynamic image for each search result -->
+  <img :src="imageTempUrls.imageUrl" alt="失物照片" />
+  
+          <div class="result-details">
+            <div class="info22">
+              <p class="info2"><strong>案件編號：</strong>{{ searchResult.adoptionCaseId }}</p>
+            </div>
+
+            <p class="info2">建立日期：{{ searchResult.publicationTime }}</p>
+
+            <div class="info3">
+              <h5 @click="goToAdoptTwo">{{ searchResult.caseTitle }}</h5>
+            </div>
+
+            <div class="info33">
+              <p><strong>動物種類：</strong>{{ searchResult.species ? searchResult.species.species : '未知' }}</p> <!-- Ensure species exists -->
+              <p><strong>動物名稱：</strong>{{ searchResult.name }}</p>
+              <p><strong>動物性別：</strong>{{ searchResult.gender }}</p>
+              <p><strong>有剪耳：</strong>{{ searchResult.sterilization }}</p>
+              <p><strong>可送養地點：</strong>{{ searchResult.TAG }}</p>
+            </div>
+          </div>
+        </div>
+
+    </form>
+  </div>
+</template>
+
+<script setup>
+import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { axiosapi } from '@/plugins/axios';
+
+const router = useRouter();
+
+
+// 状态数据
+const imageTempUrls = ref(''); // 用來存儲圖片的 URL
+const searchResults = ref([]);
+const selectedCaseStatement = ref('');
+const caseStatements = ref([]);
+const cityId = ref('');
+const district = ref('');
+const cities = ref([]);
+const districts = ref([]);
+const keyword = ref('');
+const caseId = ref('');
+const filters = ref({
+  cat: false,
+  dog: false,
+  male: false,
+  female: false,
+  neutered: false,
+});
+// 假設你會從後端獲取所有的認養案件資料
+const fetchSearchResults = async () => {
+  try {
+    const response = await axiosapi.get('/adoptionsearch'); // 修改为正确的 API 路径
+    console.log("Response data:", response.data); // 查看返回的结果
+    searchResults.value = response.data; // 假设 API 返回的数据包含多个案件
+  } catch (error) {
+    console.error("Error fetching search results:", error);
+  }
+};
+
+// 获取存储的图片 URL
+onMounted(() => {
+  const storedImageUrl = localStorage.getItem('imageTempUrls'); // 从 localStorage 获取图片 URL
+  if (storedImageUrl) {
+    try {
+      // 如果存儲的是 JSON 字符串，則解析它
+      const parsedImageUrls = JSON.parse(storedImageUrl);
+      imageTempUrls.value = parsedImageUrls.length > 0 ? parsedImageUrls[0] : ''; // 取第一張圖片
+    } catch (e) {
+      // 如果解析失敗，直接使用原始字符串
+      imageTempUrls.value = storedImageUrl;
+    }
+  } else {
+    imageTempUrls.value = '/images/222.jpg'; // 如果没有找到图片 URL，使用默认图片
+  }
+
+
+  // 触发其他数据的获取
+  fetchCaseStatements();
+  fetchCities();
+  fetchSearchResults();
+});
+
+// 获取案件状态
+const fetchCaseStatements = async () => {
+  try {
+    const response = await axiosapi.get(`/casestatement`);  
+    caseStatements.value = response.data;
+  } catch (error) {
+    console.error("Error fetching case statements:", error);
+  }
+};
+
+// 获取城市数据
+const fetchCities = async () => {
+  try {
+    const response = await axiosapi.get(`/pet/allCity`);
+    cities.value = response.data;
+  } catch (error) {
+    console.error("Error fetching cities:", error);
+  }
+};
+
+// 根据城市 ID 获取乡镇区
+const fetchDistricts = async () => {
+  if (cityId.value) {
+    try {
+      const response = await axiosapi.get(`/pet/districtAreasByCity/${cityId.value}`);
+      districts.value = response.data;
+    } catch (error) {
+      console.error("Error fetching districts:", error);
+    }
+  } else {
+    districts.value = [];
+  }
+};
+
+// 跳转到送养表单
+const goToFormAdopt = () => {
+  router.push('/pages/FormAdopt');
+};
+
+// 页面重载
+const reloadPage = () => {
+  location.reload();
+};
+
+// 跳转到认养页面
+const goToAdoptTwo = () => {
+  router.push('/pages/AdoptTwo');
+};
+</script>
+
+
+  
+<style scoped>
+
+
+.info3:hover {
+    /* hover 的樣式，可以加上顏色、底線或其他效果 */
+    color: #958418;  /* 這邊可以根據需要改變顏色 */
+    cursor: pointer;  /* 滑鼠變成手指 */
+    text-decoration: underline; /* 加上底線 */
+  }
+
+  .info3{
+    margin-top: 20px;
+  }
+  .info2 {
+    margin: 0;
+    padding: 0;
+  }
+  .info33{
+    margin: 0;
+    padding: 0;
+  }
+  .info22 {
+    color:#C6BC77;
+    font-size: 20px;
+  }
+  .b2{
+    padding-top: 10px;
+  }
+  h5{
+    margin-bottom: 10px;
+  }
+
+.separator {
+  padding-bottom: 20px;
+  border-top: 2px solid #000; /* 加粗線 */
+  width: 100%; /* 設定線條長度，這裡是 80% */
+  margin: 10px 0; /* 顯示與上下 div 之間的間隔 */
+}
+.result {
+padding-left: 210px;
+display: flex; 
+margin: 0 10px;
+padding-right: 20px;
+}
+.result img {
+  width: 200px;  /* 設定寬度為 200px */
+  height: 200px; /* 設定高度為 200px */
+  object-fit: cover; /* 確保圖片填滿 200x200 的區域且不變形 */
+  border-radius: 4%;
+  margin-right: 30px;
+}
+
+  h2 {
+  font-family: 'Noto Sans KR', sans-serif;
+  font-weight: 550; /* 可根據需要調整字重 */
+  margin-bottom: 10px;  /* 讓標題和圓點之間有間距 */
+}
+
+/* 圓點容器樣式 */
+.dots {
+  display: flex;     /* 將圓點排成一行 */
+  justify-content: left; /* 使圓點水平置中 */
+  gap: 10px;          /* 圓點之間的間距 */
+  padding: 10px;
+}
+
+/* 圓點的基本樣式 */
+.dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;  /* 圓形 */
+}
+
+/* 針對不同顏色的圓點 */
+.dot-green {
+  background-color: #C6BC77;
+}
+
+.dot-beige {
+  background-color: #FFFD77;
+}
+
+.dot-pink {
+  background-color: #FEBA07;
+}
+
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .header {
+    font-family: 'Noto Sans KR', sans-serif;
+    background-color: #ffffff;
+    padding: 10px 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: flex-end;
+  }
+  
+  .menu {
+    display: flex;
+    gap: 10px;
+    width: 727.11px;
+    height: 83.45px;
+    align-items: center;
+  }
+  .title{
+    margin-top: 50px;
+    padding-left: 210px;
+  
+  }
+  .menu a,
+  .menu select {
+    font-size: 16px;
+    text-decoration: none;
+    color: #333;
+    padding: 10px;
+    background-color: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+  }
+  
+  .menu a:hover,
+  .menu select:hover {
+    color: #C6BC77;
+  }
+  form{
+    font-family: 'Noto Sans KR', sans-serif;
+    margin-right: 350px;
+   
+  }
+  .container {
+            width: 730px;
+            margin-top: 20px;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            
+            padding-bottom: 30px;
+        }
+
+
+
+        .search-section input {
+
+            width: 700px;
+            height: 40px;
+            font-size: 16px;
+            color: #888888;
+            opacity: 100%;
+            border-radius: 5px;
+            border: none;
+            justify-content: center;
+        }
+
+        .search-conditions {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .search-conditions input {
+            width: 167.5px;
+            height: 40px;
+            font-size: 16px;
+            color: #888888;
+            border-radius: 5px;
+            opacity: 100%;
+            border: none;
+
+        }
+
+        .search-conditions select {
+            width: 167.5px;
+            height: 40px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            color: #212121;
+            border: none;
+        }
+
+        .search-section button {
+         
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            
+
+        }
+
+        .note {
+          padding-bottom: 50px;
+            color: red;
+            font-size: 14px;
+            margin-top: 20px;
+            text-align: center;
+        }
+  /* 其他樣式保持不變 */
+  .custom-checkbox {
+            display: none;
+        }
+
+        /* 自定義 checkbox 的樣式 */
+        .custom-checkbox+label {
+            position: relative;
+            padding-left: 30px;
+            /* 調整 checkbox 與文字之間的距離 */
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .custom-checkbox+label::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #333;
+            border-radius: 4px;
+            background-color: #fff;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        /* 當 checkbox 被選中時，改變 checkbox 外觀 */
+        .custom-checkbox:checked+label::before {
+            background-color: #FEBA07;
+            border-color: #FEBA07;
+        }
+
+        .custom-checkbox:checked+label::after {
+            content: '✔';
+            position: absolute;
+            top: 0;
+            left: 3px;
+            font-size: 18px;
+            color: white;
+        }
+
+        /* 控制 checkbox 和其他 checkbox 之間的間距 */
+        .checkbox-container {
+          padding-top: 10px;
+            display: flex;
+            gap: 20px;
+            /* 控制 checkbox 之間的距離 */
+            align-items: center;
+            margin: 10px
+        }
+        .btn {
+      font-size: 16px;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 0 10px; /* 讓兩個按鈕之間有一點間距 */
+    }
+
+    .btn-reset {
+ /* 淡灰色背景 */
+  color: #000;                /* 黑色文字 */
+  border: 1px solid #333;     /* 深色邊框 */
+  padding: 10px 20px;         /* 增加內邊距 */
+  cursor: pointer;           /* 鼠標懸停時顯示手形指針 */
+}
+.ad2 h3{
+  float: right;  /* 讓 div 浮動到右邊 */
+  right: 100px;
+
+  padding-top: 250px;
+  font-size: 20px;
+  font-weight: bold;  
+  margin-right: 0px;
+  
+}
+.ad button{
+  width: 200px;
+  height: 100px;
+  background-color: #C6BC77;    
+  color: #fff;                  /* 白色文字 */
+  border: none;                 /* 無邊框 */
+  padding: 10px 20px;           /* 增加內邊距 */
+  cursor: pointer;             /* 當鼠標懸停時顯示手形指針 */
+  font-size: 20px;
+      padding: 8px 16px;
+      border-radius: 7px;
+      float: right;  /* 讓 div 浮動到右邊 */
+  margin-top: 100px; /* 可以加入一些上邊距 */
+  right: 20px; /* 右邊距離 20px */
+  margin-right: 200px; /* 可以設定與右邊的間隔 */
+  padding-top: 40px;
+  box-shadow: 0px 3px 0px rgba(147, 135, 6, 0.947); /* 下陰影效果 */
+  transition: background-color 0.3s, color 0.3s, box-shadow 0.3s; /* 讓變色過渡更平滑 */
+}
+.ad button:hover {
+  background-color: #A89E50;  /* 懸停時改變背景顏色 */
+ 
+  box-shadow: 0px 3px 0px rgba(147, 135, 6, 0.947); /* 下陰影效果 */
+}
+
+.btn-confirm {
+  background-color: #C6BC77;    
+  color: #fff;                  /* 白色文字 */
+  border: none;                 /* 無邊框 */
+  padding: 10px 20px;           /* 增加內邊距 */
+  cursor: pointer;             /* 當鼠標懸停時顯示手形指針 */
+}
+
+  </style>
+  
